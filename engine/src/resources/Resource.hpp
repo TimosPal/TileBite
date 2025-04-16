@@ -31,18 +31,23 @@ public:
 		m_isCreated = false;
 		destroyImplementation();
 	}
+
+	std::string& getName() const { return m_name; }
 protected:
 	// Should implement creation and deletion logic for derived Resource types.
 	virtual bool createImplementation() { return false; };
 	virtual bool destroyImplementation() { return false; };
 
-	Resource() = default;
+	Resource(std::string name) : m_name(name) {}
+	Resource() : Resource("") {}
 	~Resource()
 	{ 
 		ASSERT(m_watchers == 0);
 		if(m_isCreated) destroyImplementation();
 	}
 private:
+	std::string m_name;
+
 	uint32_t m_watchers = 0;
 	bool m_isCreated = false;
 };

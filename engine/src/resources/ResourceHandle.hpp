@@ -1,8 +1,9 @@
 #ifndef RESOURCE_HANDLE_HPP
 #define RESOURCE_HANDLE_HPP
 
+#include "utilities/Logger.hpp"
 #include "utilities/Concepts.hpp"
-#include "Resource.hpp"
+#include "resources/Resource.hpp"
 
 namespace Engine {
 
@@ -34,7 +35,19 @@ public:
 
 	bool load()
 	{
-		return m_resource ? m_resource->create() : false;
+		if (m_resource)
+		{
+			bool res = m_resource->create();
+			if (!res)
+			{
+				LOG_ERROR("Failed to load resource: {}", m_resource.getName());
+			}
+			return res;
+		}
+		else
+		{
+			return false;
+		}
 	}
 
 	void unload()

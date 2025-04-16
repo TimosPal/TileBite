@@ -17,20 +17,19 @@ DerivedFrom<ResourceType, Resource<ResourceType>> &&
 DefaultConstructible<ResourceType>
 class ResourceManager {
 public:
-	ID addResource(const std::string& name, ResourceType&& resource)
+	ResourceHandle<ResourceType> addResource(ResourceType&& resource)
 	{
 		// Check if the resource name already exists
-		if (m_nameToID.find(name) != m_nameToID.end()) 
+		const std::string& resourceName = resource.getName();
+		if (m_nameToID.find(resourceName) != m_nameToID.end())
 		{
-			// Return the existing ID if the resource is already added
-			return m_nameToID[name];
+			// Return the existing resource handle if the resource is already added
+			return getResource(resourceName);
 		}
 
 		ID id = resource.getInstanceID();
-		m_resources.emplace(id, std::move(resource));
-		m_nameToID[name] = id;
-
-		return id;
+		m_nameToID[resourceName] = id;
+		return m_resources.emplace(id, std::move(resource));
 	}
 
 	ResourceHandle<ResourceType> getResource(const std::string& name)
