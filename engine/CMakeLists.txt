@@ -11,6 +11,13 @@ target_precompile_headers(GameEngine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/cor
 
 # Set include directories
 target_include_directories(GameEngine
-    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include  # For public API
-    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src    # For internal engine code
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include # For public API
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src # For internal engine code
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/external/spdlog/include # Add spdlog's include directory
 )
+
+# Add spdlog
+add_subdirectory(external/spdlog)
+
+# Link it to your target
+target_link_libraries(GameEngine PUBLIC spdlog::spdlog)
