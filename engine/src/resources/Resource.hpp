@@ -17,19 +17,25 @@ public:
 	void watch() { m_watchers++; }
 	void unwatch() { if (m_watchers > 0) --m_watchers; }
 
-	bool create()
+	bool create(bool& errorOccured)
 	{
-		if (m_isCreated) return true;
+		errorOccured = false;
+
+		if (m_isCreated) return false;
 		m_isCreated = createImplementation();
+		errorOccured = !m_isCreated;
 		return m_isCreated;
 	}
 
 	// Resource is destroyed only if there are no watchers left.
-	void destroy()
+	bool destroy(bool& errorOccured)
 	{
-		if (!m_isCreated || m_watchers > 0) return;
-		m_isCreated = false;
-		destroyImplementation();
+		errorOccured = false;
+
+		if (!m_isCreated || m_watchers > 0) return false;
+		m_isCreated = destroyImplementation();
+		errorOccured = !m_isCreated;
+		return m_isCreated;
 	}
 
 	std::string& getName() const { return m_name; }

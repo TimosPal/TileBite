@@ -37,12 +37,18 @@ public:
 	{
 		if (m_resource)
 		{
-			bool res = m_resource->create();
-			if (!res)
+			bool errorOccured;
+			bool created = m_resource->create(errorOccured);
+			if (errorOccured)
 			{
 				LOG_ERROR("Failed to load resource: {}", m_resource.getName());
 			}
-			return res;
+			if (created)
+			{
+				LOG_ERROR("Loaded resource: {}", m_resource.getName());
+			}	
+
+			return created;
 		}
 		else
 		{
@@ -54,7 +60,22 @@ public:
 	{
 		if (m_resource)
 		{
-			m_resource->destroy();
+			bool errorOccured;
+			bool destroyed = m_resource->destroy(errorOccured);
+			if (errorOccured)
+			{
+				LOG_ERROR("Failed to unload resource: {}", m_resource.getName());
+			}
+			if (destroyed)
+			{
+				LOG_ERROR("Unloaded resource: {}", m_resource.getName());
+			}
+
+			return destroyed;
+		}
+		else
+		{
+			return false;
 		}
 	}
 
