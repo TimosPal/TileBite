@@ -1,0 +1,54 @@
+#ifndef EVENT_DISPATCHER_HPP
+#define EVENT_DISPATCHER_HPP
+
+#include <unordered_map>
+#include <functional>
+
+#include "events/Event.hpp"
+#include "events/EventCallback.hpp"
+
+namespace Engine {
+
+class EventDispatcher {
+public:
+	template<typename EventType>
+	requires DerivedFrom<EventType, IEvent>
+	void subscribe(EventCallback<EventType>& eventCallback)
+	{
+		// Create a wrapper lambda expecting a generic IEvent arg
+		// converts it to the appropriate EventType. This way the called
+		// only needs to pass a function with the correct type.
+		auto wrapper = [eventCallback](const IEvent& e) {
+			eventCallback.getCallback()(static_cast<const EventType&>(e));
+		};
+
+		// Register callback function to active listeners.
+		ID eventID = EventType::getTypeID();
+		ID callbackID = eventCallback.getInstanceID();
+
+		ASSERT(m_listeners[eventID].find(callbackID) == m_listeners[eventID].end());
+		m_listeners[eventID][callbackID] = wrapper;
+	}
+
+	template<typename EventType>
+	requires DerivedFrom<EventType, IEvent>
+	void unsubscribe(EventCallback<EventType>& eventCallback)
+	{
+		ID eventID = EventType::getTypeID();
+		ID callbackID = eventCallback.getInstanceID();
+
+		ASSERT(m_listeners[eventID].find(callbackID) != m_listeners[eventID].end());
+		m_listeners[eventID].erase(callbackID);
+	}
+
+	void dispatch(IEvent& event);
+
+private:
+	// Event ID -> Callback ID -> Callback
+	using registeredCallbacks = std::unordered_map<ID, EventCallback<IEvent>::Callback>;
+	std::unordered_map<ID, registeredCallbacks> m_listeners;
+};
+
+} // Engine
+
+#endif !EVENT_DISPATCHER_HPP
