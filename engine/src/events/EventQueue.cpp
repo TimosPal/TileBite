@@ -2,6 +2,11 @@
 
 namespace Engine {
 
+void EventQueue::push(std::unique_ptr<IEvent> event)
+{
+	m_events.push(std::move(event));
+}
+
 void EventQueue::dispatchAll(EventDispatcher& dispatcher)
 {
     // Move to new queue so that if an event adds a new event it will be 

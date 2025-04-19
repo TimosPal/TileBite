@@ -3,6 +3,9 @@
 
 #include "resources/ResourceManager.hpp"
 #include "resources/types/TextFileResource.hpp"
+#include "events/Event.hpp"
+#include "events/EventQueue.hpp"
+#include "events/EventDispatcher.hpp"
 
 namespace Engine {
 
@@ -16,15 +19,36 @@ public:
 	void run();
 	void terminate();
 	
-	// Engine's user setup implementation.
+	// * =============================== *
+	// * User side setup implementation. *
+	// * =============================== *
 	virtual void setup() = 0;
 
 	void stop() { m_isRunning = false; }
+
+	void onEvent(std::unique_ptr<IEvent> event);
+
+	template<typename EventType>
+	requires DerivedFrom<EventType, IEvent>
+	void subscribe(EventCallback<EventType>& eventCallback)
+	{
+		m_eventDispatcher.subscribe<EventType>(eventCallback);
+	}
+
+	template<typename EventType>
+		requires DerivedFrom<EventType, IEvent>
+	void unsubscribe(EventCallback<EventType>& eventCallback)
+	{
+		m_eventDispatcher.unsubscribe<EventType>(eventCallback);
+	}
 
 private:
 	static EngineApp* s_instance;
 
 	ResourceManager<TextFileResource> m_textFilesResourceManager;
+
+	EventQueue m_eventQueue;
+	EventDispatcher m_eventDispatcher;
 
 	bool m_isRunning;
 };

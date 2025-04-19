@@ -24,6 +24,7 @@ void EngineApp::run()
 	// Main Engine loop.
 	while (m_isRunning)
 	{
+		m_eventQueue.dispatchAll(m_eventDispatcher);
 
 	}
 }
@@ -31,6 +32,20 @@ void EngineApp::run()
 void EngineApp::terminate()
 {
 	// Application cleanup.
+}
+
+void EngineApp::onEvent(std::unique_ptr<IEvent> event)
+{
+	if (event->getIsBlocking())
+	{
+		// Imediate dispatch
+		m_eventDispatcher.dispatch(*event);
+	}
+	else
+	{
+		// Push to event queue for batch dispatch.
+		m_eventQueue.push(std::move(event));
+	}
 }
 
 } // Engine
