@@ -12,7 +12,7 @@ namespace Engine {
 
 // ResourceType must be derived from Resource for this to compile.
 template<typename ResourceType>
-class Resource : public Identifiable<Resource, ResourceType> {
+class Resource : public Identifiable {
 public:
 	void watch() { m_watchers++; }
 	void unwatch() { if (m_watchers > 0) --m_watchers; }

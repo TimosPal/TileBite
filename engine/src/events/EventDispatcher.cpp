@@ -2,9 +2,9 @@
 
 namespace Engine {
 
-void EventDispatcher::dispatch(IEvent& event)
+void EventDispatcher::dispatch(Event& event)
 {
-    ID eventID = event.getInstanceTypeID(); // Get the event type ID
+    ID eventID = event.getTypeID(); // Get the event type ID
     auto it = m_listeners.find(eventID);
     if (it == m_listeners.end()) return;
 

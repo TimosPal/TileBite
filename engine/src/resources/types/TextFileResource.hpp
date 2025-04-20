@@ -8,6 +8,7 @@
 namespace Engine {
 
 class TextFileResource : public Resource<TextFileResource> {
+	SETUP_ID(Resource, TextFileResource)
 public:
 	TextFileResource();
 	TextFileResource(const std::string& resourceName, const std::string& filePath);

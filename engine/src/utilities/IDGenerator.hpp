@@ -5,6 +5,10 @@
 
 namespace Engine {
 
+// Helper macros for easier syntax (template keyword can be accidentaly ommited)
+#define GET_TYPE_ID(Base, Sub) (Engine::IDGenerator<Base>::template getTypeID<Sub>())
+#define GET_INSTANCE_ID(Base, Sub) (Engine::IDGenerator<Base>::template getInstanceID<Sub>())
+
 /*
 Generator used to produce unique or instance based IDs.
 IDs are not constexpr so sadly they can not be used in switch statements.

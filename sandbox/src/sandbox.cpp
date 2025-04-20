@@ -8,19 +8,28 @@
 #include <events/Event.hpp>
 #include <events/EventCallback.hpp>
 
-void foo(const Engine::Event<int>& e) { Engine::LOG_INFO("Test"); }
+#include <utilities/Identifiable.hpp>
+
+class CustomEvent : public Engine::Event {
+	SETUP_ID(Event, CustomEvent)
+public:
+	CustomEvent() : Engine::Event(true) {}
+
+	int x = 10;
+};
 
 class MyApp : public Engine::EngineApp {
 	void setup() override
 	{
-		using EventType = Engine::Event<int>;
-		EventType e;
+		Engine::EventCallback<CustomEvent> ob([](const CustomEvent& event) {
+			Engine::LOG_INFO("Test: {}", event.x);
+		});
+		subscribe<CustomEvent>(ob);
 
+		CustomEvent e;		
+		onEvent(std::make_unique<CustomEvent>(e));
 		
-		Engine::EventCallback<Engine::Event<int>> ob(foo);
-		subscribe<Engine::Event<int>>(ob);
-		onEvent(std::make_unique<EventType>(e));
-		unsubscribe<Engine::Event<int>>(ob);
+		unsubscribe<CustomEvent>(ob);
 	}
 };
 

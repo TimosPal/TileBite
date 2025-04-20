@@ -12,7 +12,7 @@ public:
 	virtual void onAttach() {}
 	virtual void onDetach() {}
 	virtual void onUpdate() {}
-	virtual void onEvent(std::unique_ptr<IEvent> event) {}
+	virtual void onEvent(std::unique_ptr<Event> event) {}
 };
 
 } // Engine

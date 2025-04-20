@@ -26,17 +26,17 @@ public:
 
 	void stop() { m_isRunning = false; }
 
-	void onEvent(std::unique_ptr<IEvent> event);
+	void onEvent(std::unique_ptr<Event> event);
 
 	template<typename EventType>
-	requires DerivedFrom<EventType, IEvent>
+	requires DerivedFrom<EventType, Event>
 	void subscribe(EventCallback<EventType>& eventCallback)
 	{
 		m_eventDispatcher.subscribe<EventType>(eventCallback);
 	}
 
 	template<typename EventType>
-		requires DerivedFrom<EventType, IEvent>
+	requires DerivedFrom<EventType, Event>
 	void unsubscribe(EventCallback<EventType>& eventCallback)
 	{
 		m_eventDispatcher.unsubscribe<EventType>(eventCallback);

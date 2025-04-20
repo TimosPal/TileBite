@@ -7,8 +7,9 @@
 namespace Engine {
 
 template<typename EventType>
-requires DerivedFrom<EventType, IEvent>
-class EventCallback : public Identifiable<EventCallback, EventType> {
+requires DerivedFrom<EventType, Event>
+class EventCallback : public Identifiable {
+	SETUP_ID(EventType, EventCallback<EventType>)
 public:
 	using Callback = std::function<void(const EventType&)>;
 

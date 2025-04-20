@@ -11,10 +11,10 @@ namespace Engine {
 
 class EventQueue {
 public:
-	void push(std::unique_ptr<IEvent> event);
+	void push(std::unique_ptr<Event> event);
 	void dispatchAll(EventDispatcher& dispatcher);
 private:
-	std::queue<std::unique_ptr<IEvent>> m_events;
+	std::queue<std::unique_ptr<Event>> m_events;
 };
 
 } // Engine

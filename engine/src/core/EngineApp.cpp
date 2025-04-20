@@ -34,7 +34,7 @@ void EngineApp::terminate()
 	// Application cleanup.
 }
 
-void EngineApp::onEvent(std::unique_ptr<IEvent> event)
+void EngineApp::onEvent(std::unique_ptr<Event> event)
 {
 	if (event->getIsBlocking())
 	{

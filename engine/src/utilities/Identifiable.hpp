@@ -6,29 +6,26 @@
 
 namespace Engine {
 
-// Used when a higher class needs access to derived class identifiable.
-// Not to be used in Identifiable itself.
-class IIdentifiable {
-public:
-	virtual const ID getInstanceID() = 0;
-	virtual const ID getInstanceTypeID() = 0;
-};
+// Use this macro to setup ids in a given class
+#define SETUP_ID(Base, Sub)                                        \
+public:                                                            \
+    const Engine::ID getInstanceID() override					   \
+	{                                                              \
+        return m_id;                                               \
+    }                                                              \
+    const Engine::ID getTypeID() override						   \
+	{                                                              \
+        return GET_TYPE_ID(Base, Sub);                             \
+    }                                                              \
+private:                                                           \
+    const Engine::ID m_id = GET_INSTANCE_ID(Base, Sub);            \
 
-// This works with templated BaseTypes, if to be used with basic types (non templated classes)
-// pass type std::type_identity_t 
-template<template<typename> typename BaseType, typename SubType>
+// Use this interface if you want an item to be identified by an ID.
+// Methods should be implemented by macro SETUP_ID
 class Identifiable {
 public:
-	static ID getTypeID() { return s_typeID; }
-	const ID getInstanceTypeID() { return s_typeID; }
-	const ID getInstanceID() { return m_id; }
-protected:
-	Identifiable() = default;
-private:
-	using BaseTypeConcrete = BaseType<SubType>;
-
-	inline static const ID s_typeID = IDGenerator<BaseTypeConcrete>::template getTypeID<SubType>();
-	const ID m_id = IDGenerator<BaseTypeConcrete>::template getInstanceID<SubType>();
+	virtual const ID getInstanceID() = 0;
+	virtual const ID getTypeID() = 0;
 };
 
 } // Engine
