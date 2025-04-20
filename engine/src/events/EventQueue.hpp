@@ -1,9 +1,7 @@
 #ifndef EVENT_QUEUE_HPP
 #define EVENT_QUEUE_HPP
 
-#include <memory>
-#include <queue>
-
+#include "core/pch.hpp"
 #include "events/Event.hpp"
 #include "events/EventDispatcher.hpp"
 

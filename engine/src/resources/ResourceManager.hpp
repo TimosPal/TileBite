@@ -1,9 +1,7 @@
 #ifndef RESOURCE_MANAGER_HPP
 #define RESOURCE_MANAGER_HPP
 
-#include <unordered_map>
-#include <string>
-
+#include "core/pch.hpp"
 #include "core/Types.hpp"
 #include "utilities/Concepts.hpp"
 #include "resources/Resource.hpp"

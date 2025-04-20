@@ -30,6 +30,8 @@ class MyApp : public Engine::EngineApp {
 		onEvent(std::make_unique<CustomEvent>(e));
 		
 		unsubscribe<CustomEvent>(ob);
+
+		Engine::LOG_INFO("{}", e.getDebugName());
 	}
 };
 

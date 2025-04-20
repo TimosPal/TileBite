@@ -1,8 +1,5 @@
 #include "resources/types/TextFileResource.hpp"
 
-#include <fstream>
-#include <sstream>
-
 namespace Engine {
 
 TextFileResource::TextFileResource(const std::string& resourceName, const std::string& filePath)

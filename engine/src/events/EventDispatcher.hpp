@@ -1,9 +1,7 @@
 #ifndef EVENT_DISPATCHER_HPP
 #define EVENT_DISPATCHER_HPP
 
-#include <unordered_map>
-#include <functional>
-
+#include "core/pch.hpp"
 #include "events/Event.hpp"
 #include "events/EventCallback.hpp"
 

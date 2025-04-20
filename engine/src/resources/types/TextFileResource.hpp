@@ -1,8 +1,7 @@
 #ifndef TEXT_FILE_RESOURCE_HPP
 #define TEXT_FILE_RESOURCE_HPP
 
-#include <string>
-
+#include "core/pch.hpp"
 #include "resources/Resource.hpp"
 
 namespace Engine {

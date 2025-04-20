@@ -1,6 +1,8 @@
 #ifndef IDENTIFIABLE_HPP
 #define IDENTIFIABLE_HPP
 
+#include "string"
+
 #include "utilities/IDGenerator.hpp"
 #include "utilities/Concepts.hpp"
 
@@ -26,6 +28,12 @@ class Identifiable {
 public:
 	virtual const ID getInstanceID() = 0;
 	virtual const ID getTypeID() = 0;
+
+    // WARNING: To be used for debugging builds only!
+    virtual std::string getDebugName()
+    {
+        return typeid(*this).name(); // May need demangling
+    }
 };
 
 } // Engine

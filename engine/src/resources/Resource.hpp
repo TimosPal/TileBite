@@ -1,9 +1,7 @@
 #ifndef RESOURCE_HPP
 #define RESOURCE_HPP
 
-#include <cstdint>
-#include <algorithm>
-
+#include "core/pch.hpp"
 #include "utilities/Assertions.hpp"
 #include "utilities/Identifiable.hpp"
 #include "utilities/Concepts.hpp"

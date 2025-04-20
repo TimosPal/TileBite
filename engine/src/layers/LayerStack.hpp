@@ -1,10 +1,7 @@
 #ifndef LAYER_STACK_HPP
 #define LAYER_STACK_HPP
 
-#include <memory>
-#include <vector>
-#include <algorithm>
-
+#include "core/pch.hpp"
 #include "layers/Layer.hpp"
 
 namespace Engine {

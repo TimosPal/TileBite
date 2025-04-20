@@ -1,8 +1,7 @@
 #ifndef LAYER_HPP
 #define LAYER_HPP
 
-#include <memory>
-
+#include "core/pch.hpp"
 #include "events/Event.hpp"
 
 namespace Engine {
