@@ -23,7 +23,8 @@ public:
 
     // Returns new ID each call.
     template<typename SubType = BaseType>
-    static ID getInstanceID() {
+    static ID getInstanceID()
+    {
         static ID id = 0;
         return id++;
     }

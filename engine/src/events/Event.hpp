@@ -25,4 +25,4 @@ public:
 
 } // Engine
 
-#endif !EVENT_HPP
+#endif // !EVENT_HPP
