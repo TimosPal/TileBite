@@ -38,4 +38,15 @@ void LayerStack::popOverlay(Layer* overlay)
 	}
 }
 
+void LayerStack::dispatchEventToLayers(Event& event)
+{
+	for (auto& layer : m_layers)
+	{
+		// Halt event propagation if an event is handled
+		if (event.isHandled())
+			break;
+		layer->onEvent(event);
+	}
+}
+
 } // Engine

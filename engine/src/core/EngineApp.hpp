@@ -6,6 +6,7 @@
 #include "events/Event.hpp"
 #include "events/EventQueue.hpp"
 #include "events/EventDispatcher.hpp"
+#include "layers/LayerStack.hpp"
 
 namespace Engine {
 
@@ -28,27 +29,17 @@ public:
 
 	void onEvent(std::unique_ptr<Event> event);
 
-	template<typename EventType>
-	requires DerivedFrom<EventType, Event>
-	void subscribe(EventCallback<EventType>& eventCallback)
-	{
-		m_eventDispatcher.subscribe<EventType>(eventCallback);
-	}
-
-	template<typename EventType>
-	requires DerivedFrom<EventType, Event>
-	void unsubscribe(EventCallback<EventType>& eventCallback)
-	{
-		m_eventDispatcher.unsubscribe<EventType>(eventCallback);
-	}
+	void pushLayer(std::unique_ptr<Layer> layer);
+	void pushOverlay(std::unique_ptr<Layer> layer);
 
 private:
 	static EngineApp* s_instance;
 
 	ResourceManager<TextFileResource> m_textFilesResourceManager;
 
+	// Layer ID -> EventDispatcher.
 	EventQueue m_eventQueue;
-	EventDispatcher m_eventDispatcher;
+	LayerStack m_layers;
 
 	bool m_isRunning;
 };

@@ -11,6 +11,8 @@ void EventDispatcher::dispatch(Event& event)
     // Dispatch the event to all registered listeners
     for (auto& [callbackID, callback] : it->second)
     {
+        // Stop if a listener handled the event.
+        if (event.isHandled()) break;
         callback(event);
     }
 }

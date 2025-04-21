@@ -11,9 +11,11 @@ requires DerivedFrom<EventType, Event>
 class EventCallback : public Identifiable {
 	SETUP_ID(EventType, EventCallback<EventType>)
 public:
-	using Callback = std::function<void(const EventType&)>;
+	using Callback = std::function<void(EventType&)>;
 
-	EventCallback(Callback&& callback) : m_callback(std::move(callback)) {}
+	EventCallback(Callback&& callback) 
+		: m_callback(std::move(callback))
+	{}
 
 	const Callback& getCallback() const { return m_callback; }
 private:

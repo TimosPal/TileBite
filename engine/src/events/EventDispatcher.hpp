@@ -16,8 +16,8 @@ public:
 		// Create a wrapper lambda expecting a generic IEvent arg
 		// converts it to the appropriate EventType. This way the called
 		// only needs to pass a function with the correct type.
-		auto wrapper = [eventCallback](const Event& e) {
-			eventCallback.getCallback()(static_cast<const EventType&>(e));
+		auto wrapper = [eventCallback](Event& e) {
+			eventCallback.getCallback()(static_cast<EventType&>(e));
 		};
 
 		// Register callback function to active listeners.
@@ -42,7 +42,8 @@ public:
 	void dispatch(Event& event);
 
 private:
-	// Event ID -> Callback ID -> Callback
+	// NOTE: map of maps is usefull for O(1) unsubscriptions but may lead to memory overhead.
+	// Structure: [Event ID -> Callback ID -> Callback]
 	using registeredCallbacks = std::unordered_map<ID, EventCallback<Event>::Callback>;
 	std::unordered_map<ID, registeredCallbacks> m_listeners;
 };

@@ -24,7 +24,7 @@ void EngineApp::run()
 	// Main Engine loop.
 	while (m_isRunning)
 	{
-		m_eventQueue.dispatchAll(m_eventDispatcher);
+		m_eventQueue.dispatchAll(m_layers);
 
 	}
 }
@@ -39,13 +39,23 @@ void EngineApp::onEvent(std::unique_ptr<Event> event)
 	if (event->getIsBlocking())
 	{
 		// Imediate dispatch
-		m_eventDispatcher.dispatch(*event);
+		m_layers.dispatchEventToLayers(*event);
 	}
 	else
 	{
 		// Push to event queue for batch dispatch.
 		m_eventQueue.push(std::move(event));
 	}
+}
+
+void EngineApp::pushLayer(std::unique_ptr<Layer> layer)
+{
+	m_layers.pushLayer(std::move(layer));
+}
+
+void EngineApp::pushOverlay(std::unique_ptr<Layer> layer)
+{
+	m_layers.pushOverlay(std::move(layer));
 }
 
 } // Engine

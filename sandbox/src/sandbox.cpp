@@ -7,6 +7,7 @@
 #include <events/EventDispatcher.hpp>
 #include <events/Event.hpp>
 #include <events/EventCallback.hpp>
+#include <layers/Layer.hpp>
 
 #include <utilities/Identifiable.hpp>
 
@@ -18,20 +19,37 @@ public:
 	int x = 10;
 };
 
+class GameLayer : public Engine::Layer {
+private:
+	void onAttach() override
+	{
+		Engine::EventCallback<CustomEvent> ob([](CustomEvent& event) {
+			Engine::LOG_INFO("Game: Test: {}", event.x);
+			event.consume();
+		});
+		subscribe<CustomEvent>(ob);
+	}
+};
+
+class UI : public Engine::Layer {
+private:
+	void onAttach() override
+	{
+		Engine::EventCallback<CustomEvent> ob([](CustomEvent& event) {
+			Engine::LOG_INFO("UI: Test: {}", event.x);
+		});
+		subscribe<CustomEvent>(ob);
+	}
+};
+
 class MyApp : public Engine::EngineApp {
 	void setup() override
 	{
-		Engine::EventCallback<CustomEvent> ob([](const CustomEvent& event) {
-			Engine::LOG_INFO("Test: {}", event.x);
-		});
-		subscribe<CustomEvent>(ob);
+		pushLayer(std::move(std::make_unique<GameLayer>()));
+		pushLayer(std::move(std::make_unique<UI>()));
 
 		CustomEvent e;		
 		onEvent(std::make_unique<CustomEvent>(e));
-		
-		unsubscribe<CustomEvent>(ob);
-
-		Engine::LOG_INFO("{}", e.getDebugName());
 	}
 };
 

@@ -16,10 +16,7 @@ public:
 	void popLayer(Layer* layer);
 	void popOverlay(Layer* overlay);
 
-	auto begin() { return m_layers.begin(); }
-	auto end() { return m_layers.end(); }
-	auto rbegin() { return m_layers.rbegin(); }
-	auto rend() { return m_layers.rend(); }
+	void dispatchEventToLayers(Event& event);
 
 private:
 	std::vector<std::unique_ptr<Layer>> m_layers;

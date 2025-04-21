@@ -7,7 +7,7 @@ void EventQueue::push(std::unique_ptr<Event> event)
 	m_events.push(std::move(event));
 }
 
-void EventQueue::dispatchAll(EventDispatcher& dispatcher)
+void EventQueue::dispatchAll(LayerStack& layers)
 {
     // Move to new queue so that if an event adds a new event it will be 
     // processed in the next iteration.
@@ -19,7 +19,7 @@ void EventQueue::dispatchAll(EventDispatcher& dispatcher)
 		std::unique_ptr<Event> event = std::move(dispatchEvents.front());
         dispatchEvents.pop();
 
-        dispatcher.dispatch(*event);
+		layers.dispatchEventToLayers(*event);
 	}
 }
 
