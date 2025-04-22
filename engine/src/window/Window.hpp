@@ -8,9 +8,9 @@ namespace Engine {
 class Window {
 public:
 	struct Data {
-		std::string title;
 		uint32_t width;
 		uint32_t height;
+		std::string title;
 	};
 
 	Window(const Data& data) : m_data(data) {}
@@ -21,7 +21,7 @@ public:
 	virtual void onUpdate() {}
 
 	static std::unique_ptr<Window> createWindow(const Data& data);
-private:
+protected:
 	Data m_data;
 };
 

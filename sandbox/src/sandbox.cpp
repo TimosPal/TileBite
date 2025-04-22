@@ -1,4 +1,6 @@
 #include <iostream>
+
+#include <core/AppConfig.hpp>
 #include <core/EntryPoint.hpp>
 #include <core/EngineApp.hpp>
 #include <utilities/Logger.hpp>

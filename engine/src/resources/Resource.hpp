@@ -46,7 +46,7 @@ protected:
 	Resource() : Resource("") {}
 	~Resource()
 	{ 
-		ASSERT(m_watchers == 0);
+		ASSERT(m_watchers == 0, "Resource destroyed with active watchers");
 		if(m_isCreated) destroyImplementation();
 	}
 private:

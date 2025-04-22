@@ -1,6 +1,7 @@
 #include <memory>
 
 #include "core/EngineApp.hpp"
+#include "core/AppConfig.hpp"
 
 // Call this in your EngineApp to declare the extern function.
 #define CREATE_ENGINE_APPLICATION(EngineAppClass) \

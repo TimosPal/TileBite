@@ -14,16 +14,16 @@
 #else
 
 // Evaluate condition only once
-#define ASSERT(condition) do { \
+#define ASSERT(condition, msg) do { \
             bool cond = (condition); \
             if(!cond) { \
-                LOG_CRITICAL("Assertion failed {}", #condition); \
+                LOG_CRITICAL("Assertion failed [{}], {}", #condition, msg); \
                 assert(false); \
             } \
         } while (0) 
 
-#define ASSERT_FALSE() do { \
-            LOG_CRITICAL("False assertion reached"); \
+#define ASSERT_FALSE(msg) do { \
+            LOG_CRITICAL("False assertion reached, {}", msg); \
             assert(false); \
         } while (0) 
 

@@ -24,7 +24,10 @@ public:
 		ID eventID = GET_TYPE_ID(Event, EventType);
 		ID callbackID = eventCallback.getInstanceID();
 
-		ASSERT(m_listeners[eventID].find(callbackID) == m_listeners[eventID].end());
+		ASSERT(
+			m_listeners[eventID].find(callbackID) == m_listeners[eventID].end(),
+			"Event callback already registered"
+		);
 		m_listeners[eventID][callbackID] = wrapper;
 	}
 
@@ -35,7 +38,10 @@ public:
 		ID eventID = GET_TYPE_ID(Event, EventType);
 		ID callbackID = eventCallback.getInstanceID();
 
-		ASSERT(m_listeners[eventID].find(callbackID) != m_listeners[eventID].end());
+		ASSERT(
+			m_listeners[eventID].find(callbackID) != m_listeners[eventID].end(),
+			"Event callback not found"
+		);
 		m_listeners[eventID].erase(callbackID);
 	}
 

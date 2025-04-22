@@ -1,6 +1,7 @@
 #ifndef ENGINE_APP_HPP
 #define ENGINE_APP_HPP
 
+#include "core/AppConfig.hpp"
 #include "resources/ResourceManager.hpp"
 #include "resources/types/TextFileResource.hpp"
 #include "events/Event.hpp"
@@ -25,6 +26,8 @@ public:
 	// * User side setup implementation. *
 	// * =============================== *
 	virtual void setup() = 0;
+	// Override if needing custom config.
+	virtual AppConfig config() { return AppConfig(); }
 
 	void stop() { m_isRunning = false; }
 
