@@ -16,8 +16,29 @@ target_include_directories(GameEngine
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/external/spdlog/include # Add spdlog's include directory
 )
 
+# Platform flags
+if(WIN32)
+    target_compile_definitions(GameEngine PRIVATE PLATFORM_WINDOWS)
+elseif(APPLE)
+    target_compile_definitions(GameEngine PRIVATE PLATFORM_MACOS)
+elseif(UNIX)
+    target_compile_definitions(GameEngine PRIVATE PLATFORM_LINUX)
+endif()
+
+# Choose one backend
+option(USE_GLFW "Use GLFW as window backend" ON)
+if(USE_GLFW)
+    target_compile_definitions(GameEngine PRIVATE WINDOW_BACKEND_GLFW)
+    
+    add_subdirectory(external/glfw)
+    target_link_libraries(GameEngine PRIVATE glfw)
+    # Remove GLFW + OpenGL include order restriction
+    target_compile_definitions(GameEngine PRIVATE GLFW_INCLUDE_NONE)
+else()
+    target_compile_definitions(GameEngine PRIVATE WINDOW_BACKEND_NATIVE)
+    # Optionally add native-specific libs here
+endif()
+
 # Add spdlog
 add_subdirectory(external/spdlog)
-
-# Link it to your target
 target_link_libraries(GameEngine PUBLIC spdlog::spdlog)

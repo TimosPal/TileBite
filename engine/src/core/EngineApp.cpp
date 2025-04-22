@@ -17,11 +17,16 @@ EngineApp::EngineApp()
 void EngineApp::init()
 {
 	// Application initialization.
+	Window::Data data = {};
+	m_window = Window::createWindow(data);
+	ASSERT(m_window != nullptr);
+	bool res = m_window->init();
+	ASSERT(res);
 }
 
 void EngineApp::run()
 {
-	// Main Engine loop.
+	// Engine loop.
 	while (m_isRunning)
 	{
 		m_eventQueue.dispatchAll(m_layers);
@@ -32,6 +37,7 @@ void EngineApp::run()
 void EngineApp::terminate()
 {
 	// Application cleanup.
+	m_window->terminate();
 }
 
 void EngineApp::onEvent(std::unique_ptr<Event> event)

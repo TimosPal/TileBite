@@ -7,6 +7,7 @@
 #include "events/EventQueue.hpp"
 #include "events/EventDispatcher.hpp"
 #include "layers/LayerStack.hpp"
+#include "window/Window.hpp"
 
 namespace Engine {
 
@@ -34,6 +35,8 @@ public:
 
 private:
 	static EngineApp* s_instance;
+
+	std::unique_ptr<Window> m_window;
 
 	ResourceManager<TextFileResource> m_textFilesResourceManager;
 
