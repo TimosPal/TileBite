@@ -13,6 +13,8 @@
 
 #include <utilities/Identifiable.hpp>
 
+#include <events/types/WindowCloseEvent.hpp>
+
 class CustomEvent : public Engine::Event {
 	SETUP_ID(Event, CustomEvent)
 public:

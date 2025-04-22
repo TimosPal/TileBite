@@ -1,6 +1,7 @@
 #include "window/backend/glfw/GlfwWindow.hpp"
 
 #include "utilities/Logger.hpp"
+#include "events/types/WindowCloseEvent.hpp"
 
 namespace Engine {
 
@@ -26,6 +27,13 @@ bool GlfwWindow::init()
 	}
 
 	glfwMakeContextCurrent(m_glfwWindow);
+	glfwSetWindowUserPointer(m_glfwWindow, &m_data);
+
+	// Window callbacks setup.
+	glfwSetWindowCloseCallback(m_glfwWindow, [](GLFWwindow* window) {
+		Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
+		data->onEvent(std::make_unique<WindowCloseEvent>());
+	});
 
 	return true; 
 }
@@ -40,7 +48,8 @@ bool GlfwWindow::terminate()
 
 void GlfwWindow::onUpdate() 
 {
-
+	glfwPollEvents();
+	glfwSwapBuffers(m_glfwWindow);
 }
 
 } // Engine

@@ -1,6 +1,7 @@
 #include "core/EngineApp.hpp"
 
 #include "utilities/Assertions.hpp"
+#include "layers/types/SystemLayer.hpp"
 
 namespace Engine {
 
@@ -18,10 +19,14 @@ void EngineApp::init()
 {
 	// Application initialization.
 	Window::Data data = config();
+	data.onEvent = [&](std::unique_ptr<Event> event) { onEvent(std::move(event)); };
 	m_window = Window::createWindow(data);
 	ASSERT(m_window != nullptr, "Window not created");
 	bool res = m_window->init();
 	ASSERT(res, "Window not init");
+
+	auto stopAppCallback = [&]() { stop(); };
+	pushLayer(std::make_unique<SystemLayer>(SystemLayer(stopAppCallback)));
 }
 
 void EngineApp::run()
@@ -29,6 +34,7 @@ void EngineApp::run()
 	// Engine loop.
 	while (m_isRunning)
 	{
+		m_window->onUpdate();
 		m_eventQueue.dispatchAll(m_layers);
 
 	}

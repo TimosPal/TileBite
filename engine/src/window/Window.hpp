@@ -2,6 +2,7 @@
 #define WINDOW_HPP
 
 #include "core/pch.hpp"
+#include "events/Event.hpp"
 
 namespace Engine {
 
@@ -11,6 +12,8 @@ public:
 		uint32_t width;
 		uint32_t height;
 		std::string title;
+
+		std::function<void(std::unique_ptr<Event>)> onEvent;
 	};
 
 	Window(const Data& data) : m_data(data) {}
