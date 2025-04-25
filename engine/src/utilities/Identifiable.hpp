@@ -24,6 +24,7 @@ private:                                                           \
 
 // Use this interface if you want an item to be identified by an ID.
 // Methods should be implemented by macro SETUP_ID
+// NOTE: identifiable is not needed if a class needs only static type IDs.
 class Identifiable {
 public:
 	virtual const ID getInstanceID() = 0;

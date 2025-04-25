@@ -6,7 +6,7 @@
 namespace Engine {
 
 template<typename Derived, typename Base>
-concept DerivedFrom = std::is_base_of<Base, Derived>::value;
+concept DerivedFrom = std::is_base_of_v<Base, Derived>;
 
 template<typename T>
 concept DefaultConstructible = std::is_default_constructible_v<T>;

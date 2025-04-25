@@ -3,8 +3,6 @@
 
 #include "core/pch.hpp"
 #include "layers/Layer.hpp"
-#include "events/types/WindowCloseEvent.hpp"
-#include "events/EventCallback.hpp"
 
 namespace Engine {
 

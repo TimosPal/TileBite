@@ -14,6 +14,7 @@
 #include <utilities/Identifiable.hpp>
 
 #include <events/types/WindowCloseEvent.hpp>
+#include <ecs/World.hpp>
 
 class CustomEvent : public Engine::Event {
 	SETUP_ID(Event, CustomEvent)
@@ -29,7 +30,6 @@ private:
 	{
 		Engine::EventCallback<CustomEvent> ob([](CustomEvent& event) {
 			Engine::LOG_INFO("Game: Test: {}", event.x);
-			event.consume();
 		});
 		subscribe<CustomEvent>(ob);
 	}
@@ -46,6 +46,11 @@ private:
 	}
 };
 
+struct CompA {
+};
+struct CompB {
+};
+
 class MyApp : public Engine::EngineApp {
 	void setup() override
 	{
@@ -54,6 +59,11 @@ class MyApp : public Engine::EngineApp {
 
 		CustomEvent e;		
 		onEvent(std::make_unique<CustomEvent>(e));
+
+		Engine::World world;
+		auto id = world.createEntity();
+		world.addComponents(id, CompB());
+		world.getComponent<CompB>(id);
 	}
 };
 

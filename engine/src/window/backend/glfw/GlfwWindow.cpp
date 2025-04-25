@@ -2,6 +2,7 @@
 
 #include "utilities/Logger.hpp"
 #include "events/types/WindowCloseEvent.hpp"
+#include "events/types/WindowResizeEvent.hpp"
 
 namespace Engine {
 
@@ -25,14 +26,27 @@ bool GlfwWindow::init()
 		LOG_CRITICAL("Failed to create GLFW window");
 		return false;
 	}
+	LOG_INFO("Created GLFW window");
 
 	glfwMakeContextCurrent(m_glfwWindow);
 	glfwSetWindowUserPointer(m_glfwWindow, &m_data);
 
-	// Window callbacks setup.
+	// * ======================= *
+	// * Window callbacks setup  *
+	// * ======================= *
+	
+	// Close            
 	glfwSetWindowCloseCallback(m_glfwWindow, [](GLFWwindow* window) {
 		Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
 		data->onEvent(std::make_unique<WindowCloseEvent>());
+	});
+	
+	// Resize window
+	glfwSetFramebufferSizeCallback(m_glfwWindow, [](GLFWwindow* window, int width, int height) {
+		Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
+		data->width = width;
+		data->height = height;
+		data->onEvent(std::make_unique<WindowResizeEvent>(WindowResizeEvent(width, height)));
 	});
 
 	return true; 
@@ -42,6 +56,7 @@ bool GlfwWindow::terminate()
 {
 	glfwDestroyWindow(m_glfwWindow);
 	glfwTerminate();
+	LOG_INFO("GLFW terminated");
 
 	return true;
 }

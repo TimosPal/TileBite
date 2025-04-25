@@ -8,6 +8,8 @@ namespace Engine {
 using ID = uint32_t;
 constexpr ID INVALID_ID = 0;
 
+struct Component; // Used for ID groupping only.
+
 } // Engine
 
-#endif
+#endif // !TYPES_HPP
