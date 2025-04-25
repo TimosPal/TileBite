@@ -42,14 +42,19 @@ public:
 	template <typename ...ComponentTypes>
 	void addComponents(ID entityID, ComponentTypes&&... components)
 	{
+		// Ensure that all types are unique
+		std::set<ID> uniqueTypes;
+		(uniqueTypes.insert(GET_TYPE_ID(Component, std::decay_t<ComponentTypes>)), ...);
+		ASSERT(sizeof...(ComponentTypes) == uniqueTypes.size(), "ComponentTypes must be unique");
+
 		auto entityIt = m_entityRecords.find(entityID);
 		ASSERT(entityIt != m_entityRecords.end(), "Entity not found");
 
 		EntityRecord& rec = entityIt->second;
 		const CompSignature& oldSig = rec.archetype->getSignature();
-		CompSignature addedSig = CompSignature((GET_TYPE_ID(Component, std::decay_t<decltype(components)>), ...));
+		CompSignature addedSig = CompSignature(GET_TYPE_ID(Component, std::decay_t<decltype(components)>) ...);
 		ASSERT(oldSig.commonBits(addedSig) == 0, "A component was already added");
-		CompSignature newSig = addedSig + oldSig;
+		CompSignature newSig = oldSig + addedSig;
 
 		// When an entity gets a new components that means its archetype changes so we have to
 		// either make a new one if no entities with such type existed, or just retrieve an already existing one

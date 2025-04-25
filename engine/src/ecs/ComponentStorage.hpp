@@ -10,6 +10,7 @@ public:
     template<typename T>
     void add(const T& element)
     {
+        ASSERT(std::is_trivially_copyable_v<T>, "Only safe for trivially copyable types");
         size_t offset = m_data.size();
         m_data.resize(offset + sizeof(T));
         std::memcpy(m_data.data() + offset, &element, sizeof(T));
@@ -18,7 +19,6 @@ public:
     template <typename T>
     T* get(size_t index)
     {
-        ASSERT(std::is_trivially_copyable_v<T>, "Only safe for trivially copyable types");
         return reinterpret_cast<T*>(m_data.data() + index * sizeof(T));
     }
 private:

@@ -30,7 +30,7 @@ public:
     uint32_t addEntity(ComponentTypes&&... components)
     {
         ASSERT(
-            CompSignature((GET_TYPE_ID(Component, std::decay_t<decltype(components)>), ...)) == m_signature,
+            CompSignature(GET_TYPE_ID(Component, std::decay_t<decltype(components)>) ...) == m_signature,
             "Invalid components signature"
         );
 
@@ -43,7 +43,7 @@ public:
         };
         (addOne(std::forward<ComponentTypes>(components)), ...);
 
-        return m_components.size() - 1;
+        return m_entitiesCount++;
     }
 
     void removeEntity(uint32_t index)
@@ -65,6 +65,8 @@ private:
     std::unordered_map<CompSignature, ArchetypeEdge> m_edges;
 
     CompSignature m_signature;
+
+    uint32_t m_entitiesCount = 0;
 };
 
 } // Engine
