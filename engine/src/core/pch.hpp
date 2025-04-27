@@ -2,6 +2,7 @@
 #include <functional>
 #include <algorithm>
 #include <memory>
+#include <ranges>
 
 #include <cstddef>
 

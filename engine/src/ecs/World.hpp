@@ -22,7 +22,7 @@ public:
 	{
 		ID entityID = GET_INSTANCE_ID(World, void); // consider global ids under World.
 		CompSignature sig;
-		auto [it, inserted] = m_archetypes.try_emplace(sig, std::make_shared<Archetype>(Archetype(sig)));
+		auto [it, inserted] = m_archetypes.try_emplace(sig, std::make_shared<Archetype>(Archetype(sig, {})));
 		m_entityRecords.emplace(entityID, EntityRecord{0, it->second});
 		// NOTE: empty archetype does not need any data storage so index is just a placeholder.
 
@@ -36,7 +36,9 @@ public:
 		ASSERT(entityIt != m_entityRecords.end(), "Entity not found");
 
 		EntityRecord& rec = entityIt->second;
-		return rec.archetype->getComponent<ComponentType>(rec.entityIndex);
+		uint32_t componentIndex = rec.archetype->getSignature().getIndex(GET_TYPE_ID(Component, ComponentType));
+		void* comp = rec.archetype->getComponent(rec.entityIndex, componentIndex);
+		return reinterpret_cast<ComponentType*>(comp);
 	}
 
 	template <typename ...ComponentTypes>
@@ -51,15 +53,32 @@ public:
 		ASSERT(entityIt != m_entityRecords.end(), "Entity not found");
 
 		EntityRecord& rec = entityIt->second;
-		const CompSignature& oldSig = rec.archetype->getSignature();
-		CompSignature addedSig = CompSignature(GET_TYPE_ID(Component, std::decay_t<decltype(components)>) ...);
+		CompSignature& oldSig = rec.archetype->getSignature();
+		std::vector<ID> newTypeIDs = { GET_TYPE_ID(Component, std::decay_t<ComponentTypes>)... };
+		CompSignature addedSig = CompSignature(newTypeIDs);
 		ASSERT(oldSig.commonBits(addedSig) == 0, "A component was already added");
 		CompSignature newSig = oldSig + addedSig;
+
+		// Add component sizes to map.
+		((m_typeIDSizes[GET_TYPE_ID(Component, std::decay_t<decltype(components)>)] = sizeof(components)), ...);
+		
+		// Create sizes array for new archetype
+		auto createSizes = [&]() {
+			std::vector<size_t> result;
+			result.reserve(newSig.getTypeIDs().size());
+			for (const auto& id : newSig.getTypeIDs())
+			{
+				auto it = m_typeIDSizes.find(id);
+				ASSERT(it != m_typeIDSizes.end(), "Size not found");
+				result.push_back(it->second);
+			}
+			return result;
+		};
 
 		// When an entity gets a new components that means its archetype changes so we have to
 		// either make a new one if no entities with such type existed, or just retrieve an already existing one
 		// and append to its storage the appropriate components.
-		auto [archetypeIt, inserted] = m_archetypes.try_emplace(newSig, std::make_shared<Archetype>(Archetype(newSig)));
+		auto [archetypeIt, inserted] = m_archetypes.try_emplace(newSig, std::make_shared<Archetype>(Archetype(newSig, createSizes())));
 		Archetype& oldArch = *rec.archetype;
 		rec.archetype = archetypeIt->second; // Update entity record with updated archetype.
 
@@ -101,20 +120,29 @@ public:
 			* keep iterating through the graph till there are no more subset edges, these are the nodes that
 			* need linking with C.
 			*/
+		}
 
-			for (auto& [sig, arch] : m_archetypes)
-			{
-
-			}
+		std::vector<std::tuple<ID, void*>> transferedComponents = { {GET_TYPE_ID(Component, std::decay_t<decltype(components)>), &components} ... };
+		for (auto id : oldSig.getTypeIDs())
+		{
+			void* comp = oldArch.getComponent(rec.entityIndex, id);
+			transferedComponents.push_back({ id, comp });
 		}
 
 		// Populate the component storage of the archetype with added component data.
-		uint32_t index = rec.archetype->addEntity(components...);
+		uint32_t index = rec.archetype->addEntity(transferedComponents);
 		rec.entityIndex = index;
 
 		// Remove the components from the old archetype (if not NULL set)
 		if (oldSig.getCount() > 0)
 		{
+			// [A,C] + [B] -> [A,B,C]
+
+			// TODO:
+			// Remove uses swap idiom, meaning we move last element to deleted position.
+			// Therefore we have to update the entity record of the swapped element to reflect
+			// the updated position.
+
 			rec.archetype->removeEntity(rec.entityIndex);
 		}
 
@@ -123,6 +151,7 @@ public:
 private:
 	std::unordered_map<CompSignature, std::shared_ptr<Archetype>> m_archetypes;
 	std::unordered_map<ID, EntityRecord> m_entityRecords;
+	std::unordered_map<ID, size_t> m_typeIDSizes;
 };
 
 } // Engine

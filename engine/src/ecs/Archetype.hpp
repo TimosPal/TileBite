@@ -15,43 +15,44 @@ public:
         Archetype* subset = nullptr; // Null if first
     };
 
-    Archetype(CompSignature& sig) 
-        : m_signature(sig), m_components(sig.getCount())
-    {}
-
-    template <typename ComponentType>
-    ComponentType* getComponent(uint32_t entityIndex)
+    Archetype(CompSignature& sig, std::vector<size_t>&& componentSizes)
+        : m_signature(sig)
     {
-        uint32_t componentIndex = m_signature.getIndex(GET_TYPE_ID(Component, ComponentType));
-        return m_components[componentIndex].get<ComponentType>(entityIndex);
+        for (auto& componentSize : componentSizes)
+        {
+            m_components.push_back(ComponentStorage(componentSize));
+        }
     }
 
-    template <typename ...ComponentTypes>
-    uint32_t addEntity(ComponentTypes&&... components)
+    void* getComponent(uint32_t entityIndex, uint32_t componentIndex)
     {
-        ASSERT(
-            CompSignature(GET_TYPE_ID(Component, std::decay_t<decltype(components)>) ...) == m_signature,
-            "Invalid components signature"
-        );
+        return m_components[componentIndex].get(entityIndex);
+    }
 
-        auto addOne = [&](auto&& comp)
-        {
-            using ComponentType = std::decay_t<decltype(comp)>;
-            ID compTypeID = GET_TYPE_ID(Component, ComponentType);
-            auto index = m_signature.getIndex(compTypeID);
-            m_components[index].add(comp);
-        };
-        (addOne(std::forward<ComponentTypes>(components)), ...);
+    uint32_t addEntity(std::vector<std::tuple<ID, void*>> components)
+    {
+		// Make componnts signature and check if it matches the archetype signature
+        auto typeIDs = [&] { std::vector<ID> ids; for (auto& [id, _] : components) ids.push_back(id); return ids; }();
+        ASSERT(CompSignature(typeIDs) == m_signature, "Invalid components signature");
+
+		for (auto& [id, component] : components)
+		{
+			auto index = m_signature.getIndex(id);
+			m_components[index].add(component);
+		}
 
         return m_entitiesCount++;
     }
 
     void removeEntity(uint32_t index)
     {
-
+        for (auto& componentStorage : m_components)
+        {
+            componentStorage.remove(index);
+        }
     }
 
-    const CompSignature& getSignature() const { return m_signature; }
+    CompSignature& getSignature() { return m_signature; }
 
 private:
     // Contiguous blocks of memmory for each component type,

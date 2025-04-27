@@ -16,14 +16,16 @@ public:
 
 	Signature() = default;
 
-	template <typename... IDs>
-	Signature(IDs... componentIDs) 
+	Signature(std::vector<ID>& componentIDs)
+		: m_typeIDs(componentIDs)
 	{
-		ASSERT(((componentIDs < NUMBER_OF_BITS) && ...), "Comp ID exceed max amount of components");
-
 		// Assuming IDs are bit positions in the signature.
 		// eg: [A = 0, B = 1, D = 2] -> [1011]
-		((m_bitset.set(componentIDs)), ...);
+		for (ID id : componentIDs)
+		{
+			ASSERT(id < NUMBER_OF_BITS, "Comp ID exceed max amount of components");
+			m_bitset.set(id);
+		}
 	}
 
 	bool operator==(const Signature& other) const
@@ -35,6 +37,7 @@ public:
 	{
 		Signature result = *this;
 		result.m_bitset |= other.m_bitset;
+		result.m_typeIDs.insert(result.m_typeIDs.end(), other.m_typeIDs.begin(), other.m_typeIDs.end());
 		return result;
 	}
 
@@ -101,6 +104,11 @@ public:
 		return count;
 	}
 
+	std::vector<ID>& getTypeIDs()
+	{
+		return m_typeIDs;
+	}
+
 	std::string toString() const
 	{
 		return m_bitset.to_string();
@@ -108,6 +116,7 @@ public:
 
 private:
 	std::bitset<NUMBER_OF_BITS> m_bitset;
+	std::vector<ID> m_typeIDs;
 };
 
 constexpr uint32_t MAX_NUMBER_OF_COMPONENTS = 128;
