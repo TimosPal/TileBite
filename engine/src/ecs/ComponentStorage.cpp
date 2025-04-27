@@ -1,6 +1,6 @@
 #include "ecs/ComponentStorage.hpp"
 
-#include "utilities/Assertions.hpp"
+#include "utilities/assertions.hpp"
 
 namespace Engine {
 

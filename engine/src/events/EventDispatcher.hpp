@@ -4,7 +4,7 @@
 #include "core/pch.hpp"
 #include "events/Event.hpp"
 #include "events/EventCallback.hpp"
-#include "utilities/Assertions.hpp"
+#include "utilities/assertions.hpp"
 
 namespace Engine {
 

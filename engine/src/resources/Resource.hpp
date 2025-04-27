@@ -2,9 +2,9 @@
 #define RESOURCE_HPP
 
 #include "core/pch.hpp"
-#include "utilities/Assertions.hpp"
+#include "utilities/assertions.hpp"
 #include "utilities/Identifiable.hpp"
-#include "utilities/Concepts.hpp"
+#include "utilities/misc.hpp"
 
 namespace Engine {
 

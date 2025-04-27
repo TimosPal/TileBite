@@ -1,6 +1,6 @@
 #include "core/EngineApp.hpp"
 
-#include "utilities/Assertions.hpp"
+#include "utilities/assertions.hpp"
 #include "layers/types/SystemLayer.hpp"
 
 namespace Engine {

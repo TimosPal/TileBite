@@ -4,7 +4,7 @@
 #include "core/pch.hpp"
 #include "core/Types.hpp"
 #include "utilities/Identifiable.hpp"
-#include "utilities/Assertions.hpp"
+#include "utilities/assertions.hpp"
 
 namespace Engine {
 
