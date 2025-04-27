@@ -79,7 +79,7 @@ public:
 			// Remove uses swap idiom, meaning we move last element to deleted position.
 			// Therefore we have to update the entity record of the swapped element to reflect
 			// the updated position.
-			ID swappedID = rec.archetype->removeEntity(rec.entityIndex);
+			ID swappedID = oldArch.removeEntity(rec.entityIndex);
 			auto swappedIt = m_entityRecords.find(swappedID);
 			ASSERT(swappedIt != m_entityRecords.end(), "Entity not found");
 			EntityRecord& swappedRec = swappedIt->second;
