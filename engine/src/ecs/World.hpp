@@ -16,6 +16,8 @@ struct EntityRecord {
 	std::shared_ptr<Archetype> archetype;
 };
 
+static constexpr size_t DEFAULT_ARCHETYPES_SIZE = 128;
+
 class World {
 public:
 	ID createEntity();
@@ -87,10 +89,46 @@ public:
 		rec.entityIndex = index;
 	}
 
+	template <typename ...ComponentTypes>
+	Bitset query()
+	{
+		std::vector<ID> typeIDs = { GET_TYPE_ID(Component, std::decay_t<ComponentTypes>) ... };
+		ASSERT(
+			typeIDs.size() == std::set<ID>(typeIDs.begin(), typeIDs.end()).size(),
+			"ComponentTypes must be unique"
+		);
+
+		Bitset intersection = m_existingArchetypes;
+		for (ID id : typeIDs)
+		{
+			auto it = m_archetypeIndexes.find(id);
+			Bitset archBitset = (it != m_archetypeIndexes.end()) ? it->second : Bitset(DEFAULT_ARCHETYPES_SIZE);
+			intersection &= archBitset;
+		}
+
+		return intersection;
+	}
+
 private:
 	std::unordered_map<Signature, std::shared_ptr<Archetype>> m_archetypes;
 	std::unordered_map<ID, EntityRecord> m_entityRecords;
 	std::unordered_map<ID, size_t> m_typeIDSizes;
+
+	// ==========================
+	// Query helper structures.
+	// ==========================
+	// Each archetype has a unique ID 1,2,...,N
+	// This ID can be stored in a bitset of size N.
+	// If for every componentID we store the archetype ID
+	// by enabling the appropriate bit in a stored bitset we can
+	// easily find archetype supersets of a query by calculating the
+	// intersection of all the bit fields and then iterating on said indices.
+
+	// ComponentID -> Signature with archetype indexes.
+	std::unordered_map<ID, Bitset> m_archetypeIndexes;
+	// Archetype ID -> Archetype
+	std::unordered_map<ID, std::shared_ptr<Archetype>> m_archetypesByID;
+	Bitset m_existingArchetypes{ DEFAULT_ARCHETYPES_SIZE, false };
 
 	std::shared_ptr<Archetype> getArchetype(Signature& sig);
 };

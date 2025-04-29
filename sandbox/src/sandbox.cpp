@@ -21,6 +21,9 @@ struct CompB {
 struct CompC {
 	int val;
 };
+struct CompD {
+	int val;
+};
 
 class MyApp : public Engine::EngineApp {
 	void setup() override
@@ -71,12 +74,7 @@ class MyApp : public Engine::EngineApp {
 			world.addComponents(id, CompB{ 0 });
 		}
 
-		Bitset s(10);
-		s.set(0);
-		s.set(2);
-		LOG_INFO("{} {}", s.toString(), s.popCount());
-		for (auto i : s.getSetBits())
-			LOG_INFO("{}", i);
+		LOG_INFO("Arch IDs: {}", world.query<CompA, CompB, CompC>().toString());
 
 		onEvent(std::make_unique<WindowCloseEvent>());
 	}

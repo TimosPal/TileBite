@@ -15,8 +15,9 @@ public:
 	using WordType = uint32_t;
 	static constexpr size_t BITS_PER_WORD = sizeof(WordType) * 8;
 
-	explicit Bitset(size_t numBits);
+	explicit Bitset(size_t numBits, bool filled = false);
 	Bitset operator&(const Bitset& other) const;
+	Bitset& operator&=(const Bitset& other);
 	Bitset operator|(const Bitset& other) const;
 	Bitset& operator|=(const Bitset& other);
 	bool operator==(const Bitset& other) const;

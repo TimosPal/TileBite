@@ -2,9 +2,9 @@
 
 namespace Engine {
 
-Bitset::Bitset(size_t numBits)
+Bitset::Bitset(size_t numBits, bool filled)
 	: m_bitsSize(numBits),
-	m_words((numBits + BITS_PER_WORD - 1) / BITS_PER_WORD, 0)
+	m_words((numBits + BITS_PER_WORD - 1) / BITS_PER_WORD, (filled) ? ~0 : 0)
 {}
 
 void Bitset::set(size_t index)
@@ -66,6 +66,26 @@ Bitset Bitset::operator&(const Bitset& other) const
 	for (size_t i = 0; i < wordCount; ++i)
 		result.m_words[i] = m_words[i] & other.m_words[i];
 	return result;
+}
+
+Bitset& Bitset::operator&=(const Bitset& other)
+{
+	size_t minSize = std::min(m_bitsSize, other.m_bitsSize);
+	m_bitsSize = minSize;
+
+	size_t wordCount = (minSize + BITS_PER_WORD - 1) / BITS_PER_WORD;
+
+	for (size_t i = 0; i < wordCount; i++)
+	{
+		m_words[i] &= other.m_words[i];
+	}
+
+	for (size_t i = wordCount; i < m_words.size(); i++)
+	{
+		m_words[i] = 0;
+	}
+
+	return *this;
 }
 
 Bitset Bitset::operator|(const Bitset& other) const

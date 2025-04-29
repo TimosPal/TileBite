@@ -5,10 +5,12 @@
 #include "ecs/Signature.hpp"
 #include "ecs/ComponentStorage.hpp"
 #include "core/Types.hpp"
+#include "utilities/Identifiable.hpp"
 
 namespace Engine {
 
-class Archetype {
+class Archetype : public Identifiable {
+	SETUP_ID(Archetype, void)
 public:
     struct ArchetypeEdge {
         Archetype* superset = nullptr; // Null if last

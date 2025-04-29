@@ -36,6 +36,25 @@ std::shared_ptr<Archetype> World::getArchetype(Signature& sig)
 		std::make_shared<Archetype>(Archetype(sig, createSizes()))
 	);
 
+	// If the archetype was just created we update the indexes map
+	// and the id based archetype map.
+	if (inserted)
+	{
+		// TODO: ID system broken?
+		static ID idCounter = 0;
+		ID archID = idCounter++;
+		m_archetypesByID[archID] = archetypeIt->second;
+
+		LOG_INFO("ArchID {} -- Signature {}", archID, archetypeIt->second->getSignature().toString());
+
+		for (ID id : sig.getTypeIDs())
+		{
+			auto [bitset, _] = m_archetypeIndexes.try_emplace(id, Bitset(DEFAULT_ARCHETYPES_SIZE));
+			bitset->second.set(archID);
+			m_existingArchetypes.set(archID);
+		}
+	}
+
 	return archetypeIt->second;
 }
 
