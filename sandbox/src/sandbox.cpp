@@ -8,6 +8,8 @@
 
 #include <ecs/World.hpp>
 
+#include <utilities/Bitset.hpp>
+
 using namespace Engine;
 
 struct CompA {
@@ -69,6 +71,12 @@ class MyApp : public Engine::EngineApp {
 			world.addComponents(id, CompB{ 0 });
 		}
 
+		Bitset s(10);
+		s.set(0);
+		s.set(2);
+		LOG_INFO("{} {}", s.toString(), s.popCount());
+		for (auto i : s.getSetBits())
+			LOG_INFO("{}", i);
 
 		onEvent(std::make_unique<WindowCloseEvent>());
 	}

@@ -45,10 +45,10 @@ public:
 		ASSERT(entityIt != m_entityRecords.end(), "Entity not found");
 
 		EntityRecord& rec = entityIt->second;
-		CompSignature& oldSig = rec.archetype->getSignature();
-		CompSignature addedSig = CompSignature(newTypeIDs);
-		ASSERT(oldSig.commonBits(addedSig) == 0, "A component was already added");
-		CompSignature newSig = oldSig + addedSig;
+		Signature& oldSig = rec.archetype->getSignature();
+		Signature addedSig = Signature(newTypeIDs);
+		ASSERT(oldSig.commonBits(addedSig).popCount() == 0, "A component was already added");
+		Signature newSig = oldSig + addedSig;
 
 		// Add component sizes to map.
 		((m_typeIDSizes[GET_TYPE_ID(Component, std::decay_t<decltype(components)>)] = sizeof(components)), ...);
@@ -88,12 +88,11 @@ public:
 	}
 
 private:
-	std::unordered_map<CompSignature, std::shared_ptr<Archetype>> m_archetypes;
+	std::unordered_map<Signature, std::shared_ptr<Archetype>> m_archetypes;
 	std::unordered_map<ID, EntityRecord> m_entityRecords;
 	std::unordered_map<ID, size_t> m_typeIDSizes;
 
-	std::shared_ptr<Archetype> getArchetype(CompSignature& sig);
-	void updateArchetypeGraph();
+	std::shared_ptr<Archetype> getArchetype(Signature& sig);
 };
 
 } // Engine

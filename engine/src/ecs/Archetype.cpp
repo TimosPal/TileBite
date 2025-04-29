@@ -4,7 +4,7 @@
 
 namespace Engine {
 
-Archetype::Archetype(CompSignature& sig, std::vector<size_t>&& componentSizes)
+Archetype::Archetype(Signature& sig, std::vector<size_t>&& componentSizes)
     : m_signature(sig)
 {
     for (auto& componentSize : componentSizes)
@@ -26,7 +26,7 @@ uint32_t Archetype::addEntity(std::vector<std::tuple<ID, void*>> components, ID 
 {
     // Make componnts signature and check if it matches the archetype signature
     auto typeIDs = [&] { std::vector<ID> ids; for (auto& [id, _] : components) ids.push_back(id); return ids; }();
-    ASSERT(CompSignature(typeIDs) == m_signature, "Invalid components signature");
+    ASSERT(Signature(typeIDs) == m_signature, "Invalid components signature");
 
     for (auto& [id, component] : components)
     {

@@ -11,6 +11,9 @@
 #include <fstream>
 #include <sstream>
 
+#include <stdexcept>
+#include <limits>
+
 #include <vector>
 #include <unordered_map>
 #include <queue>

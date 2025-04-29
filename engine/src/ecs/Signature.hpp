@@ -5,134 +5,46 @@
 #include "core/Types.hpp"
 #include "utilities/Identifiable.hpp"
 #include "utilities/assertions.hpp"
+#include "utilities/Bitset.hpp"
 
 namespace Engine {
 
-template<size_t NUMBER_OF_BITS>
+constexpr uint32_t DEFAULT_SIGNATURE_LENGTH = 128;
+
 class Signature {
 public:
 	// Friend declaration for std::hash<Engine::Signature<N>>
 	friend struct std::hash<Signature>;
 
-	Signature() = default;
+	Signature();
+	Signature(std::vector<ID>& componentIDs, size_t bitsLength = DEFAULT_SIGNATURE_LENGTH);
+	bool operator==(const Signature& other) const;
+	Signature operator+(const Signature& other) const;
 
-	Signature(std::vector<ID>& componentIDs)
-		: m_typeIDs(componentIDs)
-	{
-		// Assuming IDs are bit positions in the signature.
-		// eg: [A = 0, B = 1, D = 2] -> [1011]
-		for (ID id : componentIDs)
-		{
-			ASSERT(id < NUMBER_OF_BITS, "Comp ID exceed max amount of components");
-			m_bitset.set(id);
-		}
-	}
-
-	bool operator==(const Signature& other) const
-	{
-		return m_bitset == other.m_bitset;
-	}
-
-	Signature operator+(const Signature& other) const
-	{
-		Signature result = *this;
-		result.m_bitset |= other.m_bitset;
-		result.m_typeIDs.insert(result.m_typeIDs.end(), other.m_typeIDs.begin(), other.m_typeIDs.end());
-		return result;
-	}
-
-	bool isSubsetOf(const Signature& other) const 
-	{
-		return (m_bitset & other.m_bitset) == m_bitset;
-	}
-
-	bool isSupersetOf(const Signature& other) const 
-	{
-		return (m_bitset & other.m_bitset) == other.m_bitset;
-	}
-
-	// New bits introduced by this signature (superset - subset)
-	std::bitset<NUMBER_OF_BITS> newBits(const Signature& other) const
-	{
-		return (m_bitset & ~other.m_bitset);
-	}
-
-	// Bits removed from this signature (subset - superset)
-	std::bitset<NUMBER_OF_BITS> removedBits(const Signature& other) const
-	{
-		return (other.m_bitset & ~m_bitset);
-	}
-
-	// Common bits between this signature and another
-	std::bitset<NUMBER_OF_BITS> commonBits(const Signature& other) const
-	{
-		return (m_bitset & other.m_bitset);
-	}
-
-	const size_t getCount() const 
-	{ 
-		return m_bitset.count(); 
-	}
-
-	// TODO: Optimization to avoid map: return popCount(mask & (sig(id) - 1))
-	// needs custom bitmask implementation to support -1.
-	int32_t getIndex(ID componentID) const
-	{
-		// Returns the component ID to signature mapping
-		// eg: given mask 
-		// 11010
-		// 00010 -> 0
-		// 01000 -> 1
-		// 10000 -> 2
-		std::unordered_map<ID, int32_t> m_mapping;
-		ASSERT(componentID < NUMBER_OF_BITS, "Out of range ID");
-
-		auto it = m_mapping.find(componentID);
-		if (it != m_mapping.end())
-		{
-			return it->second;  // Return cached result
-		}
-
-		uint32_t count = 0;
-		for (size_t i = 0; i < componentID; i++)
-		{
-			if (m_bitset.test(i)) count++;
-		}
-
-		// Cache the computed result for future lookups
-		m_mapping[componentID] = count;
-		return count;
-	}
-
-	std::vector<ID>& getTypeIDs()
-	{
-		return m_typeIDs;
-	}
-
-	std::string toString() const
-	{
-		return m_bitset.to_string();
-	}
+	Bitset commonBits(const Signature& other) const;
+	const size_t getCount() const;
+	int32_t getIndex(ID componentID) const;
+	std::vector<ID>& getTypeIDs();
+	std::string toString() const;
 
 private:
-	std::bitset<NUMBER_OF_BITS> m_bitset;
+	Engine::Bitset m_bitset;
 	std::vector<ID> m_typeIDs;
 	std::unordered_map<ID, int32_t> m_mapping;
+	size_t m_count;
 };
-
-constexpr uint32_t MAX_NUMBER_OF_COMPONENTS = 128;
-using CompSignature = Signature<MAX_NUMBER_OF_COMPONENTS>;
 
 } // Engine
 
 namespace std {
-template<size_t N>
-struct hash<Engine::Signature<N>> {
-	std::size_t operator()(const Engine::Signature<N>& sig) const 
+template<>
+struct hash<Engine::Signature> {
+	std::size_t operator()(const Engine::Signature& sig) const 
 	{
-		return std::hash<std::bitset<N>>{}(sig.m_bitset);
+		return std::hash<Engine::Bitset>{}(sig.m_bitset);
 	}
 };
+
 }
 
 #endif // !SIGNATURE_HPP
