@@ -84,11 +84,11 @@ public:
 		// 00010 -> 0
 		// 01000 -> 1
 		// 10000 -> 2
-		static std::unordered_map<ID, int32_t> s_mapping;
+		std::unordered_map<ID, int32_t> m_mapping;
 		ASSERT(componentID < NUMBER_OF_BITS, "Out of range ID");
 
-		auto it = s_mapping.find(componentID);
-		if (it != s_mapping.end())
+		auto it = m_mapping.find(componentID);
+		if (it != m_mapping.end())
 		{
 			return it->second;  // Return cached result
 		}
@@ -100,7 +100,7 @@ public:
 		}
 
 		// Cache the computed result for future lookups
-		s_mapping[componentID] = count;
+		m_mapping[componentID] = count;
 		return count;
 	}
 
@@ -117,6 +117,7 @@ public:
 private:
 	std::bitset<NUMBER_OF_BITS> m_bitset;
 	std::vector<ID> m_typeIDs;
+	std::unordered_map<ID, int32_t> m_mapping;
 };
 
 constexpr uint32_t MAX_NUMBER_OF_COMPONENTS = 128;

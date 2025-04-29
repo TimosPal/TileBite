@@ -8,28 +8,67 @@
 
 #include <ecs/World.hpp>
 
+using namespace Engine;
+
 struct CompA {
-	int a = 5;
+	int val;
 };
 struct CompB {
-	int a = 10;
+	int val;
+};
+struct CompC {
+	int val;
 };
 
-using namespace Engine;
 class MyApp : public Engine::EngineApp {
 	void setup() override
 	{
 		Engine::World world;
-		auto id = world.createEntity();
-		world.addComponents(id, CompB(), CompA());
+
 		{
-			auto* comp = world.getComponent<CompA>(id);
-			Engine::LOG_INFO("{}", comp->a);
+			auto id = world.createEntity();
+			world.addComponents(id, CompA{ 10 });
 		}
+
 		{
-			auto* comp = world.getComponent<CompB>(id);
-			Engine::LOG_INFO("{}", comp->a);
+			auto id = world.createEntity();
+			world.addComponents(id, CompB{ 10 });
 		}
+
+		{
+			auto id = world.createEntity();
+			world.addComponents(id, CompA{ 0 }, CompB{ 10 });
+		}
+
+		{
+			auto id = world.createEntity();
+			world.addComponents(id, CompA{ 0 });
+			world.addComponents(id, CompB{ 0 });
+		}
+
+		{
+			auto id = world.createEntity();
+			world.addComponents(id, CompC{ 0 });
+		}
+
+		{
+			auto id = world.createEntity();
+			world.addComponents(id, CompC{ 0 });
+			world.addComponents(id, CompB{ 0 });
+		}
+
+		{
+			auto id = world.createEntity();
+			world.addComponents(id, CompA{ 0 });
+			world.addComponents(id, CompC{ 0 });
+
+			auto id2 = world.createEntity();
+			world.addComponents(id2, CompA{ 0 });
+			world.addComponents(id2, CompC{ 0 });
+
+			world.addComponents(id, CompB{ 0 });
+		}
+
 
 		onEvent(std::make_unique<WindowCloseEvent>());
 	}

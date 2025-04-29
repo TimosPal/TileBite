@@ -53,12 +53,8 @@ public:
 		// Add component sizes to map.
 		((m_typeIDSizes[GET_TYPE_ID(Component, std::decay_t<decltype(components)>)] = sizeof(components)), ...);
 		
-		auto [newArch, inserted] = getArchetype(newSig);
 		Archetype& oldArch = *rec.archetype;
-		rec.archetype = newArch; // Update entity record with updated archetype.
-
-		// If the archetype was just created this means we have to update the graph's edges
-		if (inserted) updateArchetypeGraph();
+		rec.archetype = getArchetype(newSig); // Update entity record with updated archetype.
 
 		// Build new vector by mixing old and new components.
 		std::vector<std::tuple<ID, void*>> transferedComponents = {
@@ -66,6 +62,7 @@ public:
 		};
 		for (auto id : oldSig.getTypeIDs())
 		{
+
 			void* comp = oldArch.getComponent(rec.entityIndex, id);
 			transferedComponents.push_back({ id, comp });
 		}
@@ -73,14 +70,15 @@ public:
 		// Populate the component storage of the archetype with added component data.
 		uint32_t index = rec.archetype->addEntity(transferedComponents, entityID);
 
-		// Remove the components from the old archetype (if not NULL set)
-		if (oldSig.getCount() > 0)
+		// Remove uses swap idiom, meaning we move last element to deleted position.
+		// Therefore we have to update the entity record of the swapped element to reflect
+		// the updated position.
+		ID* swappedID = oldArch.removeEntity(rec.entityIndex);
+		if (swappedID)
 		{
-			// Remove uses swap idiom, meaning we move last element to deleted position.
-			// Therefore we have to update the entity record of the swapped element to reflect
-			// the updated position.
-			ID swappedID = oldArch.removeEntity(rec.entityIndex);
-			auto swappedIt = m_entityRecords.find(swappedID);
+			// If the last element was removed then there is no need
+			// to update any records since no swapping happend.
+			auto swappedIt = m_entityRecords.find(*swappedID);
 			ASSERT(swappedIt != m_entityRecords.end(), "Entity not found");
 			EntityRecord& swappedRec = swappedIt->second;
 			swappedRec.entityIndex = rec.entityIndex;
@@ -94,7 +92,7 @@ private:
 	std::unordered_map<ID, EntityRecord> m_entityRecords;
 	std::unordered_map<ID, size_t> m_typeIDSizes;
 
-	std::tuple<std::shared_ptr<Archetype>, bool> getArchetype(CompSignature& sig);
+	std::shared_ptr<Archetype> getArchetype(CompSignature& sig);
 	void updateArchetypeGraph();
 };
 

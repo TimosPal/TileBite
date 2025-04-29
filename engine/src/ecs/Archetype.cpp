@@ -15,7 +15,11 @@ Archetype::Archetype(CompSignature& sig, std::vector<size_t>&& componentSizes)
 
 void* Archetype::getComponent(uint32_t entityIndex, uint32_t componentIndex)
 {
-    return m_components[componentIndex].get(entityIndex);
+	uint32_t storageComponentIndex = m_signature.getIndex(componentIndex);
+
+	ASSERT(entityIndex < m_entitiesCount, "Entity index out of bounds");
+	ASSERT(storageComponentIndex < m_signature.getCount(), "Component index out of bounds");
+    return m_components[storageComponentIndex].get(entityIndex);
 }
 
 uint32_t Archetype::addEntity(std::vector<std::tuple<ID, void*>> components, ID entityID)
@@ -34,7 +38,7 @@ uint32_t Archetype::addEntity(std::vector<std::tuple<ID, void*>> components, ID 
     return m_entitiesCount++;
 }
 
-ID Archetype::removeEntity(uint32_t index)
+ID* Archetype::removeEntity(uint32_t index)
 {
     bool removed = removeElement(m_entityIDs, index);
 	ASSERT(removed, "Index out of bounds");
@@ -42,9 +46,10 @@ ID Archetype::removeEntity(uint32_t index)
     {
         componentStorage.remove(index);
     }
+    m_entitiesCount--;
 
-	// Return the ID of the swapped entity
-	return m_entityIDs[index];
+	// Return the ID of the swapped entity, or null if no swap happend.
+	return (index < m_entitiesCount) ? &m_entityIDs[index] : nullptr;
 }
 
 } // Engine

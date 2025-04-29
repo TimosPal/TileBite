@@ -8,12 +8,12 @@ ID World::createEntity()
 	CompSignature sig;
 	auto [it, inserted] = m_archetypes.try_emplace(sig, std::make_shared<Archetype>(Archetype(sig, {})));
 	m_entityRecords.emplace(entityID, EntityRecord{ 0, it->second });
-	// NOTE: empty archetype does not need any data storage so index is just a placeholder.
+	it->second->addEntity({}, entityID); // Add empty entity to archetype.
 
 	return entityID;
 }
 
-std::tuple<std::shared_ptr<Archetype>, bool> World::getArchetype(CompSignature& sig)
+std::shared_ptr<Archetype> World::getArchetype(CompSignature& sig)
 {
 	// Create sizes array for new archetype
 	auto createSizes = [&]() {
@@ -26,7 +26,7 @@ std::tuple<std::shared_ptr<Archetype>, bool> World::getArchetype(CompSignature& 
 			result.push_back(it->second);
 		}
 		return result;
-		};
+	};
 
 	// When an entity gets a new components that means its archetype changes so we have to
 	// either make a new one if no entities with such type existed, or just retrieve an already existing one
@@ -36,7 +36,10 @@ std::tuple<std::shared_ptr<Archetype>, bool> World::getArchetype(CompSignature& 
 		std::make_shared<Archetype>(Archetype(sig, createSizes()))
 	);
 
-	return { archetypeIt->second, inserted };
+	// If the archetype was just created this means we have to update the graph's edges
+	if (inserted) updateArchetypeGraph();
+
+	return archetypeIt->second;
 }
 
 void World::updateArchetypeGraph()

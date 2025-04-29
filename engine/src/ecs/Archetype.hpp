@@ -18,10 +18,12 @@ public:
     Archetype(CompSignature& sig, std::vector<size_t>&& componentSizes);
 
     uint32_t addEntity(std::vector<std::tuple<ID, void*>> components, ID entityID);
-    ID removeEntity(uint32_t index);
+    ID* removeEntity(uint32_t index);
     void* getComponent(uint32_t entityIndex, uint32_t componentIndex);
 
     CompSignature& getSignature() { return m_signature; }
+
+	uint32_t getEntitiesCount() const { return m_entitiesCount; }
 
 private:
     // Contiguous blocks of memmory for each component type,
