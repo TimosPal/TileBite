@@ -10,7 +10,7 @@
 namespace Engine {
 
 class Archetype : public Identifiable {
-	SETUP_ID(Archetype, void)
+	SETUP_ID(Archetype, Archetype)
 public:
     struct ArchetypeEdge {
         Archetype* superset = nullptr; // Null if last

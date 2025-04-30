@@ -54,7 +54,6 @@ public:
 
 		// Add component sizes to map.
 		((m_typeIDSizes[GET_TYPE_ID(Component, std::decay_t<decltype(components)>)] = sizeof(components)), ...);
-		
 		Archetype& oldArch = *rec.archetype;
 		rec.archetype = getArchetype(newSig); // Update entity record with updated archetype.
 
@@ -104,6 +103,14 @@ public:
 			auto it = m_archetypeIndexes.find(id);
 			Bitset archBitset = (it != m_archetypeIndexes.end()) ? it->second : Bitset(DEFAULT_ARCHETYPES_SIZE);
 			intersection &= archBitset;
+		}
+
+		// Set bits in the intersection bitset represent
+		// archetype indexes that are a superset of the query.
+		for (ID id : intersection.getSetBits())
+		{
+			Archetype& currArch = *m_archetypesByID[id];
+			currArch.getSignature().getTypeIDs();
 		}
 
 		return intersection;
