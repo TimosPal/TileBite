@@ -41,7 +41,7 @@ const size_t Signature::getCount() const
 	return m_count;
 }
 
-int32_t Signature::getIndex(ID componentID) const
+uint32_t Signature::getIndex(ID componentID) const
 {
 	// Returns the component ID to signature mapping
 	// eg: given mask 

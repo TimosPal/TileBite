@@ -23,7 +23,7 @@ public:
 
 	Bitset commonBits(const Signature& other) const;
 	const size_t getCount() const;
-	int32_t getIndex(ID componentID) const;
+	uint32_t getIndex(ID componentID) const;
 	std::vector<ID>& getTypeIDs();
 	std::string toString() const;
 

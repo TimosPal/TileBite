@@ -12,20 +12,31 @@ namespace Engine {
 class Archetype : public Identifiable {
 	SETUP_ID(Archetype, Archetype)
 public:
-    struct ArchetypeEdge {
-        Archetype* superset = nullptr; // Null if last
-        Archetype* subset = nullptr; // Null if first
-    };
-
     Archetype(Signature& sig, std::vector<size_t>&& componentSizes);
 
     uint32_t addEntity(std::vector<std::tuple<ID, void*>> components, ID entityID);
     ID* removeEntity(uint32_t index);
     void* getComponent(uint32_t entityIndex, uint32_t componentIndex);
+	std::vector<ComponentStorage>& getComponents() { return m_components; }
 
     Signature& getSignature() { return m_signature; }
 
 	uint32_t getEntitiesCount() const { return m_entitiesCount; }
+
+	template <typename ...ComponentTypes>
+    class Iterator;
+
+    template<typename... T>
+    auto begin()
+    {
+        return Iterator<T...>(this, 0);
+    }
+
+    template<typename... T>
+    auto end()
+    {
+        return Iterator<T...>(this, getEntitiesCount());
+    }
 
 private:
     // Contiguous blocks of memmory for each component type,

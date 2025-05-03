@@ -51,8 +51,6 @@ std::shared_ptr<Archetype> World::getArchetype(Signature& sig)
 		ID archID = archetypeIt->second->getInstanceID();
 		m_archetypesByID[archID] = archetypeIt->second;
 
-		LOG_INFO("ArchID {} -- Signature {}", archID, archetypeIt->second->getSignature().toString());
-
 		for (ID id : sig.getTypeIDs())
 		{
 			auto [bitset, _] = m_archetypeIndexes.try_emplace(id, Bitset(DEFAULT_ARCHETYPES_SIZE));

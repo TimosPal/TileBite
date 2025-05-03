@@ -29,10 +29,9 @@ class MyApp : public Engine::EngineApp {
 	void setup() override
 	{
 		Engine::World world;
-
 		{
 			auto id = world.createEntity();
-			world.addComponents(id, CompA{ 10 });
+			world.addComponents(id, CompA{ 1 });
 		}
 
 		{
@@ -42,39 +41,43 @@ class MyApp : public Engine::EngineApp {
 
 		{
 			auto id = world.createEntity();
-			world.addComponents(id, CompA{ 0 }, CompB{ 10 });
+			world.addComponents(id, CompA{ 2 }, CompB{ 10 });
 		}
 
 		{
 			auto id = world.createEntity();
-			world.addComponents(id, CompA{ 0 });
-			world.addComponents(id, CompB{ 0 });
-		}
-
-		{
-			auto id = world.createEntity();
-			world.addComponents(id, CompC{ 0 });
+			world.addComponents(id, CompA{ 3 });
+			world.addComponents(id, CompB{ 9 });
 		}
 
 		{
 			auto id = world.createEntity();
 			world.addComponents(id, CompC{ 0 });
-			world.addComponents(id, CompB{ 0 });
 		}
 
 		{
 			auto id = world.createEntity();
-			world.addComponents(id, CompA{ 0 });
+			world.addComponents(id, CompC{ 0 });
+			world.addComponents(id, CompB{ 8 });
+		}
+
+		{
+			auto id = world.createEntity();
+			world.addComponents(id, CompA{ 4 });
 			world.addComponents(id, CompC{ 0 });
 
 			auto id2 = world.createEntity();
-			world.addComponents(id2, CompA{ 0 });
+			world.addComponents(id2, CompA{ 5 });
 			world.addComponents(id2, CompC{ 0 });
 
-			world.addComponents(id, CompB{ 0 });
+			world.addComponents(id, CompB{ 2 });
 		}
 
-		LOG_INFO("Arch IDs: {}", world.query<CompA, CompB, CompC>().toString());
+		for (auto it : world.query<CompB, CompD>())
+		{
+			auto [compB, compD] = it;
+			std::cout << "CompB: " << compB->val << ", CompD: " << compD->val << std::endl;
+		}
 
 		onEvent(std::make_unique<WindowCloseEvent>());
 	}

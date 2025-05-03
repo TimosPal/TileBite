@@ -2,10 +2,11 @@
 #define WORLD_HPP
 
 #include "core/pch.hpp"
+#include "core/Types.hpp"
+#include "utilities/Identifiable.hpp"
 #include "ecs/Archetype.hpp"
 #include "ecs/Signature.hpp"
-#include "utilities/Identifiable.hpp"
-#include "core/Types.hpp"
+#include "ecs/QueryResponse.hpp"
 
 namespace Engine {
 
@@ -89,7 +90,7 @@ public:
 	}
 
 	template <typename ...ComponentTypes>
-	Bitset query()
+	QueryResponse<ComponentTypes...> query()
 	{
 		std::vector<ID> typeIDs = { GET_TYPE_ID(Component, std::decay_t<ComponentTypes>) ... };
 		ASSERT(
@@ -107,13 +108,13 @@ public:
 
 		// Set bits in the intersection bitset represent
 		// archetype indexes that are a superset of the query.
+		std::vector<std::shared_ptr<Archetype>> queryArchetypes;
 		for (ID id : intersection.getSetBits())
 		{
-			Archetype& currArch = *m_archetypesByID[id];
-			currArch.getSignature().getTypeIDs();
+			queryArchetypes.push_back(m_archetypesByID[id]);
 		}
 
-		return intersection;
+		return QueryResponse<ComponentTypes...>(std::move(queryArchetypes));
 	}
 
 private:
