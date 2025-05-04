@@ -8,7 +8,7 @@ namespace Engine {
 EngineApp* EngineApp::s_instance;
 
 EngineApp::EngineApp()
-	: m_isRunning(true)
+	: m_isRunning(true), m_systemManager(m_world)
 {
 	// One instance allowed.
 	ASSERT(s_instance == nullptr, "Engine app already created");
@@ -32,11 +32,13 @@ void EngineApp::init()
 void EngineApp::run()
 {
 	// Engine loop.
+	float deltaTime = 0.0f; // TODO: calculate.
 	while (m_isRunning)
 	{
 		m_window->onUpdate();
 		m_eventQueue.dispatchAll(m_layers);
 
+		m_systemManager.updateSystems(deltaTime);
 	}
 }
 
@@ -69,6 +71,11 @@ void EngineApp::pushLayer(std::unique_ptr<Layer> layer)
 void EngineApp::pushOverlay(std::unique_ptr<Layer> layer)
 {
 	m_layers.pushOverlay(std::move(layer));
+}
+
+void EngineApp::addSystem(std::unique_ptr<ISystem> system)
+{
+	m_systemManager.addSystem(std::move(system));
 }
 
 } // Engine

@@ -10,6 +10,8 @@
 
 namespace Engine {
 
+class SystemManager; // Forward declaration for friendship.
+
 // Can retrieve an entity row from the ComponentStorage given
 // an archetype reference.
 struct EntityRecord {
@@ -19,8 +21,17 @@ struct EntityRecord {
 
 static constexpr size_t DEFAULT_ARCHETYPES_SIZE = 128;
 
+// The World class is responsible for managing entities and their components.
 class World {
 public:
+	// NOTE: using friendship to avoid making a wrapper view class for a single function 
+	// If more private API is needed then a wrapper class should be created.
+	friend class SystemManager; // Allow SystemManager to access executeDeferredActions.
+
+	// NOTE: createEntity and addComponents are delaying actions by adding them to a deferredActions vector.
+	// This way systems can change the world state without causing inconsistencies. The world needs to run the
+	// actions in the next update.
+
 	ID createEntity();
 
 	template <typename ComponentType>
@@ -35,58 +46,15 @@ public:
 		return reinterpret_cast<ComponentType*>(comp);
 	}
 
+	// Excecutions of adds are delayed till next update to avoid incosistencies when
+	// systems change world states.
 	template <typename ...ComponentTypes>
-	void addComponents(ID entityID, ComponentTypes&&... components)
-	{
-		std::vector<ID> newTypeIDs = { GET_TYPE_ID(Component, std::decay_t<ComponentTypes>)... };
-		ASSERT(
-			newTypeIDs.size() == std::set<ID>(newTypeIDs.begin(), newTypeIDs.end()).size(),
-			"ComponentTypes must be unique"
-		);
-
-		auto entityIt = m_entityRecords.find(entityID);
-		ASSERT(entityIt != m_entityRecords.end(), "Entity not found");
-
-		EntityRecord& rec = entityIt->second;
-		Signature& oldSig = rec.archetype->getSignature();
-		Signature addedSig = Signature(newTypeIDs);
-		ASSERT(oldSig.commonBits(addedSig).popCount() == 0, "A component was already added");
-		Signature newSig = oldSig + addedSig;
-
-		// Add component sizes to map.
-		((m_typeIDSizes[GET_TYPE_ID(Component, std::decay_t<decltype(components)>)] = sizeof(components)), ...);
-		Archetype& oldArch = *rec.archetype;
-		rec.archetype = getArchetype(newSig); // Update entity record with updated archetype.
-
-		// Build new vector by mixing old and new components.
-		std::vector<std::tuple<ID, void*>> transferedComponents = {
-			{GET_TYPE_ID(Component, std::decay_t<decltype(components)>), &components} ... 
-		};
-		for (auto id : oldSig.getTypeIDs())
-		{
-
-			void* comp = oldArch.getComponent(rec.entityIndex, id);
-			transferedComponents.push_back({ id, comp });
-		}
-
-		// Populate the component storage of the archetype with added component data.
-		uint32_t index = rec.archetype->addEntity(transferedComponents, entityID);
-
-		// Remove uses swap idiom, meaning we move last element to deleted position.
-		// Therefore we have to update the entity record of the swapped element to reflect
-		// the updated position.
-		ID* swappedID = oldArch.removeEntity(rec.entityIndex);
-		if (swappedID)
-		{
-			// If the last element was removed then there is no need
-			// to update any records since no swapping happend.
-			auto swappedIt = m_entityRecords.find(*swappedID);
-			ASSERT(swappedIt != m_entityRecords.end(), "Entity not found");
-			EntityRecord& swappedRec = swappedIt->second;
-			swappedRec.entityIndex = rec.entityIndex;
-		}
-
-		rec.entityIndex = index;
+	void addComponents(ID entityID, ComponentTypes&&... components) {
+		// Capture components by forwarding each of them separately
+		m_deferredActions.push_back([this, entityID, ...components = std::forward<ComponentTypes>(components)]() mutable {
+			// Forward the components correctly to addImpl
+			addComponentsImpl(entityID, std::forward<ComponentTypes>(components)...);
+		});
 	}
 
 	template <typename ...ComponentTypes>
@@ -118,6 +86,67 @@ public:
 	}
 
 private:
+	void executeDeferredActions();
+
+	void createEntityImpl(ID entityID);
+
+	template <typename ...ComponentTypes>
+	void addComponentsImpl(ID entityID, ComponentTypes&&... components)
+	{
+		std::vector<ID> newTypeIDs = { GET_TYPE_ID(Component, std::decay_t<ComponentTypes>)... };
+		ASSERT(
+			newTypeIDs.size() == std::set<ID>(newTypeIDs.begin(), newTypeIDs.end()).size(),
+			"ComponentTypes must be unique"
+		);
+
+		auto entityIt = m_entityRecords.find(entityID);
+		ASSERT(entityIt != m_entityRecords.end(), "Entity not found");
+
+		EntityRecord& rec = entityIt->second;
+		Signature& oldSig = rec.archetype->getSignature();
+		Signature addedSig = Signature(newTypeIDs);
+		ASSERT(oldSig.commonBits(addedSig).popCount() == 0, "A component was already added");
+		Signature newSig = oldSig + addedSig;
+
+		// Add component sizes to map.
+		((m_typeIDSizes[GET_TYPE_ID(Component, std::decay_t<decltype(components)>)] = sizeof(components)), ...);
+		Archetype& oldArch = *rec.archetype;
+		rec.archetype = getArchetype(newSig); // Update entity record with updated archetype.
+
+		// Build new vector by mixing old and new components.
+		std::vector<std::tuple<ID, void*>> transferedComponents = {
+			{GET_TYPE_ID(Component, std::decay_t<decltype(components)>), &components} ...
+		};
+		for (auto id : oldSig.getTypeIDs())
+		{
+
+			void* comp = oldArch.getComponent(rec.entityIndex, id);
+			transferedComponents.push_back({ id, comp });
+		}
+
+		// Populate the component storage of the archetype with added component data.
+		uint32_t index = rec.archetype->addEntity(transferedComponents, entityID);
+
+		// Remove uses swap idiom, meaning we move last element to deleted position.
+		// Therefore we have to update the entity record of the swapped element to reflect
+		// the updated position.
+		ID* swappedID = oldArch.removeEntity(rec.entityIndex);
+		if (swappedID)
+		{
+			// If the last element was removed then there is no need
+			// to update any records since no swapping happend.
+			auto swappedIt = m_entityRecords.find(*swappedID);
+			ASSERT(swappedIt != m_entityRecords.end(), "Entity not found");
+			EntityRecord& swappedRec = swappedIt->second;
+			swappedRec.entityIndex = rec.entityIndex;
+		}
+
+		rec.entityIndex = index;
+	}
+
+	// Store actions to avoid incosistencies when systems change world states.
+	std::vector<std::function<void()>> m_deferredActions;
+
 	std::unordered_map<Signature, std::shared_ptr<Archetype>> m_archetypes;
 	std::unordered_map<ID, EntityRecord> m_entityRecords;
 	std::unordered_map<ID, size_t> m_typeIDSizes;

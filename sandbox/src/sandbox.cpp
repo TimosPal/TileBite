@@ -6,80 +6,35 @@
 #include <utilities/Logger.hpp>
 #include <events/types/WindowCloseEvent.hpp>
 
-#include <ecs/World.hpp>
-
-#include <utilities/Bitset.hpp>
-
 using namespace Engine;
 
-struct CompA {
-	int val;
+struct Health {
+	int value;
 };
-struct CompB {
-	int val;
-};
-struct CompC {
-	int val;
-};
-struct CompD {
-	int val;
+
+class UnitSystem : public ISystem {
+public:
+	void update(World& world, float deltaTime) override
+	{
+		for (auto [healthComp] : world.query<Health>())
+		{
+			LOG_INFO("Unit Health: {}", healthComp->value);
+		}
+	}
 };
 
 class MyApp : public Engine::EngineApp {
 	void setup() override
 	{
-		Engine::World world;
+		World& world = getWorld();
+		int unitCount = 10;
+		for (size_t i = 0; i < unitCount; i++)
 		{
-			auto id = world.createEntity();
-			world.addComponents(id, CompA{ 1 });
+			ID unit = world.createEntity();
+			world.addComponents<Health>(unit, Health{ (int)i });
 		}
 
-		{
-			auto id = world.createEntity();
-			world.addComponents(id, CompB{ 10 });
-		}
-
-		{
-			auto id = world.createEntity();
-			world.addComponents(id, CompA{ 2 }, CompB{ 10 });
-		}
-
-		{
-			auto id = world.createEntity();
-			world.addComponents(id, CompA{ 3 });
-			world.addComponents(id, CompB{ 9 });
-		}
-
-		{
-			auto id = world.createEntity();
-			world.addComponents(id, CompC{ 0 });
-		}
-
-		{
-			auto id = world.createEntity();
-			world.addComponents(id, CompC{ 0 });
-			world.addComponents(id, CompB{ 8 });
-		}
-
-		{
-			auto id = world.createEntity();
-			world.addComponents(id, CompA{ 4 });
-			world.addComponents(id, CompC{ 0 });
-
-			auto id2 = world.createEntity();
-			world.addComponents(id2, CompA{ 5 });
-			world.addComponents(id2, CompC{ 0 });
-
-			world.addComponents(id, CompB{ 2 });
-		}
-
-		for (auto it : world.query<CompB, CompD>())
-		{
-			auto [compB, compD] = it;
-			std::cout << "CompB: " << compB->val << ", CompD: " << compD->val << std::endl;
-		}
-
-		onEvent(std::make_unique<WindowCloseEvent>());
+		addSystem(std::make_unique<UnitSystem>());
 	}
 };
 

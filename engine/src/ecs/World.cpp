@@ -1,10 +1,33 @@
 #include "ecs/World.hpp"
 
+#include "ecs/SystemManager.hpp"
+
 namespace Engine {
+
+void World::executeDeferredActions()
+{
+	for (auto& action : m_deferredActions)
+	{
+		action();
+	}
+	m_deferredActions.clear();
+}
 
 ID World::createEntity()
 {
+	// Delays the creation of the entity to avoid incosistencies when systems add 
+	// entities, but does return the appropriate ID for the rest of the system to use.
 	ID entityID = GET_INSTANCE_ID(World, void); // consider global ids under World.
+	
+	m_deferredActions.push_back([this, entityID]() mutable {
+		createEntityImpl(entityID);
+	});
+
+	return entityID;
+}
+
+void World::createEntityImpl(ID entityID)
+{
 	Signature sig;
 
 	auto it = m_archetypes.find(sig);
@@ -15,7 +38,6 @@ ID World::createEntity()
 
 	m_entityRecords.emplace(entityID, EntityRecord{ 0, it->second });
 	it->second->addEntity({}, entityID); // Add empty entity to archetype.
-	return entityID;
 }
 
 std::shared_ptr<Archetype> World::getArchetype(Signature& sig)
