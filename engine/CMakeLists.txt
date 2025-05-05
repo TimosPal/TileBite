@@ -17,11 +17,15 @@ target_include_directories(GameEngine
 )
 
 # Platform flags
+# All platforms use OpenGL for now.
 if(WIN32)
+    target_compile_definitions(GameEngine PRIVATE RENDERER_OPENGL)
     target_compile_definitions(GameEngine PRIVATE PLATFORM_WINDOWS)
 elseif(APPLE)
+    target_compile_definitions(GameEngine PRIVATE RENDERER_OPENGL)
     target_compile_definitions(GameEngine PRIVATE PLATFORM_MACOS)
 elseif(UNIX)
+    target_compile_definitions(GameEngine PRIVATE RENDERER_OPENGL)
     target_compile_definitions(GameEngine PRIVATE PLATFORM_LINUX)
 endif()
 
@@ -37,6 +41,17 @@ if(USE_GLFW)
 else()
     target_compile_definitions(GameEngine PRIVATE WINDOW_BACKEND_NATIVE)
     # Optionally add native-specific libs here
+endif()
+
+# Add OpenGL
+# TODO: Add options for rendering API in the future.
+find_package(OpenGL REQUIRED)
+if(OpenGL_FOUND)
+    add_library(glad STATIC external/glad/src/glad.c)
+    target_include_directories(glad PUBLIC external/glad/include)
+    target_link_libraries(GameEngine PUBLIC glad OpenGL::GL)
+else()
+    message(FATAL_ERROR "OpenGL not found")
 endif()
 
 # Add spdlog

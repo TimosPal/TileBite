@@ -1,0 +1,6 @@
+Layers system + ECS:
+Currently the engine does not utilize layers for rendering input handling etc
+- Add a Rendering Layer
+- Add an Input Layer
+- Split systems per layer
+- Systems should be able to register and call events

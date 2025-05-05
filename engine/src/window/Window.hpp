@@ -21,7 +21,8 @@ public:
 	virtual bool init() { return false; }
 	virtual bool terminate() { return false; }
 
-	virtual void onUpdate() {}
+	virtual void pollEvents() {}
+	virtual void swapBuffers() {}
 
 	static std::unique_ptr<Window> createWindow(const Data& data);
 protected:

@@ -18,13 +18,20 @@ EngineApp::EngineApp()
 void EngineApp::init()
 {
 	// Application initialization.
+	// Window creation.
 	Window::Data data = config();
 	data.onEvent = [&](std::unique_ptr<Event> event) { onEvent(std::move(event)); };
 	m_window = Window::createWindow(data);
 	ASSERT(m_window != nullptr, "Window not created");
-	bool res = m_window->init();
-	ASSERT(res, "Window not init");
+	bool resInitWindow = m_window->init();
+	ASSERT(resInitWindow, "Window not init");
 
+	// Renderer creation.
+	m_rendered2D = Renderer2D::createRenderer2D();
+	bool resInitRendered2D = m_rendered2D->init();
+	ASSERT(resInitRendered2D, "Renderer2D not init");
+
+	// Engine layers creation.
 	auto stopAppCallback = [&]() { stop(); };
 	pushLayer(std::make_unique<SystemLayer>(SystemLayer(stopAppCallback)));
 }
@@ -35,18 +42,26 @@ void EngineApp::run()
 	float deltaTime = 0.0f; // TODO: calculate.
 	while (m_isRunning)
 	{
-		m_window->onUpdate();
+		m_window->pollEvents();
 		m_eventQueue.dispatchAll(m_layers);
 
 		m_systemManager.updateSystems(deltaTime);
+		
+		m_rendered2D->clearScreen();
+		m_rendered2D->render();
+		m_window->swapBuffers();
 	}
 }
 
 void EngineApp::terminate()
 {
-	// Application cleanup.
-	bool res = m_window->terminate();
-	ASSERT(res, "Window not terminated");
+	// Window cleanup
+	bool resTerminateWindow = m_window->terminate();
+	ASSERT(resTerminateWindow, "Window not terminated");
+
+	// Renderer2D cleanup
+	bool resTerminateRenderer2D = m_rendered2D->terminate();
+	ASSERT(resTerminateRenderer2D, "Renderer2D not terminated");
 }
 
 void EngineApp::onEvent(std::unique_ptr<Event> event)

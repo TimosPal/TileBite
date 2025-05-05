@@ -5,6 +5,7 @@
 
 #include <utilities/Logger.hpp>
 #include <events/types/WindowCloseEvent.hpp>
+#include "layers/Layer.hpp"
 
 using namespace Engine;
 
@@ -35,6 +36,8 @@ class MyApp : public Engine::EngineApp {
 		}
 
 		addSystem(std::make_unique<UnitSystem>());
+
+		//onEvent(std::make_unique<WindowCloseEvent>());
 	}
 };
 

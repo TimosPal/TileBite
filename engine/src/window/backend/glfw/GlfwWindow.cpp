@@ -20,6 +20,10 @@ bool GlfwWindow::init()
 		LOG_ERROR("GLFW Error {}: {}", code, std::string(msg));
 	}));
 
+#if defined(RENDERER_OPENGL)
+	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
+#endif
+
 	m_glfwWindow = glfwCreateWindow(m_data.width, m_data.height, m_data.title.c_str(), NULL, NULL);
 	if (!m_glfwWindow)
 	{
@@ -61,10 +65,15 @@ bool GlfwWindow::terminate()
 	return true;
 }
 
-void GlfwWindow::onUpdate() 
+void GlfwWindow::pollEvents()
 {
 	glfwPollEvents();
+}
+
+void GlfwWindow::swapBuffers()
+{
 	glfwSwapBuffers(m_glfwWindow);
 }
+
 
 } // Engine

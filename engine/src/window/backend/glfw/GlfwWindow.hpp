@@ -11,10 +11,11 @@ class GlfwWindow : public Window {
 public:  
    GlfwWindow(const Data& data);  
 
-   bool init() override;  
-   bool terminate() override;  
+   virtual bool init() override;  
+   virtual bool terminate() override;  
 
-   void onUpdate() override;  
+   virtual void pollEvents() override;
+   virtual void swapBuffers() override;
 private:  
    GLFWwindow* m_glfwWindow = nullptr;  
 };  
