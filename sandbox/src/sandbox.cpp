@@ -20,7 +20,7 @@ public:
 	{
 		for (auto [healthComp] : world.query<Health>())
 		{
-			LOG_INFO("Unit Health: {}", healthComp->value);
+			// LOG_INFO("Unit Health: {}", healthComp->value);
 		}
 	}
 };

@@ -15,9 +15,8 @@ public:
 	{
 		for (auto [spriteComp, transformComp] : world.query<SpriteComponent, TransformComponent>())
 		{
-			// Render the sprite using the transform
-			// This is a placeholder for actual rendering logic
-			LOG_INFO("Rendering sprite");
+			SpriteQuad spriteQuad;
+			m_renderer2D->drawQuad(std::move(spriteQuad));
 		}
 	}
 

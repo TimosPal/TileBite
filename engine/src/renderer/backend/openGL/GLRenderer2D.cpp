@@ -121,7 +121,10 @@ void GLRenderer2D::clearScreen()
 
 void GLRenderer2D::render()
 {
+	// Batch draw commands and submit to the GPU
+	LOG_INFO("Rendering: {} entities", m_drawCommands.size());
 
+	m_drawCommands.clear();
 }
 
 } // Engine

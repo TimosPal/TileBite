@@ -2,6 +2,8 @@
 #define RENDERER_2D_HPP
 
 #include "core/pch.hpp"
+#include "renderer/SpriteQuad.hpp"
+#include "renderer/DrawCommand2D.hpp"
 
 namespace Engine {
 
@@ -13,7 +15,17 @@ public:
     virtual void clearScreen() {}
     virtual void render() {}
 
+	void drawQuad(const SpriteQuad&& spriteQuad)
+	{
+		m_drawCommands.emplace_back(
+			DrawCommand2D{ DrawCommand2DType::Quad, std::move(spriteQuad) }
+		);
+	}
+
 	static std::unique_ptr<Renderer2D> createRenderer2D();
+
+protected:
+	std::vector<DrawCommand2D> m_drawCommands;
 };
 
 } // Engine
