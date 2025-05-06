@@ -5,7 +5,8 @@
 
 #include <utilities/Logger.hpp>
 #include <events/types/WindowCloseEvent.hpp>
-#include "layers/Layer.hpp"
+#include <layers/Layer.hpp>
+#include <ecs/types/EngineComponents.hpp>
 
 using namespace Engine;
 
@@ -24,18 +25,33 @@ public:
 	}
 };
 
-class MyApp : public Engine::EngineApp {
-	void setup() override
+class GameLayer : public Layer {
+public:
+	GameLayer(World& world) : Layer(world) {}
+
+	void onAttach() override
 	{
-		World& world = getWorld();
 		int unitCount = 10;
 		for (size_t i = 0; i < unitCount; i++)
 		{
+			World& world = getWorld();
 			ID unit = world.createEntity();
-			world.addComponents<Health>(unit, Health{ (int)i });
+			world.addComponents<Health, SpriteComponent, TransformComponent>(
+				unit,
+				Health{ (int)i },
+				SpriteComponent(),
+				TransformComponent()
+			);
 		}
 
 		addSystem(std::make_unique<UnitSystem>());
+	}
+};
+
+class MyApp : public Engine::EngineApp {
+	void setup() override
+	{
+		pushLayer(std::make_unique<GameLayer>(getWorld()));
 
 		//onEvent(std::make_unique<WindowCloseEvent>());
 	}

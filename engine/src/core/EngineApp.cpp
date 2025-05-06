@@ -2,13 +2,14 @@
 
 #include "utilities/assertions.hpp"
 #include "layers/types/SystemLayer.hpp"
+#include "layers/types/GraphicsLayer.hpp"
 
 namespace Engine {
 
 EngineApp* EngineApp::s_instance;
 
 EngineApp::EngineApp()
-	: m_isRunning(true), m_systemManager(m_world)
+	: m_isRunning(true)
 {
 	// One instance allowed.
 	ASSERT(s_instance == nullptr, "Engine app already created");
@@ -33,7 +34,8 @@ void EngineApp::init()
 
 	// Engine layers creation.
 	auto stopAppCallback = [&]() { stop(); };
-	pushLayer(std::make_unique<SystemLayer>(SystemLayer(stopAppCallback)));
+	pushLayer(std::make_unique<SystemLayer>(SystemLayer(stopAppCallback, m_world)));
+	pushOverlay(std::make_unique<GraphicsLayer>(GraphicsLayer(m_world)));
 }
 
 void EngineApp::run()
@@ -44,10 +46,11 @@ void EngineApp::run()
 	{
 		m_window->pollEvents();
 		m_eventQueue.dispatchAll(m_layers);
-
-		m_systemManager.updateSystems(deltaTime);
 		
 		m_rendered2D->clearScreen();
+
+		m_layers.onUpdate(deltaTime);
+
 		m_rendered2D->render();
 		m_window->swapBuffers();
 	}
@@ -86,11 +89,6 @@ void EngineApp::pushLayer(std::unique_ptr<Layer> layer)
 void EngineApp::pushOverlay(std::unique_ptr<Layer> layer)
 {
 	m_layers.pushOverlay(std::move(layer));
-}
-
-void EngineApp::addSystem(std::unique_ptr<ISystem> system)
-{
-	m_systemManager.addSystem(std::move(system));
 }
 
 } // Engine

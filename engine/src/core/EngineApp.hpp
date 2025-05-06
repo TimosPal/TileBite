@@ -9,7 +9,6 @@
 #include "events/EventDispatcher.hpp"
 #include "layers/LayerStack.hpp"
 #include "window/Window.hpp"
-#include "ecs/SystemManager.hpp"
 #include "ecs/World.hpp"
 #include "renderer/Renderer2D.hpp"
 
@@ -39,8 +38,6 @@ public:
 	void pushLayer(std::unique_ptr<Layer> layer);
 	void pushOverlay(std::unique_ptr<Layer> layer);
 
-	void addSystem(std::unique_ptr<ISystem> system);
-
 	World& getWorld() { return m_world; }
 
 private:
@@ -57,7 +54,6 @@ private:
 
 	// ECS
 	World m_world;
-	SystemManager m_systemManager;
 
 	bool m_isRunning;
 };

@@ -49,4 +49,12 @@ void LayerStack::dispatchEventToLayers(Event& event)
 	}
 }
 
+void LayerStack::onUpdate(float deltaTime)
+{
+	for (auto& layer : m_layers)
+	{
+		layer->onUpdate(deltaTime);
+	}
+}
+
 } // Engine

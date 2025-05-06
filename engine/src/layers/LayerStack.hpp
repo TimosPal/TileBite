@@ -17,6 +17,7 @@ public:
 	void popOverlay(Layer* overlay);
 
 	void dispatchEventToLayers(Event& event);
+	void onUpdate(float deltaTime);
 
 private:
 	std::vector<std::unique_ptr<Layer>> m_layers;
