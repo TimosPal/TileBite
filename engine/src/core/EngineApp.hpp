@@ -44,7 +44,7 @@ private:
 	static EngineApp* s_instance;
 
 	std::unique_ptr<Window> m_window;
-	std::unique_ptr<Renderer2D> m_rendered2D;
+	std::shared_ptr<Renderer2D> m_rendered2D;
 
 	ResourceManager<TextFileResource> m_textFilesResourceManager;
 

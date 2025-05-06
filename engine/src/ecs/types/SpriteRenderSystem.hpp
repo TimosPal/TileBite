@@ -3,11 +3,14 @@
 
 #include "ecs/ISystem.hpp"
 #include "ecs/types/EngineComponents.hpp"
+#include "renderer/Renderer2D.hpp"
 
 namespace Engine {
 
 class SpriteRenderSystem : public ISystem {
 public:
+	SpriteRenderSystem(std::shared_ptr<Renderer2D> renderer2D) : m_renderer2D(renderer2D) {}
+
 	virtual void update(World& world, float deltaTime) override
 	{
 		for (auto [spriteComp, transformComp] : world.query<SpriteComponent, TransformComponent>())
@@ -17,6 +20,9 @@ public:
 			LOG_INFO("Rendering sprite");
 		}
 	}
+
+private:
+	std::shared_ptr<Renderer2D> m_renderer2D;
 };
 
 } // Engine

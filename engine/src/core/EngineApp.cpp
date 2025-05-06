@@ -35,7 +35,7 @@ void EngineApp::init()
 	// Engine layers creation.
 	auto stopAppCallback = [&]() { stop(); };
 	pushLayer(std::make_unique<SystemLayer>(SystemLayer(stopAppCallback, m_world)));
-	pushOverlay(std::make_unique<GraphicsLayer>(GraphicsLayer(m_world)));
+	pushOverlay(std::make_unique<GraphicsLayer>(GraphicsLayer(m_world, m_rendered2D)));
 }
 
 void EngineApp::run()
