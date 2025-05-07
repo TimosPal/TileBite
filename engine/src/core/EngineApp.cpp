@@ -28,14 +28,18 @@ void EngineApp::init()
 	ASSERT(resInitWindow, "Window not init");
 
 	// Renderer creation.
-	m_rendered2D = Renderer2D::createRenderer2D();
-	bool resInitRendered2D = m_rendered2D->init();
+	m_renderer2D = Renderer2D::createRenderer2D();
+	bool resInitRendered2D = m_renderer2D->init();
 	ASSERT(resInitRendered2D, "Renderer2D not init");
 
 	// Engine layers creation.
 	auto stopAppCallback = [&]() { stop(); };
 	pushLayer(std::make_unique<SystemLayer>(SystemLayer(stopAppCallback, m_world)));
-	pushOverlay(std::make_unique<GraphicsLayer>(GraphicsLayer(m_world, m_rendered2D)));
+	pushOverlay(std::make_unique<GraphicsLayer>(GraphicsLayer(m_world, m_renderer2D)));
+
+	// Load engine resources
+	bool resResourceHubInit = m_resourceHub.init();
+	ASSERT(resResourceHubInit, "Resource hub not init");
 }
 
 void EngineApp::run()
@@ -54,11 +58,11 @@ void EngineApp::run()
 		m_window->pollEvents();
 		m_eventQueue.dispatchAll(m_layers);
 		
-		m_rendered2D->clearScreen();
+		m_renderer2D->clearScreen();
 
 		m_layers.onUpdate(deltaTime);
 
-		m_rendered2D->render();
+		m_renderer2D->render();
 		m_window->swapBuffers();
 
 		static int i = 0;
@@ -74,7 +78,7 @@ void EngineApp::terminate()
 	ASSERT(resTerminateWindow, "Window not terminated");
 
 	// Renderer2D cleanup
-	bool resTerminateRenderer2D = m_rendered2D->terminate();
+	bool resTerminateRenderer2D = m_renderer2D->terminate();
 	ASSERT(resTerminateRenderer2D, "Renderer2D not terminated");
 }
 

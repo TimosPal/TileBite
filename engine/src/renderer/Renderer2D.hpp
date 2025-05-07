@@ -15,7 +15,7 @@ public:
     virtual void clearScreen() {}
     virtual void render() {}
 
-	void drawQuad(const SpriteQuad&& spriteQuad)
+	void drawQuad(SpriteQuad&& spriteQuad)
 	{
 		m_drawCommands.emplace_back(
 			DrawCommand2D{ DrawCommand2DType::Quad, std::move(spriteQuad) }

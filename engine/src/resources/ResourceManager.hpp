@@ -27,7 +27,8 @@ public:
 
 		ID id = resource.getInstanceID();
 		m_nameToID[resourceName] = id;
-		return m_resources.emplace(id, std::move(resource));
+		auto [it, inserted] = m_resources.emplace(id, std::move(resource));
+		return ResourceHandle<ResourceType>(&(it->second));
 	}
 
 	ResourceHandle<ResourceType> getResource(const std::string& name)

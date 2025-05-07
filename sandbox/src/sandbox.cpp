@@ -31,7 +31,7 @@ public:
 
 	void onAttach() override
 	{
-		int unitCount = 5000;
+		int unitCount = 100;
 		for (size_t i = 0; i < unitCount; i++)
 		{
 			World& world = getWorld();

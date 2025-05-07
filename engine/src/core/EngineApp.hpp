@@ -2,8 +2,6 @@
 #define ENGINE_APP_HPP
 
 #include "core/AppConfig.hpp"
-#include "resources/ResourceManager.hpp"
-#include "resources/types/TextFileResource.hpp"
 #include "events/Event.hpp"
 #include "events/EventQueue.hpp"
 #include "events/EventDispatcher.hpp"
@@ -11,6 +9,7 @@
 #include "window/Window.hpp"
 #include "ecs/World.hpp"
 #include "renderer/Renderer2D.hpp"
+#include "resources/types/ResourceHub.hpp"
 
 namespace Engine {
 
@@ -44,9 +43,10 @@ private:
 	static EngineApp* s_instance;
 
 	std::unique_ptr<Window> m_window;
-	std::shared_ptr<Renderer2D> m_rendered2D;
+	std::shared_ptr<Renderer2D> m_renderer2D;
 
-	ResourceManager<TextFileResource> m_textFilesResourceManager;
+	// Resource hub.
+	ResourceHub m_resourceHub;
 
 	// Layer ID -> EventDispatcher.
 	EventQueue m_eventQueue;

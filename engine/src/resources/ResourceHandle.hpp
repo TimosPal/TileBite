@@ -27,7 +27,9 @@ public:
 		if (m_resource)
 		{
 			m_resource->unwatch();
-			m_resource->destroy();
+			bool errorOccured;
+			m_resource->destroy(errorOccured);
+			ASSERT(!errorOccured, "ResourceHandle destructor: Failed to destroy resource: {}");
 		}
 	}
 
@@ -41,11 +43,11 @@ public:
 			bool created = m_resource->create(errorOccured);
 			if (errorOccured)
 			{
-				LOG_ERROR("Failed to load resource: {}", m_resource.getName());
+				LOG_ERROR("Failed to load resource: {}", m_resource->getName());
 			}
 			if (created)
 			{
-				LOG_ERROR("Loaded resource: {}", m_resource.getName());
+				LOG_ERROR("Loaded resource: {}", m_resource->getName());
 			}	
 
 			return created;
@@ -56,7 +58,7 @@ public:
 		}
 	}
 
-	void unload()
+	bool unload()
 	{
 		if (m_resource)
 		{
@@ -64,11 +66,11 @@ public:
 			bool destroyed = m_resource->destroy(errorOccured);
 			if (errorOccured)
 			{
-				LOG_ERROR("Failed to unload resource: {}", m_resource.getName());
+				LOG_ERROR("Failed to unload resource: {}", m_resource->getName());
 			}
 			if (destroyed)
 			{
-				LOG_ERROR("Unloaded resource: {}", m_resource.getName());
+				LOG_ERROR("Unloaded resource: {}", m_resource->getName());
 			}
 
 			return destroyed;

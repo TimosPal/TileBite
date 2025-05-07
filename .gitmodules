@@ -4,3 +4,6 @@
 [submodule "engine/external/glfw"]
 	path = engine/external/glfw
 	url = https://github.com/glfw/glfw.git
+[submodule "engine/external/stb"]
+	path = engine/external/stb
+	url = https://github.com/nothings/stb.git

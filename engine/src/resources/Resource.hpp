@@ -36,7 +36,7 @@ public:
 		return m_isCreated;
 	}
 
-	std::string& getName() const { return m_name; }
+	std::string& getName() { return m_name; }
 protected:
 	// Should implement creation and deletion logic for derived Resource types.
 	virtual bool createImplementation() { return false; };

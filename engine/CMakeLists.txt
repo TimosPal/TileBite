@@ -57,3 +57,10 @@ endif()
 # Add spdlog
 add_subdirectory(external/spdlog)
 target_link_libraries(GameEngine PUBLIC spdlog::spdlog)
+
+# stb image
+add_library(stb_image INTERFACE)
+target_include_directories(stb_image INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/external/stb)
+target_link_libraries(GameEngine PUBLIC stb_image)
+
+target_compile_definitions(GameEngine PRIVATE ENGINE_ASSETS_PATH="${CMAKE_CURRENT_SOURCE_DIR}/assets")
