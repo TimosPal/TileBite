@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <memory>
 #include <ranges>
+#include <chrono>
 
 #include <cstddef>
 
@@ -14,6 +15,7 @@
 #include <stdexcept>
 #include <limits>
 
+#include <array>
 #include <vector>
 #include <unordered_map>
 #include <queue>

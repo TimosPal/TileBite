@@ -40,10 +40,17 @@ void EngineApp::init()
 
 void EngineApp::run()
 {
+	using Clock = std::chrono::high_resolution_clock;
+
 	// Engine loop.
-	float deltaTime = 0.0f; // TODO: calculate.
+	float deltaTime = 0.0f;
+	auto lastFrameTime = Clock::now();
 	while (m_isRunning)
 	{
+		auto currentFrameTime = Clock::now();
+		deltaTime = std::chrono::duration<float>(currentFrameTime - lastFrameTime).count();
+		lastFrameTime = currentFrameTime;
+
 		m_window->pollEvents();
 		m_eventQueue.dispatchAll(m_layers);
 		
@@ -53,6 +60,10 @@ void EngineApp::run()
 
 		m_rendered2D->render();
 		m_window->swapBuffers();
+
+		static int i = 0;
+		if(i++ % 40 == 0)
+			LOG_INFO("FPS: {}", 1.0f / deltaTime);
 	}
 }
 

@@ -18,10 +18,10 @@ class UnitSystem : public ISystem {
 public:
 	void update(World& world, float deltaTime) override
 	{
-		for (auto [healthComp] : world.query<Health>())
-		{
-			// LOG_INFO("Unit Health: {}", healthComp->value);
-		}
+		//for (auto [healthComp] : world.query<Health>())
+		//{
+		//	// LOG_INFO("Unit Health: {}", healthComp->value);
+		//}
 	}
 };
 
@@ -31,7 +31,7 @@ public:
 
 	void onAttach() override
 	{
-		int unitCount = 10;
+		int unitCount = 5000;
 		for (size_t i = 0; i < unitCount; i++)
 		{
 			World& world = getWorld();

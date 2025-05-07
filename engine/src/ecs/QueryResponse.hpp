@@ -13,6 +13,40 @@ public:
 		: m_archetypes(archetypes)
 	{}
 
+	template<typename Func>
+	void each(Func&& func)
+	{
+		for (auto& archetype : m_archetypes)
+		{
+			auto& compStorages = archetype->getComponents();
+			auto& sig = archetype->getSignature();
+
+			std::array<uint32_t, sizeof...(ComponentTypes)> compIndices = {
+				sig.getIndex(GET_TYPE_ID(Component, std::decay_t<ComponentTypes>))...
+			};
+
+			for (int entityIndex = 0; entityIndex < archetype->getEntitiesCount(); ++entityIndex)
+			{
+				callWithComponents(func, compStorages, compIndices, entityIndex,
+					std::index_sequence_for<ComponentTypes...>{});
+			}
+		}
+	}
+
+	template<typename Func, size_t... I>
+	inline void callWithComponents(Func& func,
+		std::vector<ComponentStorage>& compStorages,
+		std::array<uint32_t, sizeof...(ComponentTypes)>& compIndices,
+		int entityIndex,
+		std::index_sequence<I...>)
+	{
+		func(
+			static_cast<std::decay_t<ComponentTypes>*>
+			(compStorages[compIndices[I]].get(entityIndex))
+			...
+		);
+	}
+
 	class Iterator {
 	public:
 		Iterator(std::vector<std::shared_ptr<Archetype>>::iterator archetypesIt,

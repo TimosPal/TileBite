@@ -35,6 +35,8 @@ bool GlfwWindow::init()
 	glfwMakeContextCurrent(m_glfwWindow);
 	glfwSetWindowUserPointer(m_glfwWindow, &m_data);
 
+	glfwSwapInterval(0); // gsync off
+
 	// * ======================= *
 	// * Window callbacks setup  *
 	// * ======================= *
