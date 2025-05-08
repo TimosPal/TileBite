@@ -40,6 +40,8 @@ void EngineApp::init()
 	// Load engine resources
 	bool resResourceHubInit = m_resourceHub.init();
 	ASSERT(resResourceHubInit, "Resource hub not init");
+
+	LOG_INFO("Engine init successfully");
 }
 
 void EngineApp::run()

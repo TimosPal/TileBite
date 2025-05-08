@@ -53,7 +53,7 @@ class MyApp : public Engine::EngineApp {
 	{
 		pushLayer(std::make_unique<GameLayer>(getWorld()));
 
-		//onEvent(std::make_unique<WindowCloseEvent>());
+		onEvent(std::make_unique<WindowCloseEvent>());
 	}
 };
 

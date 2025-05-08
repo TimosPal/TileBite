@@ -5,7 +5,7 @@ namespace Engine {
 TextFileResource::TextFileResource(const std::string& resourceName, const std::string& filePath)
 	: 
     Resource(resourceName),
-    m_filePath(m_filePath), m_fileContent("")
+    m_filePath(filePath), m_fileContent("")
 {}
 
 TextFileResource::TextFileResource()
@@ -14,18 +14,19 @@ TextFileResource::TextFileResource()
 
 bool TextFileResource::createImplementation()
 {
-    // Open the file in binary mode to ensure no data is lost due to newline conversion
-    std::ifstream file(m_filePath, std::ios::in | std::ios::binary);
+   // Open the file in binary mode to ensure no data is lost due to newline conversion
+   std::ifstream file(m_filePath, std::ios::in | std::ios::binary);
 
-    if (!file.is_open()) {
-        return false;
-    }
+   if (!file.is_open())
+   {
+       return false;
+   }
 
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    m_fileContent = buffer.str();
+   std::stringstream buffer;
+   buffer << file.rdbuf();
+   m_fileContent = buffer.str();
 
-    return true;
+   return true;
 }
 
 bool TextFileResource::destroyImplementation()

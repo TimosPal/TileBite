@@ -47,7 +47,7 @@ public:
 			}
 			if (created)
 			{
-				LOG_ERROR("Loaded resource: {}", m_resource->getName());
+				LOG_INFO("Loaded resource: {}", m_resource->getName());
 			}	
 
 			return created;
@@ -70,7 +70,7 @@ public:
 			}
 			if (destroyed)
 			{
-				LOG_ERROR("Unloaded resource: {}", m_resource->getName());
+				LOG_INFO("Unloaded resource: {}", m_resource->getName());
 			}
 
 			return destroyed;

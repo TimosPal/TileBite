@@ -5,9 +5,9 @@ namespace Engine {
 bool ResourceHub::init()
 {
 	bool loadedAssets = true;
-
 	std::string root = ENGINE_ASSETS_PATH;
-	LOG_INFO("{}", root);
+
+	LOG_INFO("===== Engine resources =====");
 
 	auto spriteFrag = m_textFilesResourceManager.addResource(TextFileResource("spriteFrag", root + "/shaders/sprite.frag"));
 	loadedAssets = spriteFrag.load() && loadedAssets;
@@ -17,6 +17,8 @@ bool ResourceHub::init()
 
 	auto missingImage = m_imagesResourceManager.addResource(ImageResource("missingImage", root + "/images/missingTexture.png"));
 	loadedAssets = missingImage.load() && loadedAssets;
+
+	LOG_INFO("============================");
 
 	return loadedAssets;
 }
