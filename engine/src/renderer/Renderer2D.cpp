@@ -1,4 +1,5 @@
 #include "renderer/Renderer2D.hpp"
+#include "resources/types/SystemResourceHub.hpp"
 
 // NOTE: Using OpenGL as the current rendering backend.
 #if defined(RENDERER_OPENGL)
@@ -10,9 +11,9 @@
 
 namespace Engine {
 
-std::unique_ptr<Renderer2D> Renderer2D::createRenderer2D()
+std::unique_ptr<Renderer2D> Renderer2D::createRenderer2D(SystemResourceHub& systemResourceHub)
 {
-    return std::make_unique<Renderer2DBackend>();
+    return std::make_unique<Renderer2DBackend>(systemResourceHub);
 }
 
 } // Engine 

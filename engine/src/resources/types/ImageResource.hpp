@@ -11,6 +11,12 @@ class ImageResource : public Resource<ImageResource> {
 public:
 	ImageResource();
 	ImageResource(const std::string& resourceName, const std::string& filePath);
+	virtual bool isValid() override;
+
+	ImageResource(ImageResource&&) noexcept = default;
+	ImageResource& operator=(ImageResource&&) noexcept = default;
+	ImageResource(const ImageResource&) = delete;
+	ImageResource& operator=(const ImageResource&) = delete;
 private:
 	virtual bool createImplementation() override;
 	virtual bool destroyImplementation() override;

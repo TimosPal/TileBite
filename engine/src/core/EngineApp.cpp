@@ -27,8 +27,13 @@ void EngineApp::init()
 	bool resInitWindow = m_window->init();
 	ASSERT(resInitWindow, "Window not init");
 
+	// Load engine resources
+	// Needs to be done before renderer since it needs to load shaders.
+	bool resResourceHubInit = m_resourceHub.init();
+	ASSERT(resResourceHubInit, "Resource hub not init");
+
 	// Renderer creation.
-	m_renderer2D = Renderer2D::createRenderer2D();
+	m_renderer2D = Renderer2D::createRenderer2D(m_resourceHub);
 	bool resInitRendered2D = m_renderer2D->init();
 	ASSERT(resInitRendered2D, "Renderer2D not init");
 
@@ -36,10 +41,6 @@ void EngineApp::init()
 	auto stopAppCallback = [&]() { stop(); };
 	pushLayer(std::make_unique<SystemLayer>(SystemLayer(stopAppCallback, m_world)));
 	pushOverlay(std::make_unique<GraphicsLayer>(GraphicsLayer(m_world, m_renderer2D)));
-
-	// Load engine resources
-	bool resResourceHubInit = m_resourceHub.init();
-	ASSERT(resResourceHubInit, "Resource hub not init");
 
 	LOG_INFO("Engine init successfully");
 }

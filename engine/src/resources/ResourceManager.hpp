@@ -21,10 +21,10 @@ public:
 		const std::string& resourceName = resource.getName();
 		if (m_nameToID.find(resourceName) != m_nameToID.end())
 		{
+			LOG_INFO("boop");
 			// Return the existing resource handle if the resource is already added
 			return getResource(resourceName);
 		}
-
 		ID id = resource.getInstanceID();
 		m_nameToID[resourceName] = id;
 		auto [it, inserted] = m_resources.emplace(id, std::move(resource));

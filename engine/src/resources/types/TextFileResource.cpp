@@ -35,4 +35,10 @@ bool TextFileResource::destroyImplementation()
     return true;
 }
 
+bool TextFileResource::isValid()
+{
+	bool exists = std::filesystem::exists(m_filePath);
+	return exists;
+}
+
 } // Engine

@@ -38,4 +38,10 @@ bool ImageResource::destroyImplementation()
 	return true;
 }
 
+bool ImageResource::isValid()
+{
+	bool exists = std::filesystem::exists(m_filePath);
+	return exists;
+}
+
 } // Engine

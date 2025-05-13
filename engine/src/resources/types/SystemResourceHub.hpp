@@ -1,13 +1,13 @@
-#ifndef RESOURCE_HUB_HPP
-#define RESOURCE_HUB_HPP
+#ifndef SYSTEM_RESOURCE_HUB_HPP
+#define SYSTEM_RESOURCE_HUB_HPP
 
-#include "resources//ResourceManager.hpp"
+#include "resources/ResourceManager.hpp"
 #include "resources/types/ImageResource.hpp"
 #include "resources/types/TextFileResource.hpp"
 
 namespace Engine {
 
-class ResourceHub {
+class SystemResourceHub {
 public:
 	bool init();
 
@@ -26,4 +26,4 @@ private:
 
 } // Engine
 
-#endif // !RESOURCE_HUB_HPP
+#endif // !SYSTEM_RESOURCE_HUB_HPP

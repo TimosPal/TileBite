@@ -2,6 +2,7 @@
 #define MISC_HPP
 
 #include "core/pch.hpp"
+#include "utilities/Logger.hpp"
 
 namespace Engine {
 
@@ -23,6 +24,22 @@ bool removeElement(std::vector<T>& vec, int index)
     }
     return false;
 }
+
+template<typename ResourceTypeHandle>
+bool logResourceValidity(ResourceTypeHandle& handle, const char* name)
+{
+	if (handle.isValid())
+	{
+		LOG_INFO("Valid resource: {}", name);
+		return true;
+	}
+	else
+	{
+		LOG_ERROR("Invalid resource: {}", name);
+		return false;
+	}
+}
+
 
 } // Engine
 

@@ -4,6 +4,7 @@
 #include "core/pch.hpp"
 #include "renderer/SpriteQuad.hpp"
 #include "renderer/DrawCommand2D.hpp"
+#include "resources/types/SystemResourceHub.hpp"
 
 namespace Engine {
 
@@ -22,7 +23,7 @@ public:
 		);
 	}
 
-	static std::unique_ptr<Renderer2D> createRenderer2D();
+	static std::unique_ptr<Renderer2D> createRenderer2D(SystemResourceHub& systemResourceHub);
 
 protected:
 	std::vector<DrawCommand2D> m_drawCommands;

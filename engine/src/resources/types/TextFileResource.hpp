@@ -11,6 +11,14 @@ class TextFileResource : public Resource<TextFileResource> {
 public:
 	TextFileResource();
 	TextFileResource(const std::string& resourceName, const std::string& filePath);
+
+	std::string& getData() { return m_fileContent; }
+	virtual bool isValid() override;
+
+	TextFileResource(TextFileResource&&) noexcept = default;
+	TextFileResource& operator=(TextFileResource&&) noexcept = default;
+	TextFileResource(const TextFileResource&) = delete;
+	TextFileResource& operator=(const TextFileResource&) = delete;
 private:
 	virtual bool createImplementation() override;
 	virtual bool destroyImplementation() override;

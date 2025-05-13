@@ -106,6 +106,10 @@ bool GLRenderer2D::init()
 	// Clear color TODO: abstract
 	glClearColor(0.2f, 0.2f, 0.2f, 0.0f);
 
+	// Load renderer resources
+	bool resResourceHubInit = m_resourceHub.init();
+	ASSERT(resResourceHubInit, "Resource hub not init");
+
 	return true;
 }
 

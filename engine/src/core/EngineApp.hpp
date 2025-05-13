@@ -9,7 +9,7 @@
 #include "window/Window.hpp"
 #include "ecs/World.hpp"
 #include "renderer/Renderer2D.hpp"
-#include "resources/types/ResourceHub.hpp"
+#include "resources/types/SystemResourceHub.hpp"
 
 namespace Engine {
 
@@ -42,11 +42,11 @@ public:
 private:
 	static EngineApp* s_instance;
 
+	// Resource hub.
+	SystemResourceHub m_resourceHub;
+
 	std::unique_ptr<Window> m_window;
 	std::shared_ptr<Renderer2D> m_renderer2D;
-
-	// Resource hub.
-	ResourceHub m_resourceHub;
 
 	// Layer ID -> EventDispatcher.
 	EventQueue m_eventQueue;
