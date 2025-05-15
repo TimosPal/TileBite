@@ -12,37 +12,24 @@ namespace Engine {
 template<typename ResourceType>
 class Resource : public Identifiable {
 public:
-    void watch() { m_watchers++; }
-	void unwatch() { if (m_watchers > 0) --m_watchers; }
-
-    bool create(bool& errorOccurred)
+    bool create()
     {
-        errorOccurred = false;
-        if (m_isCreated) return false;
-
-        bool success = createImplementation();
-        if (!success)
+        if (createImplementation())
         {
-            errorOccurred = true;
-            return false;
+            m_isCreated = true;
+            return true;
         }
-        m_isCreated = true;
-        return true;
+        return false;
     }
 
-    bool destroy(bool& errorOccurred)
+    bool destroy()
     {
-        errorOccurred = false;
-        if (!m_isCreated || m_watchers > 0) return false;
-
-        bool success = destroyImplementation();
-        if (!success)
+        if (destroyImplementation())
         {
-            errorOccurred = true;
-            return false;
+            m_isCreated = false;
+            return true;
         }
-        m_isCreated = false;
-        return true;
+        return false;
     }
 
 	std::string& getName() { return m_name; }
@@ -57,24 +44,25 @@ protected:
 	Resource(std::string name) : m_name(name) {}
 	Resource() : Resource("emptyResource") {}
 	~Resource()
-	{ 
-		ASSERT(m_watchers == 0, "Resource destroyed with active watchers");
-        if (m_isCreated)
-        {
-            bool errorOccured;
-            bool destroyed = destroy(errorOccured);
-            ASSERT(!errorOccured, "Resource destruction failed");
-        }
+	{
+        if (!m_isCreated) return;
+        bool destroyed = destroy();
+        ASSERT(destroyed, "Resource destruction failed");
 	}
+
+    Resource(Resource&& other) noexcept
+        : m_name(std::move(other.m_name)),
+        m_isCreated(other.m_isCreated)
+    {
+        // prevent destroy() in moved-from object
+        other.m_isCreated = false;
+    }
 
     Resource(const Resource&) = delete;
     Resource& operator=(const Resource&) = delete;
-    Resource(Resource&&) noexcept = default;
-    Resource& operator=(Resource&&) noexcept = default;
+    Resource& operator=(Resource&&) noexcept = delete;
 private:
 	std::string m_name;
-
-	uint32_t m_watchers = 0;
 	bool m_isCreated = false;
 };
 

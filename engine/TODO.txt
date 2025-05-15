@@ -4,3 +4,5 @@ Currently the engine does not utilize layers for rendering input handling etc
 - Add an Input Layer
 - Split systems per layer
 - Systems should be able to register and call events
+
+Assert -> better string format support

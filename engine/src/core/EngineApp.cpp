@@ -42,7 +42,7 @@ void EngineApp::init()
 	pushLayer(std::make_unique<SystemLayer>(SystemLayer(stopAppCallback, m_world)));
 	pushOverlay(std::make_unique<GraphicsLayer>(GraphicsLayer(m_world, m_renderer2D)));
 
-	LOG_INFO("Engine init successfully");
+	LOG_INFO("-~<<< Engine init successfully >>>~-");
 }
 
 void EngineApp::run()
@@ -76,13 +76,20 @@ void EngineApp::run()
 
 void EngineApp::terminate()
 {
+	LOG_INFO("-~<<< Engine shutting down >>>~-");
+
+	// Renderer2D cleanup
+	// Internaly destroys the resource of the renderer.
+	bool resTerminateRenderer2D = m_renderer2D->terminate();
+	ASSERT(resTerminateRenderer2D, "Renderer2D not terminated");
+
+	// System resource hub
+	bool destroyedResourceHub = m_resourceHub.destroy();
+	ASSERT(destroyedResourceHub, "System resource hub not terminated");
+
 	// Window cleanup
 	bool resTerminateWindow = m_window->terminate();
 	ASSERT(resTerminateWindow, "Window not terminated");
-
-	// Renderer2D cleanup
-	bool resTerminateRenderer2D = m_renderer2D->terminate();
-	ASSERT(resTerminateRenderer2D, "Renderer2D not terminated");
 }
 
 void EngineApp::onEvent(std::unique_ptr<Event> event)

@@ -10,28 +10,46 @@ bool GLResourceHub::init()
 {
 	bool validAssets = true;
 
+	LOG_INFO("");
 	LOG_INFO("===== Renderer resources =====");
 
 	auto spriteVertFile = m_systemResourceHub.getManager<TextFileResource>().getResource(ResourceNames::SpriteVertFile);
 	auto spriteVertShader = m_shadersResourceManager.addResource(
 		GLShader(ResourceNames::SpriteVertShader, std::move(spriteVertFile), ShaderType::Vertex)
 	);
-	//validAssets = logResourceValidity(spriteVertShader, ResourceNames::SpriteVertShader) && validAssets;
+	validAssets = logResourceValidity(spriteVertShader, ResourceNames::SpriteVertShader) && validAssets;
 
-	//auto spriteFragFile = m_systemResourceHub.getManager<TextFileResource>().getResource(ResourceNames::SpriteFragFile);
-	//auto spriteFragShader = m_shadersResourceManager.addResource(
-	//	GLShader(ResourceNames::SpriteFragShader, std::move(spriteFragFile), ShaderType::Fragment)
-	//);
-	//validAssets = logResourceValidity(spriteFragShader, ResourceNames::SpriteFragShader) && validAssets;
+	auto spriteFragFile = m_systemResourceHub.getManager<TextFileResource>().getResource(ResourceNames::SpriteFragFile);
+	auto spriteFragShader = m_shadersResourceManager.addResource(
+		GLShader(ResourceNames::SpriteFragShader, std::move(spriteFragFile), ShaderType::Fragment)
+	);
+	validAssets = logResourceValidity(spriteFragShader, ResourceNames::SpriteFragShader) && validAssets;
 
-	//auto spriteShader = m_programsResourceManager.addResource(
-	//	GLProgram(ResourceNames::SpriteShader, std::move(spriteVertShader), std::move(spriteFragShader))
-	//);
-	//validAssets = logResourceValidity(spriteShader, ResourceNames::SpriteShader) && validAssets;
+	auto spriteShader = m_programsResourceManager.addResource(
+		GLProgram(ResourceNames::SpriteShader, std::move(spriteVertShader), std::move(spriteFragShader))
+	);
+	validAssets = logResourceValidity(spriteShader, ResourceNames::SpriteShader) && validAssets;
+
+	LOG_INFO("==============================");
+	LOG_INFO("");
+
+	return validAssets;
+}
+
+bool GLResourceHub::destroy()
+{
+	// NOTE: order matters!!!
+	// Managers using resources from other managers should be destroyed first.
+
+	LOG_INFO("");
+	LOG_INFO("===== Renderer resources =====");
+
+	m_programsResourceManager.clear();
+	m_shadersResourceManager.clear();
 
 	LOG_INFO("==============================");
 
-	return validAssets;
+	return true;
 }
 
 } // Engine

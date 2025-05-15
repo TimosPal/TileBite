@@ -16,7 +16,6 @@ enum class ShaderType {
 class GLShader : public Resource<GLShader> {
 	SETUP_ID(Resource, GLShader)
 public:
-	GLShader();
 	GLShader(const std::string& resourceName, ResourceHandle<TextFileResource>&& handle, ShaderType type);
 
 	GLuint getGLID() { return m_glShader; }

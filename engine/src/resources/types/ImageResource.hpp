@@ -9,7 +9,6 @@ namespace Engine {
 class ImageResource : public Resource<ImageResource> {
 	SETUP_ID(Resource, ImageResource)
 public:
-	ImageResource();
 	ImageResource(const std::string& resourceName, const std::string& filePath);
 	virtual bool isValid() override;
 

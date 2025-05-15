@@ -10,7 +10,6 @@ namespace Engine {
 class GLProgram : public Resource<GLProgram> {
 	SETUP_ID(Resource, GLShader)
 public:
-	GLProgram();
 	GLProgram(
 		const std::string& resourceName,
 		ResourceHandle<GLShader>&& vertexHandle,

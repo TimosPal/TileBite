@@ -115,7 +115,8 @@ bool GLRenderer2D::init()
 
 bool GLRenderer2D::terminate()
 {
-	return true;
+	bool destroyedResourceHub = m_resourceHub.destroy();
+	return destroyedResourceHub;
 }
 
 void GLRenderer2D::clearScreen()

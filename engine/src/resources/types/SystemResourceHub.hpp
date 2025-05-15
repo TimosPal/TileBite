@@ -10,6 +10,7 @@ namespace Engine {
 class SystemResourceHub {
 public:
 	bool init();
+	bool destroy();
 
 	template<typename T>
 	ResourceManager<T>& getManager();

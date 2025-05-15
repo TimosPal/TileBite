@@ -5,10 +5,6 @@
 
 namespace Engine {
 
-ImageResource::ImageResource()
-	: Resource<ImageResource>()
-{}
-
 ImageResource::ImageResource(const std::string& resourceName, const std::string& filePath)
 	: Resource<ImageResource>(resourceName)
 	, m_filePath(filePath)

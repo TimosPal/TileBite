@@ -8,10 +8,6 @@ TextFileResource::TextFileResource(const std::string& resourceName, const std::s
     m_filePath(filePath), m_fileContent("")
 {}
 
-TextFileResource::TextFileResource()
-	: TextFileResource("NoName", "")
-{}
-
 bool TextFileResource::createImplementation()
 {
    // Open the file in binary mode to ensure no data is lost due to newline conversion

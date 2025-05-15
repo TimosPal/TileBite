@@ -5,21 +5,34 @@
 
 namespace Engine {
 
-GLProgram::GLProgram()
-{}
-
 GLProgram::GLProgram(
 	const std::string& resourceName,
 	ResourceHandle<GLShader>&& vertexHandle,
 	ResourceHandle<GLShader>&& fragmentHandle
 ) 
-	: m_vertexHandle(vertexHandle), m_fragmentHandle(fragmentHandle)
+	: Resource<GLProgram>(resourceName),
+	m_vertexHandle(std::move(vertexHandle)),
+	m_fragmentHandle(std::move(fragmentHandle))
 {}
 
 bool GLProgram::createImplementation()
 {
-	m_vertexHandle.load();
-	m_fragmentHandle.load();
+	bool success;
+	m_vertexHandle.watch();
+	success = m_vertexHandle.load();
+	if (!success)
+	{
+		LOG_ERROR("Error loading vertex shader");
+		return false;
+	}
+
+	m_fragmentHandle.watch();
+	success = m_fragmentHandle.load();
+	if (!success)
+	{
+		LOG_ERROR("Error loading fragment shader");
+		return false;
+	}
 
 	GL_RET(glCreateProgram(), m_glProgram);
 
@@ -30,10 +43,10 @@ bool GLProgram::createImplementation()
 	GL(glAttachShader(m_glProgram, fragmentShader));
 	GL(glLinkProgram(m_glProgram));
 
-	int success;
+	int successIv;
 	char infoLog[512];
-	GL(glGetProgramiv(m_glProgram, GL_LINK_STATUS, &success));
-	if (!success)
+	GL(glGetProgramiv(m_glProgram, GL_LINK_STATUS, &successIv));
+	if (!successIv)
 	{
 		GL(glGetProgramInfoLog(m_glProgram, 512, NULL, infoLog));
 		LOG_ERROR("LINKING FAILED: {}", infoLog);
@@ -52,6 +65,11 @@ bool GLProgram::destroyImplementation()
 		s_instanceInUse = nullptr;
 	}
 	m_glProgram = 0;
+
+	m_fragmentHandle.unwatch();
+	m_fragmentHandle.unload();
+	m_vertexHandle.unwatch();
+	m_vertexHandle.unload();
 
 	return true;
 }

@@ -8,6 +8,7 @@ bool SystemResourceHub::init()
 {
 	bool validAssets = true;
 
+	LOG_INFO("");
 	LOG_INFO("====== System resources ======");
 
 	auto spriteVert = m_textFilesResourceManager.addResource(
@@ -26,8 +27,23 @@ bool SystemResourceHub::init()
 	validAssets = logResourceValidity(missingImage, ResourceNames::MissingImageFile) && validAssets;
 
 	LOG_INFO("==============================");
+	LOG_INFO("");
 
 	return validAssets;
+}
+
+bool SystemResourceHub::destroy()
+{
+	LOG_INFO("");
+	LOG_INFO("====== System resources ======");
+
+	m_textFilesResourceManager.clear();
+	m_imagesResourceManager.clear();
+
+	LOG_INFO("==============================");
+	LOG_INFO("");
+
+	return true;
 }
 
 } // Engine

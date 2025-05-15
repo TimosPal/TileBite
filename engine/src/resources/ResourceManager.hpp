@@ -6,13 +6,14 @@
 #include "utilities/misc.hpp"
 #include "resources/Resource.hpp"
 #include "resources/ResourceHandle.hpp"
+#include "resources/ControlBlock.hpp"
 
 namespace Engine {
 
 template<typename ResourceType>
 requires 
 DerivedFrom<ResourceType, Resource<ResourceType>> && 
-DefaultConstructible<ResourceType>
+DefaultConstructible<ControlBlock<ResourceType>>
 class ResourceManager {
 public:
 	ResourceHandle<ResourceType> addResource(ResourceType&& resource)
@@ -21,13 +22,13 @@ public:
 		const std::string& resourceName = resource.getName();
 		if (m_nameToID.find(resourceName) != m_nameToID.end())
 		{
-			LOG_INFO("boop");
 			// Return the existing resource handle if the resource is already added
 			return getResource(resourceName);
 		}
 		ID id = resource.getInstanceID();
 		m_nameToID[resourceName] = id;
-		auto [it, inserted] = m_resources.emplace(id, std::move(resource));
+		ControlBlock<ResourceType> block(std::move(resource));
+		auto [it, inserted] = m_resources.emplace(id, std::move(block));
 		return ResourceHandle<ResourceType>(&(it->second));
 	}
 
@@ -53,8 +54,14 @@ public:
 			return it->second;
 		return INVALID_ID;
 	}
+
+	void clear() 
+	{
+		m_resources.clear();
+		m_nameToID.clear();
+	}
 private:
-	std::unordered_map<ID, ResourceType> m_resources;
+	std::unordered_map<ID, ControlBlock<ResourceType>> m_resources;
 	std::unordered_map<std::string, ID> m_nameToID;
 };
 
