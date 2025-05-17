@@ -60,10 +60,6 @@ bool GLProgram::destroyImplementation()
 {
 	GL(glDeleteProgram(m_glProgram));
 
-	if (s_instanceInUse == this)
-	{
-		s_instanceInUse = nullptr;
-	}
 	m_glProgram = 0;
 
 	m_fragmentHandle.unwatch();
@@ -81,23 +77,11 @@ bool GLProgram::isValid()
 
 void GLProgram::use()
 {
-	if (s_instanceInUse == this)
-	{
-		return;
-	}
-
-	s_instanceInUse = this;
 	GL(glUseProgram(m_glProgram));
 }
 
 void GLProgram::unuse()
 {
-	if (s_instanceInUse != this)
-	{
-		return;
-	}
-
-	s_instanceInUse = nullptr;
 	GL(glUseProgram(0));
 }
 

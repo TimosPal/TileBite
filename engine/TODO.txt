@@ -6,3 +6,7 @@ Currently the engine does not utilize layers for rendering input handling etc
 - Systems should be able to register and call events
 
 Assert -> better string format support
+
+
+GL objects dont check binds before binding themselves, or do any unsettings / bind undos
+(Not sure if needed)

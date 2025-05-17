@@ -2,6 +2,9 @@
 
 #include "utilities/Logger.hpp"
 #include "renderer/backend/openGL/GLWrapper.hpp"
+#include "renderer/backend/openGL/GLMesh.hpp"
+#include "renderer/backend/openGL/GLProgram.hpp"
+#include "core/ResourceRegistry.hpp"
 
 // NOTE: if other APIs also require a loader per window backend, this may need
 // better abstraction.
@@ -127,6 +130,39 @@ void GLRenderer2D::clearScreen()
 void GLRenderer2D::render()
 {
 	// Batch draw commands and submit to the GPU
+
+	// Load program from render hub
+	auto programHandle = m_resourceHub.getManager<GLProgram>().getResource(ResourceNames::SpriteShader);
+	programHandle.watch();
+	programHandle.load();
+	auto programID = programHandle.getResource()->getGLID();
+	
+	// Vertex data for a single triangle (3 vertices, each with 2 floats position)
+	float vertices[] = {
+		0.0f,  0.5f,  // Top vertex
+	   -0.5f, -0.5f,  // Bottom left
+		0.5f, -0.5f   // Bottom right
+	};
+
+	// Indices for the triangle (3 indices)
+	uint32_t indices[] = { 0, 1, 2 };
+
+	// Setup batch with 3 vertices and 3 indices
+	GLMesh batch(sizeof(vertices), 3);
+
+	VertexLayout layout;
+	layout.add(VertexAttribute("aPos", ShaderAttributeType::Float2));
+
+	batch.setupAttributes(layout, programID);
+
+	// Upload vertex and index data
+	batch.setVertexData(vertices, sizeof(vertices));
+	batch.setIndexData(indices, 3);
+
+	// Bind VAO and draw
+	batch.bind();
+	programHandle.getResource()->use();
+	batch.draw();
 
 	m_drawCommands.clear();
 }

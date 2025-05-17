@@ -20,6 +20,8 @@ public:
 	void unuse();
 	virtual bool isValid() override;
 
+	unsigned int getGLID() { return m_glProgram; }
+
 	GLProgram(GLProgram&&) noexcept = default;
 	GLProgram& operator=(GLProgram&&) noexcept = default;
 	GLProgram(const GLProgram&) = delete;
@@ -27,8 +29,6 @@ public:
 private:
 	virtual bool createImplementation() override;
 	virtual bool destroyImplementation() override;
-
-	inline static GLProgram* s_instanceInUse = nullptr;
 
 	ResourceHandle<GLShader> m_vertexHandle;
 	ResourceHandle<GLShader> m_fragmentHandle;
