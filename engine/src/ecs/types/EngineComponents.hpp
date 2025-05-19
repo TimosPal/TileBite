@@ -10,7 +10,8 @@ struct SpriteComponent
 
 struct TransformComponent
 {
-	int temp;
+	float x, y;
+	float w, h;
 };
 
 } // Engine

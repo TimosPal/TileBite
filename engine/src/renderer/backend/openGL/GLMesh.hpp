@@ -15,12 +15,12 @@ public:
 	GLMesh(uint32_t size, uint32_t indicesCount);
 	~GLMesh();
 
-	void setVertexData(const float* data, size_t size);
+	void setVertexData(const void* data, size_t size);
 	void setIndexData(const uint32_t* data, size_t count);
 
 	void setupAttributes(const VertexLayout& layout, GLuint shaderProgram);
 
-	void draw();
+	void draw(uint32_t indicesCount);
 
 	void bind();
 	void unbind();

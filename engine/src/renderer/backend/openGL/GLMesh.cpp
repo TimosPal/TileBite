@@ -38,7 +38,7 @@ GLMesh::~GLMesh()
 	GL(glDeleteVertexArrays(1, &m_glVAO));
 }
 
-void GLMesh::setVertexData(const float* data, size_t size)
+void GLMesh::setVertexData(const void* data, size_t size)
 {
 	m_vertexBuffer.setData(data, size);
 }
@@ -82,10 +82,10 @@ void GLMesh::setupAttributes(const VertexLayout& layout, GLuint shaderProgram)
 	}
 }
 
-void GLMesh::draw()
+void GLMesh::draw(uint32_t indicesCount)
 {
 	GL(glBindVertexArray(m_glVAO));
-	GL(glDrawElements(GL_TRIANGLES, m_indexBuffer.getCount(), GL_UNSIGNED_INT, nullptr));
+	GL(glDrawElements(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, nullptr));
 }
 
 } // Engine

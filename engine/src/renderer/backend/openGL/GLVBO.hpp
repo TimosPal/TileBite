@@ -16,7 +16,7 @@ public:
 	void bind();
 	void unbind();
 
-	void setData(const float* data, uint32_t size);
+	void setData(const void* data, uint32_t size);
 private:
 	GLuint m_glVBO;
 	uint32_t m_size;

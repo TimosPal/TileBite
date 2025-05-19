@@ -2,7 +2,6 @@
 
 #include "utilities/Logger.hpp"
 #include "renderer/backend/openGL/GLWrapper.hpp"
-#include "renderer/backend/openGL/GLMesh.hpp"
 #include "renderer/backend/openGL/GLProgram.hpp"
 #include "core/ResourceRegistry.hpp"
 
@@ -75,6 +74,10 @@ static void APIENTRY glDebugOutput(GLenum source,
 	);
 }
 
+GLRenderer2D::GLRenderer2D(SystemResourceHub& systemResourceHub)
+	: m_resourceHub(systemResourceHub)
+{}
+
 bool GLRenderer2D::init()
 {
 	if (!loadFunctions())
@@ -113,11 +116,54 @@ bool GLRenderer2D::init()
 	bool resResourceHubInit = m_resourceHub.init();
 	ASSERT(resResourceHubInit, "Resource hub not init");
 
+	setupBuffers();
+
 	return true;
+}
+
+void GLRenderer2D::setupBuffers()
+{
+	LOG_INFO("[Setting up buffers]");
+
+	VertexLayout spriteLayout;
+	spriteLayout.add(VertexAttribute("aPos", ShaderAttributeType::Float2));
+	m_spritesBatch = std::make_unique<GLMesh>(
+		spriteLayout.getStride() * verticesPerQuad * maxQuadsPerBatch,
+		quadsIndicesCount
+	);
+
+	m_spriteProgramHandle = m_resourceHub.getManager<GLProgram>().getResource(ResourceNames::SpriteShader);
+	m_spriteProgramHandle.watch();
+	m_spriteProgramHandle.load();
+	m_spritesBatch->setupAttributes(spriteLayout, m_spriteProgramHandle.getResource()->getGLID());
+
+	// When dealing with the quad batch, index data are always the same so we can precompute them and
+	// upload them once.
+	std::vector<uint32_t> indexData(quadsIndicesCount);
+	for (size_t i = 0; i < maxQuadsPerBatch; ++i)
+	{
+		uint32_t offset = i * verticesPerQuad;
+		size_t idx = i * indicesPerQuad;
+
+		indexData[idx + 0] = offset + 0;
+		indexData[idx + 1] = offset + 1;
+		indexData[idx + 2] = offset + 2;
+		indexData[idx + 3] = offset + 2;
+		indexData[idx + 4] = offset + 3;
+		indexData[idx + 5] = offset + 0;
+	}
+	m_spritesBatch->setIndexData(indexData.data(), indexData.size());
+
+	m_spriteBatchVertexData.resize(maxQuadsPerBatch * verticesPerQuad * spriteLayout.getStride());
+
+	LOG_INFO("");
 }
 
 bool GLRenderer2D::terminate()
 {
+	m_spriteProgramHandle.unwatch();
+	m_spriteProgramHandle.unload();
+
 	bool destroyedResourceHub = m_resourceHub.destroy();
 	return destroyedResourceHub;
 }
@@ -127,42 +173,50 @@ void GLRenderer2D::clearScreen()
 	GL(glClear(GL_COLOR_BUFFER_BIT));
 }
 
+void GLRenderer2D::drawBatch(uint32_t quadsCount, uint32_t bytes)
+{
+	m_spritesBatch->bind();
+	m_spritesBatch->setVertexData(m_spriteBatchVertexData.data(), bytes);
+	m_spriteProgramHandle.getResource()->use();
+	m_spritesBatch->draw(quadsCount * 6);
+}
+
 void GLRenderer2D::render()
 {
-	// Batch draw commands and submit to the GPU
+	size_t vertexPos = 0;
+	uint32_t quadsCount = 0;
+	for (const auto& command : m_drawCommands)
+	{
+		if (command.type == DrawCommand2DType::Quad)
+		{
+			float x = command.spriteQuad.x;
+			float y = command.spriteQuad.y;
+			float w = command.spriteQuad.w;
+			float h = command.spriteQuad.h;
 
-	// Load program from render hub
-	auto programHandle = m_resourceHub.getManager<GLProgram>().getResource(ResourceNames::SpriteShader);
-	programHandle.watch();
-	programHandle.load();
-	auto programID = programHandle.getResource()->getGLID();
-	
-	// Vertex data for a single triangle (3 vertices, each with 2 floats position)
-	float vertices[] = {
-		0.0f,  0.5f,  // Top vertex
-	   -0.5f, -0.5f,  // Bottom left
-		0.5f, -0.5f   // Bottom right
-	};
+			float quadVerts[] = {
+				x, y,
+				x + w, y,
+				x + w, y - h,
+				x, y - h
+			};
 
-	// Indices for the triangle (3 indices)
-	uint32_t indices[] = { 0, 1, 2 };
+			memcpy(m_spriteBatchVertexData.data() + vertexPos, quadVerts, sizeof(quadVerts));
+			vertexPos += sizeof(quadVerts);
+			quadsCount++;
+		}
 
-	// Setup batch with 3 vertices and 3 indices
-	GLMesh batch(sizeof(vertices), 3);
+		// If we exceed the batch max size render and prepear for next draw call.
+		if (quadsCount == maxQuadsPerBatch)
+		{
+			drawBatch(quadsCount, vertexPos);
+			quadsCount = 0;
+			vertexPos = 0;
+		}
+	}
 
-	VertexLayout layout;
-	layout.add(VertexAttribute("aPos", ShaderAttributeType::Float2));
-
-	batch.setupAttributes(layout, programID);
-
-	// Upload vertex and index data
-	batch.setVertexData(vertices, sizeof(vertices));
-	batch.setIndexData(indices, 3);
-
-	// Bind VAO and draw
-	batch.bind();
-	programHandle.getResource()->use();
-	batch.draw();
+	// Render last remaining batch if it contains data
+	if(quadsCount) drawBatch(quadsCount, vertexPos);
 
 	m_drawCommands.clear();
 }

@@ -42,13 +42,19 @@ void EngineApp::init()
 	pushLayer(std::make_unique<SystemLayer>(SystemLayer(stopAppCallback, m_world)));
 	pushOverlay(std::make_unique<GraphicsLayer>(GraphicsLayer(m_world, m_renderer2D)));
 
-	LOG_INFO("-~<<< Engine init successfully >>>~-");
+	LOG_INFO("############################");
+	LOG_INFO("# Engine init successfully #");
+	LOG_INFO("############################");
+	LOG_INFO("");
 }
 
 void EngineApp::run()
 {
 	using Clock = std::chrono::high_resolution_clock;
 
+	float fpsLogTimer = 0.0f;
+	int framesCounter = 0;
+	
 	// Engine loop.
 	float deltaTime = 0.0f;
 	auto lastFrameTime = Clock::now();
@@ -57,6 +63,9 @@ void EngineApp::run()
 		auto currentFrameTime = Clock::now();
 		deltaTime = std::chrono::duration<float>(currentFrameTime - lastFrameTime).count();
 		lastFrameTime = currentFrameTime;
+
+		fpsLogTimer += deltaTime;
+		framesCounter++;
 
 		m_window->pollEvents();
 		m_eventQueue.dispatchAll(m_layers);
@@ -68,15 +77,22 @@ void EngineApp::run()
 		m_renderer2D->render();
 		m_window->swapBuffers();
 
-		static int i = 0;
-		if(i++ % 40 == 0)
-			LOG_INFO("FPS: {}", 1.0f / deltaTime);
+		if(fpsLogTimer >= 1.0f)
+		{
+			LOG_INFO("FPS: {}", framesCounter);
+			fpsLogTimer = 0;
+			framesCounter = 0;
+		}
 	}
 }
 
 void EngineApp::terminate()
 {
-	LOG_INFO("-~<<< Engine shutting down >>>~-");
+	LOG_INFO("");
+	LOG_INFO("########################");
+	LOG_INFO("# Engine shutting down #");
+	LOG_INFO("########################");
+	LOG_INFO("");
 
 	// Renderer2D cleanup
 	// Internaly destroys the resource of the renderer.

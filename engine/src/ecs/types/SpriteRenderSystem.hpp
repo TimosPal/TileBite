@@ -14,7 +14,13 @@ public:
 	virtual void update(World& world, float deltaTime) override
 	{
 		world.query<SpriteComponent, TransformComponent>().each([this](SpriteComponent* spriteComp, TransformComponent* transformComp) {
-			SpriteQuad spriteQuad;
+			SpriteQuad spriteQuad
+			{
+				transformComp->x,
+				transformComp->y,
+				transformComp->w,
+				transformComp->h
+			};
 			m_renderer2D->drawQuad(std::move(spriteQuad));
 		});
 	}

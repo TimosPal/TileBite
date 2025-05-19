@@ -4,14 +4,19 @@
 #include "core/pch.hpp"
 #include "renderer/Renderer2D.hpp"
 #include "renderer/backend/openGL/GLResourceHub.hpp"
+#include "renderer/backend/openGL/GLMesh.hpp"
+
 
 namespace Engine {
 
+constexpr uint32_t maxQuadsPerBatch = 1024;
+constexpr uint32_t quadsIndicesCount = 6 * maxQuadsPerBatch;
+constexpr uint32_t verticesPerQuad = 4;
+constexpr uint32_t indicesPerQuad = 6;
+
 class GLRenderer2D : public Renderer2D {
 public:
-	GLRenderer2D(SystemResourceHub& systemResourceHub)
-		: m_resourceHub(systemResourceHub)
-	{}
+	GLRenderer2D(SystemResourceHub& systemResourceHub);
 
 	virtual bool init() override;
 	virtual bool terminate() override;
@@ -21,6 +26,13 @@ public:
 
 private:
 	GLResourceHub m_resourceHub;
+
+	std::unique_ptr<GLMesh> m_spritesBatch;
+	std::vector<uint8_t> m_spriteBatchVertexData;
+	ResourceHandle<GLProgram> m_spriteProgramHandle;
+
+	void setupBuffers();
+	void drawBatch(uint32_t quadsCount, uint32_t bytes);
 };
 
 } // Engine

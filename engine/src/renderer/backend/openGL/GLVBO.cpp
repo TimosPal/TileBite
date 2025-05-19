@@ -27,7 +27,7 @@ void GLVBO::unbind()
 	GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 }
 
-void GLVBO::setData(const float* data, uint32_t size)
+void GLVBO::setData(const void* data, uint32_t size)
 {
 	GL(glBindBuffer(GL_ARRAY_BUFFER, m_glVBO));
 	GL(glBufferSubData(GL_ARRAY_BUFFER, 0, size, data));
