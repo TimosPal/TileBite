@@ -38,7 +38,7 @@ public:
 
 	void onAttach() override
 	{
-		int unitCount = 10000;
+		int unitCount = 1000;
 		for (size_t i = 0; i < unitCount; i++)
 		{
 			float x = quickRandFloat();
@@ -52,7 +52,7 @@ public:
 			ID unit = world.createEntity();
 			world.addComponents<SpriteComponent, TransformComponent>(
 				unit,
-				SpriteComponent{r, g, b, 1.0f},
+				SpriteComponent{r, g, b, 0.1f},
 				TransformComponent{ x, y, 0.05f, 0.05f }
 			);
 		}

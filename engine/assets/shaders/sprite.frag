@@ -11,5 +11,6 @@ out vec4 FragColor;
 void main()
 {
     vec4 texColor = texture(uTexture, vUV);
-    FragColor = vColor * texColor;
+    vec3 tinted = mix(texColor.rgb, texColor.rgb * vColor.rgb, vColor.a);
+    FragColor = vec4(tinted, texColor.a);
 }

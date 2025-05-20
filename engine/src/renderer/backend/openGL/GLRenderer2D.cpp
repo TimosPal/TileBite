@@ -80,6 +80,10 @@ GLRenderer2D::GLRenderer2D(SystemResourceHub& systemResourceHub)
 
 bool GLRenderer2D::init()
 {
+	// TODO:
+	// 1) Abstract clear color
+	// 2) Blending options
+
 	if (!loadFunctions())
 	{
 		LOG_ERROR("Failed to initialize window functions");
@@ -109,8 +113,10 @@ bool GLRenderer2D::init()
 		LOG_WARNING("OpenGL Debug Context Not Available");
 	}
 
-	// Clear color TODO: abstract
-	glClearColor(0.2f, 0.2f, 0.2f, 0.0f);
+	GL(glClearColor(0.2f, 0.2f, 0.2f, 0.0f));
+
+	GL(glEnable(GL_BLEND));
+	GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
 	// Load renderer resources
 	bool resResourceHubInit = m_resourceHub.init();
