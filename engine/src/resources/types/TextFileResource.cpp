@@ -34,6 +34,7 @@ bool TextFileResource::destroyImplementation()
 bool TextFileResource::isValid()
 {
 	bool exists = std::filesystem::exists(m_filePath);
+	if (!exists) LOG_ERROR("Invalid text file path {}", m_filePath);
 	return exists;
 }
 

@@ -11,6 +11,8 @@ constexpr const char* MissingImageFile = "missingImageFile";
 constexpr const char* SpriteVertShader = "spriteVertShader";
 constexpr const char* SpriteFragShader = "spriteFragShader";
 constexpr const char* SpriteShader = "spriteShader";
+
+constexpr const char* FallbackTexture = "fallbackTexture";
 } // ResourceNames
 
 namespace ResourcePaths {

@@ -128,6 +128,7 @@ void GLRenderer2D::setupBuffers()
 	VertexLayout spriteLayout;
 	spriteLayout.add(VertexAttribute("aPos", ShaderAttributeType::Float2));
 	spriteLayout.add(VertexAttribute("aColor", ShaderAttributeType::Float3));
+	spriteLayout.add(VertexAttribute("aUV", ShaderAttributeType::Float2));
 	m_spritesBatch = std::make_unique<GLMesh>(
 		spriteLayout.getStride() * verticesPerQuad * maxQuadsPerBatch,
 		quadsIndicesCount
@@ -195,17 +196,25 @@ void GLRenderer2D::render()
 		{
 			float x = command.spriteQuad.x;
 			float y = command.spriteQuad.y;
+			
 			float w = command.spriteQuad.w;
 			float h = command.spriteQuad.h;
+			
 			float r = command.spriteQuad.r;
 			float g = command.spriteQuad.g;
 			float b = command.spriteQuad.b;
 
+			float u0 = command.spriteQuad.u0;
+			float v0 = command.spriteQuad.v0;
+			float u1 = command.spriteQuad.u1;
+			float v1 = command.spriteQuad.v1;
+
 			float quadVerts[] = {
-				x, y, r, g, b,
-				x + w, y, r, g, b,
-				x + w, y - h, r, g, b,
-				x, y - h, r, g, b
+				// pos        // color    // uv
+				x,     y,     r, g, b,    u0, v0,
+				x + w, y,     r, g, b,    u1, v0,
+				x + w, y - h, r, g, b,    u1, v1,
+				x,     y - h, r, g, b,    u0, v1,
 			};
 
 			memcpy(m_spriteBatchVertexData.data() + vertexPos, quadVerts, sizeof(quadVerts));

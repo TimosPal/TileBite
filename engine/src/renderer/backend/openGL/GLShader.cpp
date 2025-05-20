@@ -53,7 +53,12 @@ bool GLShader::destroyImplementation()
 
 bool GLShader::isValid()
 {
-	return m_handle.isValid();
+	if (!m_handle.isValid())
+	{
+		LOG_ERROR("Invalid shader handle");
+		return false;
+	}
+	return true;
 }
 
 } // Engine

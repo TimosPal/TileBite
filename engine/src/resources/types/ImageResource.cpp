@@ -37,6 +37,7 @@ bool ImageResource::destroyImplementation()
 bool ImageResource::isValid()
 {
 	bool exists = std::filesystem::exists(m_filePath);
+	if (!exists) LOG_ERROR("Invalid image path {}", m_filePath);
 	return exists;
 }
 

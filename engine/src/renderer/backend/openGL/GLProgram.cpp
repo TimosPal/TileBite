@@ -72,7 +72,17 @@ bool GLProgram::destroyImplementation()
 
 bool GLProgram::isValid()
 {
-	return m_vertexHandle.isValid() && m_fragmentHandle.isValid();
+	if (!m_vertexHandle.isValid())
+	{
+		LOG_ERROR("Invalid vertex handle");
+		return false;
+	}
+	if (!m_fragmentHandle.isValid())
+	{
+		LOG_ERROR("Invalid fragment handle");
+		return false;
+	}
+	return  true;
 }
 
 void GLProgram::use()

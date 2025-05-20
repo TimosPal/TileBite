@@ -30,6 +30,12 @@ bool GLResourceHub::init()
 	);
 	validAssets = logResourceValidity(spriteShader, ResourceNames::SpriteShader) && validAssets;
 
+	auto fallbackImage = m_systemResourceHub.getManager<ImageResource>().getResource(ResourceNames::MissingImageFile);
+	auto fallbackTexture = m_texturesResourceManager.addResource(
+		GLTexture(ResourceNames::FallbackTexture, std::move(fallbackImage))
+	);
+	validAssets = logResourceValidity(fallbackTexture, ResourceNames::FallbackTexture) && validAssets;
+
 	LOG_INFO("==============================");
 	LOG_INFO("");
 
@@ -46,6 +52,7 @@ bool GLResourceHub::destroy()
 
 	m_programsResourceManager.clear();
 	m_shadersResourceManager.clear();
+	m_texturesResourceManager.clear();
 
 	LOG_INFO("==============================");
 

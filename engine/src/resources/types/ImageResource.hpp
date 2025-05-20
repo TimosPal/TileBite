@@ -12,6 +12,11 @@ public:
 	ImageResource(const std::string& resourceName, const std::string& filePath);
 	virtual bool isValid() override;
 
+	int getWidth() const { return m_width; }
+	int getHeight() const { return m_height; }
+	int getChannels() const { return m_channels; }
+	unsigned char* getData() const { return m_data; }
+
 	ImageResource(ImageResource&&) noexcept = default;
 	ImageResource& operator=(ImageResource&&) noexcept = default;
 	ImageResource(const ImageResource&) = delete;
