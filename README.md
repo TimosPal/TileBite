@@ -1,11 +1,20 @@
 # GameEngine
 
-An ECS game engine written in C++
-Currently supports only 2d rendering pipeline
+A modular 2D game engine written in C++ using an archetype-based ECS (Entity Component System) architecture.
 
-# Depdendencies
+## Features
 
-GLFW, Glad, SpdLog, stb
+- 2D rendering pipeline (OpenGL)
+- Archetype ECS for fast iteration
+
+## Dependencies
+
+Included as Git submodules:
+
+- [GLFW](https://www.glfw.org/)
+- [Glad](https://glad.dav1d.de/)
+- [SpdLog](https://github.com/gabime/spdlog)
+- [stb](https://github.com/nothings/stb)
 
 ## Build
 
