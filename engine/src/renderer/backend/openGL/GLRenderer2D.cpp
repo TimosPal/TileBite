@@ -118,6 +118,11 @@ bool GLRenderer2D::init()
 
 	setupBuffers();
 
+	// Default fallback texture
+	m_fallbackTexture = m_resourceHub.getManager<GLTexture>().getResource(ResourceNames::FallbackTexture);
+	m_fallbackTexture.watch();
+	m_fallbackTexture.load();
+
 	return true;
 }
 
@@ -127,7 +132,7 @@ void GLRenderer2D::setupBuffers()
 
 	VertexLayout spriteLayout;
 	spriteLayout.add(VertexAttribute("aPos", ShaderAttributeType::Float2));
-	spriteLayout.add(VertexAttribute("aColor", ShaderAttributeType::Float3));
+	spriteLayout.add(VertexAttribute("aColor", ShaderAttributeType::Float4));
 	spriteLayout.add(VertexAttribute("aUV", ShaderAttributeType::Float2));
 	m_spritesBatch = std::make_unique<GLMesh>(
 		spriteLayout.getStride() * verticesPerQuad * maxQuadsPerBatch,
@@ -137,7 +142,8 @@ void GLRenderer2D::setupBuffers()
 	m_spriteProgramHandle = m_resourceHub.getManager<GLProgram>().getResource(ResourceNames::SpriteShader);
 	m_spriteProgramHandle.watch();
 	m_spriteProgramHandle.load();
-	m_spritesBatch->setupAttributes(spriteLayout, m_spriteProgramHandle.getResource()->getGLID());
+	auto* spriteProgram = m_spriteProgramHandle.getResource();
+	m_spritesBatch->setupAttributes(spriteLayout, spriteProgram->getGLID());
 
 	// When dealing with the quad batch, index data are always the same so we can precompute them and
 	// upload them once.
@@ -180,6 +186,12 @@ void GLRenderer2D::drawBatch(uint32_t& quadsCount, uint32_t& bytes)
 	m_spritesBatch->bind();
 	m_spritesBatch->setVertexData(m_spriteBatchVertexData.data(), bytes);
 	m_spriteProgramHandle.getResource()->use();
+
+	// TEMP CODE
+	glActiveTexture(GL_TEXTURE0);
+	m_fallbackTexture.getResource()->bind();
+	glUniform1i(glGetUniformLocation(m_spriteProgramHandle.getResource()->getGLID(), "uTexture"), 0);
+
 	m_spritesBatch->draw(quadsCount * 6);
 
 	quadsCount = 0;
@@ -188,7 +200,7 @@ void GLRenderer2D::drawBatch(uint32_t& quadsCount, uint32_t& bytes)
 
 void GLRenderer2D::render()
 {
-	uint32_t vertexPos = 0;
+		uint32_t vertexPos = 0;
 	uint32_t quadsCount = 0;
 	for (const auto& command : m_drawCommands)
 	{
@@ -203,6 +215,7 @@ void GLRenderer2D::render()
 			float r = command.spriteQuad.r;
 			float g = command.spriteQuad.g;
 			float b = command.spriteQuad.b;
+			float a = command.spriteQuad.a;
 
 			float u0 = command.spriteQuad.u0;
 			float v0 = command.spriteQuad.v0;
@@ -210,11 +223,11 @@ void GLRenderer2D::render()
 			float v1 = command.spriteQuad.v1;
 
 			float quadVerts[] = {
-				// pos        // color    // uv
-				x,     y,     r, g, b,    u0, v0,
-				x + w, y,     r, g, b,    u1, v0,
-				x + w, y - h, r, g, b,    u1, v1,
-				x,     y - h, r, g, b,    u0, v1,
+				// pos          // color      // uv
+				x,     y,       r, g, b, a,   u0, v0,
+				x + w, y,       r, g, b, a,   u1, v0,
+				x + w, y - h,   r, g, b, a,   u1, v1,
+				x,     y - h,   r, g, b, a,   u0, v1,
 			};
 
 			memcpy(m_spriteBatchVertexData.data() + vertexPos, quadVerts, sizeof(quadVerts));

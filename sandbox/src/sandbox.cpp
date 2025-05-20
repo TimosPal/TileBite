@@ -52,8 +52,8 @@ public:
 			ID unit = world.createEntity();
 			world.addComponents<SpriteComponent, TransformComponent>(
 				unit,
-				SpriteComponent{r, g, b},
-				TransformComponent{ x, y, 0.005f, 0.005f }
+				SpriteComponent{r, g, b, 1.0f},
+				TransformComponent{ x, y, 0.05f, 0.05f }
 			);
 		}
 

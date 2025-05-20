@@ -30,6 +30,7 @@ private:
 	std::unique_ptr<GLMesh> m_spritesBatch;
 	std::vector<uint8_t> m_spriteBatchVertexData;
 	ResourceHandle<GLProgram> m_spriteProgramHandle;
+	ResourceHandle<GLTexture> m_fallbackTexture;
 
 	void setupBuffers();
 	void drawBatch(uint32_t& quadsCount, uint32_t& bytes);

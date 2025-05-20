@@ -22,7 +22,8 @@ public:
 				transformComp->h,
 				spriteComp->r,
 				spriteComp->g,
-				spriteComp->b
+				spriteComp->b,
+				spriteComp->a
 			};
 			m_renderer2D->drawQuad(std::move(spriteQuad));
 		});

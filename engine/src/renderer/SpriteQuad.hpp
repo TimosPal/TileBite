@@ -11,7 +11,7 @@ struct SpriteQuad {
 	float w, h;
 
 	// Tint
-	float r, g, b;
+	float r, g, b, a;
 
 	// Quad uvs (Default set for whole texture)
 	float u0 = 0.0f;
