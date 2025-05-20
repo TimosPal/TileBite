@@ -6,6 +6,7 @@ namespace Engine {
 struct SpriteQuad {
 	float x, y;
 	float w, h;
+	float r, g, b;
 };
 
 } // Engine

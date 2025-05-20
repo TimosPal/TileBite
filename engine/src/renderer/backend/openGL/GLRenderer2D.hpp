@@ -32,7 +32,7 @@ private:
 	ResourceHandle<GLProgram> m_spriteProgramHandle;
 
 	void setupBuffers();
-	void drawBatch(uint32_t quadsCount, uint32_t bytes);
+	void drawBatch(uint32_t& quadsCount, uint32_t& bytes);
 };
 
 } // Engine

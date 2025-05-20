@@ -19,7 +19,10 @@ public:
 				transformComp->x,
 				transformComp->y,
 				transformComp->w,
-				transformComp->h
+				transformComp->h,
+				spriteComp->r,
+				spriteComp->g,
+				spriteComp->b
 			};
 			m_renderer2D->drawQuad(std::move(spriteQuad));
 		});

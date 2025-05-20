@@ -5,7 +5,7 @@ namespace Engine {
 
 struct SpriteComponent
 {
-	int temp;
+	float r, g, b;
 };
 
 struct TransformComponent

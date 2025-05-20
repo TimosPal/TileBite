@@ -12,14 +12,9 @@
 
 using namespace Engine;
 
-struct Health {
-	int value;
-};
-
 inline float quickRandFloat(float min = -1.0f, float max = 1.0f) {
 	return min + (max - min) * (rand() / float(RAND_MAX));
 }
-
 
 class UnitSystem : public ISystem {
 public:
@@ -43,18 +38,21 @@ public:
 
 	void onAttach() override
 	{
-		int unitCount = 100000;
+		int unitCount = 10000;
 		for (size_t i = 0; i < unitCount; i++)
 		{
 			float x = quickRandFloat();
 			float y = quickRandFloat();
 
+			float r = quickRandFloat(0.0f, 1.0f);
+			float g = quickRandFloat(0.0f, 1.0f);
+			float b = quickRandFloat(0.0f, 1.0f);
+
 			World& world = getWorld();
 			ID unit = world.createEntity();
-			world.addComponents<Health, SpriteComponent, TransformComponent>(
+			world.addComponents<SpriteComponent, TransformComponent>(
 				unit,
-				Health{ (int)i },
-				SpriteComponent(),
+				SpriteComponent{r, g, b},
 				TransformComponent{ x, y, 0.005f, 0.005f }
 			);
 		}

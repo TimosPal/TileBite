@@ -69,7 +69,9 @@ void GLMesh::setupAttributes(const VertexLayout& layout, GLuint shaderProgram)
 	for (const auto& attribute : layout.getLayout())
 	{
 		GLint location;
+		LOG_INFO("{} {}", attribute.Name, shaderProgram);
 		GL_RET(glGetAttribLocation(shaderProgram, attribute.Name.c_str()), location);
+		ASSERT(location >= 0, "Invalid location of shader attribute");
 		GL(glEnableVertexAttribArray(location));
 		GL(glVertexAttribPointer(
 			location, // Location

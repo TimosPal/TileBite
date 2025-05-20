@@ -127,6 +127,7 @@ void GLRenderer2D::setupBuffers()
 
 	VertexLayout spriteLayout;
 	spriteLayout.add(VertexAttribute("aPos", ShaderAttributeType::Float2));
+	spriteLayout.add(VertexAttribute("aColor", ShaderAttributeType::Float3));
 	m_spritesBatch = std::make_unique<GLMesh>(
 		spriteLayout.getStride() * verticesPerQuad * maxQuadsPerBatch,
 		quadsIndicesCount
@@ -173,17 +174,20 @@ void GLRenderer2D::clearScreen()
 	GL(glClear(GL_COLOR_BUFFER_BIT));
 }
 
-void GLRenderer2D::drawBatch(uint32_t quadsCount, uint32_t bytes)
+void GLRenderer2D::drawBatch(uint32_t& quadsCount, uint32_t& bytes)
 {
 	m_spritesBatch->bind();
 	m_spritesBatch->setVertexData(m_spriteBatchVertexData.data(), bytes);
 	m_spriteProgramHandle.getResource()->use();
 	m_spritesBatch->draw(quadsCount * 6);
+
+	quadsCount = 0;
+	bytes = 0;
 }
 
 void GLRenderer2D::render()
 {
-	size_t vertexPos = 0;
+	uint32_t vertexPos = 0;
 	uint32_t quadsCount = 0;
 	for (const auto& command : m_drawCommands)
 	{
@@ -193,12 +197,15 @@ void GLRenderer2D::render()
 			float y = command.spriteQuad.y;
 			float w = command.spriteQuad.w;
 			float h = command.spriteQuad.h;
+			float r = command.spriteQuad.r;
+			float g = command.spriteQuad.g;
+			float b = command.spriteQuad.b;
 
 			float quadVerts[] = {
-				x, y,
-				x + w, y,
-				x + w, y - h,
-				x, y - h
+				x, y, r, g, b,
+				x + w, y, r, g, b,
+				x + w, y - h, r, g, b,
+				x, y - h, r, g, b
 			};
 
 			memcpy(m_spriteBatchVertexData.data() + vertexPos, quadVerts, sizeof(quadVerts));
@@ -207,12 +214,7 @@ void GLRenderer2D::render()
 		}
 
 		// If we exceed the batch max size render and prepear for next draw call.
-		if (quadsCount == maxQuadsPerBatch)
-		{
-			drawBatch(quadsCount, vertexPos);
-			quadsCount = 0;
-			vertexPos = 0;
-		}
+		if (quadsCount == maxQuadsPerBatch) drawBatch(quadsCount, vertexPos);
 	}
 
 	// Render last remaining batch if it contains data
