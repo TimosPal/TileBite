@@ -4,6 +4,7 @@
 #include "renderer/backend/openGL/GLWrapper.hpp"
 #include "renderer/backend/openGL/GLProgram.hpp"
 #include "core/ResourceRegistry.hpp"
+#include "renderer/backend/openGL/GLGPUAssets.hpp"
 
 // NOTE: if other APIs also require a loader per window backend, this may need
 // better abstraction.
@@ -75,7 +76,9 @@ static void APIENTRY glDebugOutput(GLenum source,
 }
 
 GLRenderer2D::GLRenderer2D(SystemResourceHub& systemResourceHub)
-	: m_resourceHub(systemResourceHub)
+	: 
+	m_resourceHub(systemResourceHub),
+	m_gpuAssets(m_resourceHub)
 {}
 
 bool GLRenderer2D::init()
@@ -178,6 +181,9 @@ bool GLRenderer2D::terminate()
 	m_spriteProgramHandle.unwatch();
 	m_spriteProgramHandle.unload();
 
+	m_fallbackTexture.unwatch();
+	m_fallbackTexture.unload();
+
 	bool destroyedResourceHub = m_resourceHub.destroy();
 	return destroyedResourceHub;
 }
@@ -206,7 +212,7 @@ void GLRenderer2D::drawBatch(uint32_t& quadsCount, uint32_t& bytes)
 
 void GLRenderer2D::render()
 {
-		uint32_t vertexPos = 0;
+	uint32_t vertexPos = 0;
 	uint32_t quadsCount = 0;
 	for (const auto& command : m_drawCommands)
 	{

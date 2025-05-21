@@ -9,7 +9,8 @@
 #include "window/Window.hpp"
 #include "ecs/World.hpp"
 #include "renderer/Renderer2D.hpp"
-#include "resources/types/SystemResourceHub.hpp"
+#include "resources/SystemResourceHub.hpp"
+#include "resources/AssetsManager.hpp"
 
 namespace Engine {
 
@@ -38,12 +39,14 @@ public:
 	void pushOverlay(std::unique_ptr<Layer> layer);
 
 	World& getWorld() { return m_world; }
+	AssetsManager& getAssetsManager() { return m_assetsManager; }
 
 private:
 	static EngineApp* s_instance;
 
-	// Resource hub.
+	// Resources
 	SystemResourceHub m_resourceHub;
+	AssetsManager m_assetsManager;
 
 	std::unique_ptr<Window> m_window;
 	std::shared_ptr<Renderer2D> m_renderer2D;

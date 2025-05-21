@@ -16,11 +16,11 @@ public:
         m_systems.push_back(std::move(system));
     }
 
-    void updateSystems(World& world, float deltaTime)
+    void updateSystems(World& world, AssetsManager& assetsManager, float deltaTime)
     {
         for (auto& system : m_systems)
         {
-            system->update(world, deltaTime);
+            system->update(world, assetsManager, deltaTime);
         }
 
         world.executeDeferredActions();

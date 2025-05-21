@@ -1,4 +1,4 @@
-#include "resources/types/SystemResourceHub.hpp"
+#include "resources/SystemResourceHub.hpp"
 #include "core/ResourceRegistry.hpp"
 #include "utilities/misc.hpp"
 

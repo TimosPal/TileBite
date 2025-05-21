@@ -1,6 +1,8 @@
 #ifndef SPRITE_QUAD_HPP
 #define SPRITE_QUAD_HPP
 
+#include "utilities/IDGenerator.hpp"
+
 namespace Engine {
 
 struct SpriteQuad {
@@ -18,6 +20,8 @@ struct SpriteQuad {
 	float v0 = 1.0f;
 	float u1 = 1.0f;
 	float v1 = 0.0f;
+
+	ID spriteID;
 };
 
 } // Engine

@@ -1,0 +1,39 @@
+#ifndef ASSETS_MANAGER_HPP
+#define ASSETS_MANAGER_HPP
+
+#include "core/pch.hpp"
+#include "utilities/IDGenerator.hpp"
+#include "resources/ResourceHandle.hpp"
+#include "resources/types/ImageResource.hpp"
+#include "resources/SystemResourceHub.hpp"
+#include "renderer/Renderer2D.hpp"
+#include "renderer/IGPUAssets.hpp"
+
+namespace Engine {
+
+class AssetsManager {
+public:
+	void init(SystemResourceHub* resourceHub, IGPUAssets* gpuAssets)
+	{
+		m_resourceHub = resourceHub;
+		m_gpuAssets = gpuAssets;
+	}
+
+	ID createTexture(std::string resourceName, std::string path)
+	{
+		// TODO: Split into createImage if needed.
+		auto imageHandle = m_resourceHub->getManager<ImageResource>().addResource(
+			ImageResource(resourceName, path)
+		);
+		ID resourceID = m_gpuAssets->createTexture(resourceName, std::move(imageHandle));
+		return resourceID;
+	}
+
+private:
+	SystemResourceHub* m_resourceHub = nullptr;
+	IGPUAssets* m_gpuAssets = nullptr;
+};
+
+} // Engine
+
+#endif // !ASSETS_MANAGER_HPP

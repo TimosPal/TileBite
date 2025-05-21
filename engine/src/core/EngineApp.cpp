@@ -37,10 +37,13 @@ void EngineApp::init()
 	bool resInitRendered2D = m_renderer2D->init();
 	ASSERT(resInitRendered2D, "Renderer2D not init");
 
+	// Assets inteface
+	m_assetsManager.init(&m_resourceHub, &m_renderer2D->getGPUAssets());
+
 	// Engine layers creation.
 	auto stopAppCallback = [&]() { stop(); };
-	pushLayer(std::make_unique<SystemLayer>(SystemLayer(stopAppCallback, m_world)));
-	pushOverlay(std::make_unique<GraphicsLayer>(GraphicsLayer(m_world, m_renderer2D)));
+	pushLayer(std::make_unique<SystemLayer>(SystemLayer(stopAppCallback, m_world, m_assetsManager)));
+	pushOverlay(std::make_unique<GraphicsLayer>(GraphicsLayer(m_world, m_assetsManager, m_renderer2D)));
 
 	LOG_INFO("############################");
 	LOG_INFO("# Engine init successfully #");

@@ -6,6 +6,7 @@ namespace Engine {
 struct SpriteComponent
 {
 	float r, g, b, a;
+	ID textureID;
 };
 
 struct TransformComponent

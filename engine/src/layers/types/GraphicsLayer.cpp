@@ -6,8 +6,8 @@
 namespace Engine
 {
 
-GraphicsLayer::GraphicsLayer(World& world, std::shared_ptr<Renderer2D> renderer2D)
-	: Layer(world), m_renderer2D(renderer2D)
+GraphicsLayer::GraphicsLayer(World& world, AssetsManager& assetsManager, std::shared_ptr<Renderer2D> renderer2D)
+	: Layer(world, assetsManager), m_renderer2D(renderer2D)
 {}
 
 void GraphicsLayer::onAttach()

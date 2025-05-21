@@ -4,17 +4,21 @@
 #include "core/pch.hpp"
 #include "renderer/SpriteQuad.hpp"
 #include "renderer/DrawCommand2D.hpp"
-#include "resources/types/SystemResourceHub.hpp"
+#include "resources/SystemResourceHub.hpp"
+#include "renderer/IGPUAssets.hpp"
 
 namespace Engine {
 
 class Renderer2D {
 public:
+
 	virtual bool init() { return false; }
 	virtual bool terminate() { return false; }
 
     virtual void clearScreen() {}
     virtual void render() {}
+
+	virtual IGPUAssets& getGPUAssets() = 0;
 
 	void drawQuad(SpriteQuad&& spriteQuad)
 	{

@@ -5,7 +5,7 @@
 #include "renderer/backend/openGL/GLProgram.hpp"
 #include "renderer/backend/openGL/GLShader.hpp"
 #include "renderer/backend/openGL/GLTexture.hpp"
-#include "resources/types/SystemResourceHub.hpp"
+#include "resources/SystemResourceHub.hpp"
 
 namespace Engine {
 

@@ -1,5 +1,5 @@
 #include "renderer/Renderer2D.hpp"
-#include "resources/types/SystemResourceHub.hpp"
+#include "resources/SystemResourceHub.hpp"
 
 // NOTE: Using OpenGL as the current rendering backend.
 #if defined(RENDERER_OPENGL)

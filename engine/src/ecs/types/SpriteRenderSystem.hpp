@@ -11,7 +11,7 @@ class SpriteRenderSystem : public ISystem {
 public:
 	SpriteRenderSystem(std::shared_ptr<Renderer2D> renderer2D) : m_renderer2D(renderer2D) {}
 
-	virtual void update(World& world, float deltaTime) override
+	virtual void update(World& world, AssetsManager& assetsManager, float deltaTime) override
 	{
 		world.query<SpriteComponent, TransformComponent>().each([this](SpriteComponent* spriteComp, TransformComponent* transformComp) {
 			SpriteQuad spriteQuad
@@ -23,7 +23,8 @@ public:
 				spriteComp->r,
 				spriteComp->g,
 				spriteComp->b,
-				spriteComp->a
+				spriteComp->a,
+				spriteComp->textureID
 			};
 			m_renderer2D->drawQuad(std::move(spriteQuad));
 		});

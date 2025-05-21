@@ -5,6 +5,7 @@
 #include "events/Event.hpp"
 #include "events/EventDispatcher.hpp"
 #include "ecs/SystemManager.hpp"
+#include "resources/AssetsManager.hpp"
 
 namespace Engine {
 
@@ -12,10 +13,11 @@ namespace Engine {
 // Event listeners subscribe to layers.
 class Layer {
 public:
-	Layer(World& world) : 
+	Layer(World& world, AssetsManager& assetsManager) :
 		m_eventDispatcher(),
 		m_systemManager(),
-		m_world(world)
+		m_world(world),
+		m_assetsManager(assetsManager)
 	{}
 
 	virtual void onAttach() {}
@@ -24,7 +26,7 @@ public:
 	virtual void onUpdate(float deltaTime)
 	{
 		// Update systems.
-		m_systemManager.updateSystems(m_world, deltaTime);
+		m_systemManager.updateSystems(m_world, m_assetsManager, deltaTime);
 	}
 
 	virtual void onEvent(Event& event) 
@@ -34,6 +36,7 @@ public:
 
 protected:
 	World& getWorld() { return m_world; }
+	AssetsManager& getAssetsManager() { return m_assetsManager; }
 
 	template<typename EventType>
 	requires DerivedFrom<EventType, Event>
@@ -57,6 +60,7 @@ private:
 	EventDispatcher m_eventDispatcher;
 	SystemManager m_systemManager;
 	World& m_world;
+	AssetsManager& m_assetsManager;
 };
 
 } // Engine

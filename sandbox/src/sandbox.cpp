@@ -1,4 +1,6 @@
 #include <iostream>
+#include <cmath>
+#include <random>
 
 #include <core/EntryPoint.hpp>
 #include <core/EngineApp.hpp>
@@ -7,67 +9,93 @@
 #include <events/types/WindowCloseEvent.hpp>
 #include <layers/Layer.hpp>
 #include <ecs/types/EngineComponents.hpp>
-
-#include <random>
+#include <core/ResourceRegistry.hpp>
 
 using namespace Engine;
 
 inline float quickRandFloat(float min = -1.0f, float max = 1.0f) {
-	return min + (max - min) * (rand() / float(RAND_MAX));
+    return min + (max - min) * (rand() / float(RAND_MAX));
 }
+
+struct VelocityComponent {
+    float vx, vy;
+};
 
 class UnitSystem : public ISystem {
 public:
-	float time;
-	void update(World& world, float deltaTime) override
-	{
-		time += deltaTime;
-		for (auto [transformComponent] : world.query<TransformComponent>())
-		{
-			float x = quickRandFloat();
-			float y = quickRandFloat();
-			transformComponent->x += (2.5f * cos(0.7 * time)) * (0.0f - transformComponent->x + x) * deltaTime;
-			transformComponent->y += (2.5f * cos(0.7 * time)) * (0.0f - transformComponent->y + y) * deltaTime;
-		}
-	}
+    float spawnTimer = 0.0f;
+    float currentAngle = 0.0f;
+    const float angleStep = 10.0f;  // radians per spawn
+    const float circleRadius = 0.5f;
+    const float speed = 0.2f;
+
+    void update(World& world, AssetsManager& assetsManager, float deltaTime) override
+    {
+        // Move and bounce units
+        world.query<TransformComponent, VelocityComponent>().each([deltaTime](TransformComponent* t, VelocityComponent* v) {
+            t->x += v->vx * deltaTime;
+            t->y += v->vy * deltaTime;
+
+            if (t->x < -1.0f || t->x > 1.0f) {
+                t->x = std::clamp(t->x, -1.0f, 1.0f);
+                v->vx *= -1.0f;
+            }
+            if (t->y < -1.0f || t->y > 1.0f) {
+                t->y = std::clamp(t->y, -1.0f, 1.0f);
+                v->vy *= -1.0f;
+            }
+            });
+
+        // Spawn logic every 0.01 seconds
+        spawnTimer += deltaTime;
+        if (spawnTimer >= 0.01f) {
+            spawnTimer = 0.0f;
+
+            // Spawn at center
+            float x = 0.0f;
+            float y = 0.0f;
+
+            // Velocity radially outward
+            float vx = speed * cos(currentAngle);
+            float vy = speed * sin(currentAngle);
+
+            // Random color
+            float r = quickRandFloat(0.0f, 1.0f);
+            float g = quickRandFloat(0.0f, 1.0f);
+            float b = quickRandFloat(0.0f, 1.0f);
+
+            ID unit = world.createEntity();
+            world.addComponents<SpriteComponent, TransformComponent, VelocityComponent>(
+                unit,
+                SpriteComponent{ r, g, b, 0.1f },
+                TransformComponent{ x, y, 0.2f, 0.2f },
+                VelocityComponent{ vx, vy }
+            );
+
+            currentAngle += angleStep * deltaTime;
+            if (currentAngle > 2.0f * 3.1415926f)
+                currentAngle -= 2.0f * 3.1415926f;
+        }
+    }
 };
 
 class GameLayer : public Layer {
 public:
-	GameLayer(World& world) : Layer(world) {}
+    GameLayer(World& world, AssetsManager& assetsManager) : Layer(world, assetsManager) {}
 
-	void onAttach() override
-	{
-		int unitCount = 1000;
-		for (size_t i = 0; i < unitCount; i++)
-		{
-			float x = quickRandFloat();
-			float y = quickRandFloat();
-
-			float r = quickRandFloat(0.0f, 1.0f);
-			float g = quickRandFloat(0.0f, 1.0f);
-			float b = quickRandFloat(0.0f, 1.0f);
-
-			World& world = getWorld();
-			ID unit = world.createEntity();
-			world.addComponents<SpriteComponent, TransformComponent>(
-				unit,
-				SpriteComponent{r, g, b, 0.1f},
-				TransformComponent{ x, y, 0.05f, 0.05f }
-			);
-		}
-
-		addSystem(std::make_unique<UnitSystem>());
-	}
+    void onAttach() override
+    {
+        addSystem(std::make_unique<UnitSystem>());
+    }
 };
 
 class MyApp : public Engine::EngineApp {
-	void setup() override
-	{
-		pushLayer(std::make_unique<GameLayer>(getWorld()));
+    void setup() override
+    {
+        getAssetsManager().createTexture("bee", std::string(ResourcePaths::ImagesDir) + "./bee.png");
 
-		// onEvent(std::make_unique<WindowCloseEvent>());
-	}
+        pushLayer(std::make_unique<GameLayer>(getWorld(), getAssetsManager()));
+    }
 };
 
 CREATE_ENGINE_APPLICATION(MyApp)

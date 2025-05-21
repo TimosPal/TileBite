@@ -5,7 +5,7 @@
 #include "renderer/Renderer2D.hpp"
 #include "renderer/backend/openGL/GLResourceHub.hpp"
 #include "renderer/backend/openGL/GLMesh.hpp"
-
+#include "renderer/backend/openGL/GLGPUAssets.hpp"
 
 namespace Engine {
 
@@ -24,8 +24,11 @@ public:
 	virtual void clearScreen() override;
 	virtual void render() override;
 
+	virtual IGPUAssets& getGPUAssets() override { return m_gpuAssets; }
+
 private:
 	GLResourceHub m_resourceHub;
+	GLGPUAssets m_gpuAssets;
 
 	std::unique_ptr<GLMesh> m_spritesBatch;
 	std::vector<uint8_t> m_spriteBatchVertexData;
