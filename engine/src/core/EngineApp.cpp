@@ -42,8 +42,8 @@ void EngineApp::init()
 
 	// Engine layers creation.
 	auto stopAppCallback = [&]() { stop(); };
-	pushLayer(std::make_unique<SystemLayer>(SystemLayer(stopAppCallback, m_world, m_assetsManager)));
-	pushOverlay(std::make_unique<GraphicsLayer>(GraphicsLayer(m_world, m_assetsManager, m_renderer2D)));
+	pushLayer(std::make_unique<SystemLayer>(SystemLayer(stopAppCallback)));
+	pushOverlay(std::make_unique<GraphicsLayer>(GraphicsLayer(m_renderer2D)));
 
 	LOG_INFO("############################");
 	LOG_INFO("# Engine init successfully #");
@@ -127,11 +127,19 @@ void EngineApp::onEvent(std::unique_ptr<Event> event)
 
 void EngineApp::pushLayer(std::unique_ptr<Layer> layer)
 {
+	// Inject dependencies to hide from client side.
+	layer->setWorld(&m_world);
+	layer->setAssetsManager(&m_assetsManager);
+
 	m_layers.pushLayer(std::move(layer));
 }
 
 void EngineApp::pushOverlay(std::unique_ptr<Layer> layer)
 {
+	// Inject dependencies to hide from client side.
+	layer->setWorld(&m_world);
+	layer->setAssetsManager(&m_assetsManager);
+
 	m_layers.pushOverlay(std::move(layer));
 }
 

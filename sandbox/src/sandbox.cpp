@@ -29,10 +29,10 @@ public:
     const float circleRadius = 0.5f;
     const float speed = 0.2f;
 
-    void update(World& world, AssetsManager& assetsManager, float deltaTime) override
+    void update(float deltaTime) override
     {
         // Move and bounce units
-        world.query<TransformComponent, VelocityComponent>().each([deltaTime](TransformComponent* t, VelocityComponent* v) {
+        m_world->query<TransformComponent, VelocityComponent>().each([deltaTime](TransformComponent* t, VelocityComponent* v) {
             t->x += v->vx * deltaTime;
             t->y += v->vy * deltaTime;
 
@@ -44,7 +44,7 @@ public:
                 t->y = std::clamp(t->y, -1.0f, 1.0f);
                 v->vy *= -1.0f;
             }
-            });
+        });
 
         // Spawn logic every 0.01 seconds
         spawnTimer += deltaTime;
@@ -64,8 +64,8 @@ public:
             float g = quickRandFloat(0.0f, 1.0f);
             float b = quickRandFloat(0.0f, 1.0f);
 
-            ID unit = world.createEntity();
-            world.addComponents<SpriteComponent, TransformComponent, VelocityComponent>(
+            ID unit = m_world->createEntity();
+            m_world->addComponents<SpriteComponent, TransformComponent, VelocityComponent>(
                 unit,
                 SpriteComponent{ r, g, b, 0.1f },
                 TransformComponent{ x, y, 0.2f, 0.2f },
@@ -81,8 +81,6 @@ public:
 
 class GameLayer : public Layer {
 public:
-    GameLayer(World& world, AssetsManager& assetsManager) : Layer(world, assetsManager) {}
-
     void onAttach() override
     {
         addSystem(std::make_unique<UnitSystem>());
@@ -94,7 +92,7 @@ class MyApp : public Engine::EngineApp {
     {
         getAssetsManager().createTexture("bee", std::string(ResourcePaths::ImagesDir) + "./bee.png");
 
-        pushLayer(std::make_unique<GameLayer>(getWorld(), getAssetsManager()));
+        pushLayer(std::make_unique<GameLayer>());
     }
 };
 

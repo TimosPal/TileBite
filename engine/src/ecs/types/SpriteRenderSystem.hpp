@@ -11,9 +11,9 @@ class SpriteRenderSystem : public ISystem {
 public:
 	SpriteRenderSystem(std::shared_ptr<Renderer2D> renderer2D) : m_renderer2D(renderer2D) {}
 
-	virtual void update(World& world, AssetsManager& assetsManager, float deltaTime) override
+	virtual void update(float deltaTime) override
 	{
-		world.query<SpriteComponent, TransformComponent>().each([this](SpriteComponent* spriteComp, TransformComponent* transformComp) {
+		m_world->query<SpriteComponent, TransformComponent>().each([this](SpriteComponent* spriteComp, TransformComponent* transformComp) {
 			SpriteQuad spriteQuad
 			{
 				transformComp->x,

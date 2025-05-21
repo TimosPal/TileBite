@@ -13,11 +13,9 @@ namespace Engine {
 // Event listeners subscribe to layers.
 class Layer {
 public:
-	Layer(World& world, AssetsManager& assetsManager) :
+	Layer() :
 		m_eventDispatcher(),
-		m_systemManager(),
-		m_world(world),
-		m_assetsManager(assetsManager)
+		m_systemManager()
 	{}
 
 	virtual void onAttach() {}
@@ -26,7 +24,7 @@ public:
 	virtual void onUpdate(float deltaTime)
 	{
 		// Update systems.
-		m_systemManager.updateSystems(m_world, m_assetsManager, deltaTime);
+		m_systemManager.updateSystems(getWorld(), deltaTime);
 	}
 
 	virtual void onEvent(Event& event) 
@@ -34,9 +32,21 @@ public:
 		m_eventDispatcher.dispatch(event);
 	}
 
+	void setWorld(World* world) { m_world = world; }
+	void setAssetsManager(AssetsManager* assets) { m_assetsManager = assets; }
+
 protected:
-	World& getWorld() { return m_world; }
-	AssetsManager& getAssetsManager() { return m_assetsManager; }
+	World& getWorld() 
+	{ 
+		ASSERT(m_world != nullptr, "World not injected");
+		return *m_world; 
+	}
+
+	AssetsManager& getAssetsManager()
+	{
+		ASSERT(m_world != nullptr, "Assets manager not injected");
+		return *m_assetsManager;
+	}
 
 	template<typename EventType>
 	requires DerivedFrom<EventType, Event>
@@ -54,13 +64,19 @@ protected:
 
 	void addSystem(std::unique_ptr<ISystem> system)
 	{
+		// Inject world and asset manager for hidden client side use
+		// (Removes the need for client side construction to include injections)
+		system->setAssetsManager(&getAssetsManager());
+		system->setWorld(&getWorld());
+
 		m_systemManager.addSystem(std::move(system));
 	}
 private:
 	EventDispatcher m_eventDispatcher;
 	SystemManager m_systemManager;
-	World& m_world;
-	AssetsManager& m_assetsManager;
+	
+	World* m_world;
+	AssetsManager* m_assetsManager;
 };
 
 } // Engine

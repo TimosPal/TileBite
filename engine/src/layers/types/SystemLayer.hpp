@@ -9,7 +9,7 @@ namespace Engine {
 // Layer for handling system level events (eg window callbacks)
 class SystemLayer : public Layer {
 public:
-	SystemLayer(std::function<void()> stopAppCallback, World& world, AssetsManager& assetsManager);
+	SystemLayer(std::function<void()> stopAppCallback);
 
 	void onAttach() override;
 

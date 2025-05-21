@@ -9,8 +9,14 @@ namespace Engine {
 
 class ISystem {
 public:
+    void setWorld(World* world) { m_world = world; }
+    void setAssetsManager(AssetsManager* assets) { m_assetsManager = assets; }
+
     virtual ~ISystem() = default;
-    virtual void update(World& world, AssetsManager& assetsManager, float deltaTime) = 0;
+    virtual void update(float deltaTime) = 0;
+protected:
+    World* m_world = nullptr;
+    AssetsManager* m_assetsManager = nullptr;
 };
 
 } // Engine
