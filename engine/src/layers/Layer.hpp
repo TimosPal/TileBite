@@ -32,6 +32,7 @@ public:
 		m_eventDispatcher.dispatch(event);
 	}
 
+	// NOTE: this dependency injection is abstracted to make client side code easier to use
 	void setWorld(World* world) { m_world = world; }
 	void setAssetsManager(AssetsManager* assets) { m_assetsManager = assets; }
 
@@ -71,6 +72,7 @@ protected:
 
 		m_systemManager.addSystem(std::move(system));
 	}
+
 private:
 	EventDispatcher m_eventDispatcher;
 	SystemManager m_systemManager;

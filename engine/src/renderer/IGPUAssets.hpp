@@ -12,6 +12,7 @@ namespace Engine {
 // Used for client side asset creation, not for internal use. Returns IDs not ResourceHandles.
 class IGPUAssets {
 public:
+	virtual ID getTexture(std::string resourceName) = 0;
 	virtual ID createTexture(std::string resourceName, ResourceHandle<ImageResource>&& imageHandle) = 0;
 };
 

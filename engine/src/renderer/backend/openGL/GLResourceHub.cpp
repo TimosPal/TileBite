@@ -30,6 +30,13 @@ bool GLResourceHub::init()
 	);
 	validAssets = logResourceValidity(spriteShader, ResourceNames::SpriteShader) && validAssets;
 
+	// If this is the first Texture then we can assume default sprite has ID 0 (and set the default spriteComp ID = 0)
+	auto whiteImage = m_systemResourceHub.getManager<ImageResource>().getResource(ResourceNames::WhiteImageFile);
+	auto defaultSpriteTexture = m_texturesResourceManager.addResource(
+		GLTexture(ResourceNames::DefaultSpriteTexture, std::move(whiteImage))
+	);
+	validAssets = logResourceValidity(defaultSpriteTexture, ResourceNames::DefaultSpriteTexture) && validAssets;
+
 	auto fallbackImage = m_systemResourceHub.getManager<ImageResource>().getResource(ResourceNames::MissingImageFile);
 	auto fallbackTexture = m_texturesResourceManager.addResource(
 		GLTexture(ResourceNames::FallbackTexture, std::move(fallbackImage))

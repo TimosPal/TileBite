@@ -1,21 +1,17 @@
-#ifndef GPU_ASSETS_HPP
-#define GPU_ASSETS_HPP
+#ifndef GLGPU_ASSETS_HPP
+#define GLGPU_ASSETS_HPP
 
 #include "renderer/IGPUAssets.hpp"
+#include "renderer/backend/openGL/GLResourceHub.hpp"
 
 namespace Engine {
 
 class GLGPUAssets : public IGPUAssets {
 public:
-	GLGPUAssets(GLResourceHub& resourceHub) : m_resourceHub(resourceHub) {}
+	GLGPUAssets(GLResourceHub& resourceHub);
 
-	ID createTexture(std::string resourceName, ResourceHandle<ImageResource>&& imageHandle) override
-	{
-		auto glTextureHandle = m_resourceHub.getManager<GLTexture>().addResource(
-			GLTexture(resourceName, std::move(imageHandle))
-		);
-		return glTextureHandle.getResource()->getInstanceID();
-	}
+	ID getTexture(std::string resourceName) override;
+	ID createTexture(std::string resourceName, ResourceHandle<ImageResource>&& imageHandle) override;
 
 private:
 	GLResourceHub& m_resourceHub;
@@ -23,4 +19,4 @@ private:
 
 } // Engine
 
-#endif // !GPU_ASSETS_HPP
+#endif // !GLGPU_ASSETS_HPP

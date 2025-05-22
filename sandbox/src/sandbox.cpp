@@ -27,12 +27,15 @@ public:
     float currentAngle = 0.0f;
     const float angleStep = 10.0f;  // radians per spawn
     const float circleRadius = 0.5f;
-    const float speed = 0.2f;
+    const float speed = 0.5f;
+    const int maxSpawns = 100;
+    int spawnCount = 0;
 
     void update(float deltaTime) override
     {
         // Move and bounce units
-        m_world->query<TransformComponent, VelocityComponent>().each([deltaTime](TransformComponent* t, VelocityComponent* v) {
+        LOG_INFO("q<Trans, Velocity>");
+        getWorld()->query<TransformComponent, VelocityComponent>().each([deltaTime](TransformComponent* t, VelocityComponent* v) {
             t->x += v->vx * deltaTime;
             t->y += v->vy * deltaTime;
 
@@ -48,8 +51,9 @@ public:
 
         // Spawn logic every 0.01 seconds
         spawnTimer += deltaTime;
-        if (spawnTimer >= 0.01f) {
+        if (spawnTimer >= 0.1f && spawnCount < maxSpawns) {
             spawnTimer = 0.0f;
+            spawnCount++;
 
             // Spawn at center
             float x = 0.0f;
@@ -64,14 +68,23 @@ public:
             float g = quickRandFloat(0.0f, 1.0f);
             float b = quickRandFloat(0.0f, 1.0f);
 
-            ID unit = m_world->createEntity();
-            m_world->addComponents<SpriteComponent, TransformComponent, VelocityComponent>(
+            float textureRNG = quickRandFloat(0.0f, 1.0f);
+            ID textureID;
+            if (textureRNG < 0.3f)
+                textureID = getAssetsManager()->getTexture("bee");
+            else if (textureRNG < 0.5f)
+                textureID = 999;
+            else
+                textureID = 0;
+
+            ID unit = getWorld()->createEntity();
+            getWorld()->addComponents(
                 unit,
-                SpriteComponent{ r, g, b, 0.1f },
-                TransformComponent{ x, y, 0.2f, 0.2f },
+                SpriteComponent{ 1.0f, 1.0f, 1.0f, 1.0f, textureID, 0.0f, 1.0f, 1.0f, 0.0f },
+                TransformComponent{ x, y, 0.1f, 0.1f },
                 VelocityComponent{ vx, vy }
             );
-
+            
             currentAngle += angleStep * deltaTime;
             if (currentAngle > 2.0f * 3.1415926f)
                 currentAngle -= 2.0f * 3.1415926f;

@@ -86,6 +86,7 @@ bool GLRenderer2D::init()
 	// TODO:
 	// 1) Abstract clear color
 	// 2) Blending options
+	// 3) Maybe abstract Fallback texture and defaultSprite to generic resources (No special use)
 
 	if (!loadFunctions())
 	{
@@ -127,10 +128,12 @@ bool GLRenderer2D::init()
 
 	setupBuffers();
 
-	// Default fallback texture
+	// Fallback texture (Missing texture)
 	m_fallbackTexture = m_resourceHub.getManager<GLTexture>().getResource(ResourceNames::FallbackTexture);
 	m_fallbackTexture.watch();
 	m_fallbackTexture.load();
+
+	LOG_INFO("");
 
 	return true;
 }
@@ -172,8 +175,6 @@ void GLRenderer2D::setupBuffers()
 	m_spritesBatch->setIndexData(indexData.data(), indexData.size());
 
 	m_spriteBatchVertexData.resize(maxQuadsPerBatch * verticesPerQuad * spriteLayout.getStride());
-
-	LOG_INFO("");
 }
 
 bool GLRenderer2D::terminate()
@@ -186,25 +187,38 @@ bool GLRenderer2D::terminate()
 
 	bool destroyedResourceHub = m_resourceHub.destroy();
 	return destroyedResourceHub;
-}
+} 
 
 void GLRenderer2D::clearScreen()
 {
 	GL(glClear(GL_COLOR_BUFFER_BIT));
 }
 
-void GLRenderer2D::drawBatch(uint32_t& quadsCount, uint32_t& bytes)
+void GLRenderer2D::drawBatch(uint32_t& quadsCount, uint32_t& bytes, ID textureID)
 {
 	m_spritesBatch->bind();
 	m_spritesBatch->setVertexData(m_spriteBatchVertexData.data(), bytes);
 	m_spriteProgramHandle.getResource()->use();
 
-	// TEMP CODE
 	glActiveTexture(GL_TEXTURE0);
-	m_fallbackTexture.getResource()->bind();
-	glUniform1i(glGetUniformLocation(m_spriteProgramHandle.getResource()->getGLID(), "uTexture"), 0);
 
+	auto textureHandle = m_resourceHub.getManager<GLTexture>().getResource(textureID);
+	if (textureHandle.isValid())
+	{
+		textureHandle.watch();
+		textureHandle.load();
+		textureHandle.getResource()->bind();
+	}
+	else
+	{
+		m_fallbackTexture.getResource()->bind();
+	}
+
+	glUniform1i(glGetUniformLocation(m_spriteProgramHandle.getResource()->getGLID(), "uTexture"), 0);
 	m_spritesBatch->draw(quadsCount * 6);
+
+	textureHandle.unwatch();
+	textureHandle.unload();
 
 	quadsCount = 0;
 	bytes = 0;
@@ -214,45 +228,52 @@ void GLRenderer2D::render()
 {
 	uint32_t vertexPos = 0;
 	uint32_t quadsCount = 0;
+	ID previousTextureID = -1;
 	for (const auto& command : m_drawCommands)
 	{
-		if (command.type == DrawCommand2DType::Quad)
-		{
-			float x = command.spriteQuad.x;
-			float y = command.spriteQuad.y;
+		// Currently supporting only 2d quads
+		if (command.type != DrawCommand2DType::Quad) continue;
+
+		ID currentTextureID = command.spriteQuad.spriteID;
+
+		bool maxQuadsReached = quadsCount == maxQuadsPerBatch;
+		bool textureChange = quadsCount > 0 && previousTextureID != currentTextureID;
+		bool shouldFlush = maxQuadsReached || textureChange;
+		if (shouldFlush) drawBatch(quadsCount, vertexPos, previousTextureID);
+
+		previousTextureID = currentTextureID;
+
+		float x = command.spriteQuad.x;
+		float y = command.spriteQuad.y;
 			
-			float w = command.spriteQuad.w;
-			float h = command.spriteQuad.h;
+		float w = command.spriteQuad.w;
+		float h = command.spriteQuad.h;
 			
-			float r = command.spriteQuad.r;
-			float g = command.spriteQuad.g;
-			float b = command.spriteQuad.b;
-			float a = command.spriteQuad.a;
+		float r = command.spriteQuad.r;
+		float g = command.spriteQuad.g;
+		float b = command.spriteQuad.b;
+		float a = command.spriteQuad.a;
 
-			float u0 = command.spriteQuad.u0;
-			float v0 = command.spriteQuad.v0;
-			float u1 = command.spriteQuad.u1;
-			float v1 = command.spriteQuad.v1;
+		float u0 = command.spriteQuad.u0;
+		float v0 = command.spriteQuad.v0;
+		float u1 = command.spriteQuad.u1;
+		float v1 = command.spriteQuad.v1;
 
-			float quadVerts[] = {
-				// pos          // color      // uv
-				x,     y,       r, g, b, a,   u0, v0,
-				x + w, y,       r, g, b, a,   u1, v0,
-				x + w, y - h,   r, g, b, a,   u1, v1,
-				x,     y - h,   r, g, b, a,   u0, v1,
-			};
+		float quadVerts[] = {
+			// pos          // color      // uv
+			x,     y,       r, g, b, a,   u0, v0,
+			x + w, y,       r, g, b, a,   u1, v0,
+			x + w, y - h,   r, g, b, a,   u1, v1,
+			x,     y - h,   r, g, b, a,   u0, v1,
+		};
 
-			memcpy(m_spriteBatchVertexData.data() + vertexPos, quadVerts, sizeof(quadVerts));
-			vertexPos += sizeof(quadVerts);
-			quadsCount++;
-		}
-
-		// If we exceed the batch max size render and prepear for next draw call.
-		if (quadsCount == maxQuadsPerBatch) drawBatch(quadsCount, vertexPos);
+		memcpy(m_spriteBatchVertexData.data() + vertexPos, quadVerts, sizeof(quadVerts));
+		vertexPos += sizeof(quadVerts);
+		quadsCount++;
 	}
 
 	// Render last remaining batch if it contains data
-	if(quadsCount) drawBatch(quadsCount, vertexPos);
+	if(quadsCount) drawBatch(quadsCount, vertexPos, previousTextureID);
 
 	m_drawCommands.clear();
 }

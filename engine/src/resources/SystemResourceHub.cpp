@@ -26,6 +26,11 @@ bool SystemResourceHub::init()
 	);
 	validAssets = logResourceValidity(missingImage, ResourceNames::MissingImageFile) && validAssets;
 
+	auto whiteImage = m_imagesResourceManager.addResource(
+		ImageResource(ResourceNames::WhiteImageFile, ResourcePaths::WhiteImageFile())
+	);
+	validAssets = logResourceValidity(whiteImage, ResourceNames::WhiteImageFile) && validAssets;
+
 	LOG_INFO("==============================");
 	LOG_INFO("");
 

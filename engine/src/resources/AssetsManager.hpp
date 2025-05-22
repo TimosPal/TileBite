@@ -19,6 +19,11 @@ public:
 		m_gpuAssets = gpuAssets;
 	}
 
+	ID getTexture(std::string resourceName)
+	{
+		return m_gpuAssets->getTexture(resourceName);
+	}
+
 	ID createTexture(std::string resourceName, std::string path)
 	{
 		// TODO: Split into createImage if needed.
