@@ -199,8 +199,10 @@ void GLRenderer2D::clearScreen()
 	GL(glClear(GL_COLOR_BUFFER_BIT));
 }
 
-void GLRenderer2D::drawBatch(uint32_t& quadsCount, uint32_t& bytes, ID textureID)
+void GLRenderer2D::drawBatch(uint32_t& quadsCount, uint32_t& bytes, ID textureID, int& drawCalls)
 {
+	// TODO: use all texture slots
+
 	m_spritesBatch->bind();
 	m_spritesBatch->setVertexData(m_spriteBatchVertexData.data(), bytes);
 	m_spriteProgramHandle.getResource()->use();
@@ -231,13 +233,28 @@ void GLRenderer2D::drawBatch(uint32_t& quadsCount, uint32_t& bytes, ID textureID
 
 	quadsCount = 0;
 	bytes = 0;
+	drawCalls++;
 }
 
 void GLRenderer2D::render()
 {
+	int drawCalls = 0;
+
 	uint32_t vertexPos = 0;
 	uint32_t quadsCount = 0;
 	ID previousTextureID = -1;
+
+	// Sort by Texture ID to optimize drawCalls (less texture swapping)
+	std::sort(m_drawCommands.begin(), m_drawCommands.end(), [](const DrawCommand2D& a, const DrawCommand2D& b) {
+		if (a.type != b.type)
+			return a.type < b.type;
+
+		if (a.type == DrawCommand2DType::Quad)
+			return a.spriteQuad.spriteID < b.spriteQuad.spriteID;
+
+		return false;
+	});
+
 	for (const auto& command : m_drawCommands)
 	{
 		// Currently supporting only 2d quads
@@ -248,7 +265,7 @@ void GLRenderer2D::render()
 		bool maxQuadsReached = quadsCount == maxQuadsPerBatch;
 		bool textureChange = quadsCount > 0 && previousTextureID != currentTextureID;
 		bool shouldFlush = maxQuadsReached || textureChange;
-		if (shouldFlush) drawBatch(quadsCount, vertexPos, previousTextureID);
+		if (shouldFlush) drawBatch(quadsCount, vertexPos, previousTextureID, drawCalls);
 
 		previousTextureID = currentTextureID;
 
@@ -282,8 +299,9 @@ void GLRenderer2D::render()
 	}
 
 	// Render last remaining batch if it contains data
-	if(quadsCount) drawBatch(quadsCount, vertexPos, previousTextureID);
+	if(quadsCount) drawBatch(quadsCount, vertexPos, previousTextureID, drawCalls);
 
+	// LOG_INFO("DrawCalls: {}", drawCalls);
 	m_drawCommands.clear();
 }
 

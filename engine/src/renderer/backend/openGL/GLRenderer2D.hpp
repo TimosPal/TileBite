@@ -41,7 +41,7 @@ private:
 	std::unordered_map<ID, ResourceHandle<GLTexture>> m_textureCache;
 
 	void setupBuffers();
-	void drawBatch(uint32_t& quadsCount, uint32_t& bytes, ID textureID);
+	void drawBatch(uint32_t& quadsCount, uint32_t& bytes, ID textureID, int& drawCalls);
 };
 
 } // Engine
