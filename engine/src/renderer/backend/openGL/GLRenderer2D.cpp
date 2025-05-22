@@ -185,6 +185,11 @@ bool GLRenderer2D::terminate()
 	m_fallbackTexture.unwatch();
 	m_fallbackTexture.unload();
 
+	for (auto& [id, handle] : m_textureCache) {
+		handle.unwatch();
+		handle.unload();
+	}
+
 	bool destroyedResourceHub = m_resourceHub.destroy();
 	return destroyedResourceHub;
 } 
@@ -202,11 +207,18 @@ void GLRenderer2D::drawBatch(uint32_t& quadsCount, uint32_t& bytes, ID textureID
 
 	glActiveTexture(GL_TEXTURE0);
 
-	auto textureHandle = m_resourceHub.getManager<GLTexture>().getResource(textureID);
-	if (textureHandle.isValid())
+	auto [it, inserted] = m_textureCache.try_emplace(
+		textureID, m_resourceHub.getManager<GLTexture>().getResource(textureID)
+	);
+	auto& textureHandle = it->second;
+	if (inserted)
 	{
 		textureHandle.watch();
 		textureHandle.load();
+	}
+
+	if (textureHandle.isValid())
+	{
 		textureHandle.getResource()->bind();
 	}
 	else
@@ -216,9 +228,6 @@ void GLRenderer2D::drawBatch(uint32_t& quadsCount, uint32_t& bytes, ID textureID
 
 	glUniform1i(glGetUniformLocation(m_spriteProgramHandle.getResource()->getGLID(), "uTexture"), 0);
 	m_spritesBatch->draw(quadsCount * 6);
-
-	textureHandle.unwatch();
-	textureHandle.unload();
 
 	quadsCount = 0;
 	bytes = 0;

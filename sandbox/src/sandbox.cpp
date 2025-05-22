@@ -28,13 +28,12 @@ public:
     const float angleStep = 10.0f;  // radians per spawn
     const float circleRadius = 0.5f;
     const float speed = 0.5f;
-    const int maxSpawns = 100;
+    const int maxSpawns = 10000;
     int spawnCount = 0;
 
     void update(float deltaTime) override
     {
         // Move and bounce units
-        LOG_INFO("q<Trans, Velocity>");
         getWorld()->query<TransformComponent, VelocityComponent>().each([deltaTime](TransformComponent* t, VelocityComponent* v) {
             t->x += v->vx * deltaTime;
             t->y += v->vy * deltaTime;
@@ -51,7 +50,7 @@ public:
 
         // Spawn logic every 0.01 seconds
         spawnTimer += deltaTime;
-        if (spawnTimer >= 0.1f && spawnCount < maxSpawns) {
+        if (spawnTimer >= 0.01f && spawnCount < maxSpawns) {
             spawnTimer = 0.0f;
             spawnCount++;
 

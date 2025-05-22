@@ -13,7 +13,6 @@ public:
 
 	virtual void update(float deltaTime) override
 	{
-		LOG_INFO("Q<Sprite, Trans>");
 		getWorld()->query<SpriteComponent, TransformComponent>().each([this](SpriteComponent* spriteComp, TransformComponent* transformComp) {
 			SpriteQuad spriteQuad
 			{

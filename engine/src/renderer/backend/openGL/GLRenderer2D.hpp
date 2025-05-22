@@ -36,6 +36,10 @@ private:
 	ResourceHandle<GLProgram> m_spriteProgramHandle;
 	ResourceHandle<GLTexture> m_fallbackTexture;
 
+	// TODO: Temporary sollution for persistent renderer texture assets
+	// (Avoids constant reloading)
+	std::unordered_map<ID, ResourceHandle<GLTexture>> m_textureCache;
+
 	void setupBuffers();
 	void drawBatch(uint32_t& quadsCount, uint32_t& bytes, ID textureID);
 };
