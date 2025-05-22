@@ -44,14 +44,15 @@ std::shared_ptr<Archetype> World::getArchetype(Signature& sig)
 {
 	// Create sizes array for new archetype
 	auto createSizes = [&]() {
-		std::vector<size_t> result;
+		std::vector<std::tuple<ID, size_t>> result;
 		result.reserve(sig.getTypeIDs().size());
 		for (const auto& id : sig.getTypeIDs())
 		{
 			auto it = m_typeIDSizes.find(id);
 			ASSERT(it != m_typeIDSizes.end(), "Size not found");
-			result.push_back(it->second);
+			result.push_back({sig.getIndex(id) ,it->second});
 		}
+
 		return result;
 	};
 

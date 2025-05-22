@@ -4,12 +4,18 @@
 
 namespace Engine {
 
-Archetype::Archetype(Signature& sig, std::vector<size_t>&& componentSizes)
+Archetype::Archetype(Signature& sig, std::vector<std::tuple<ID, size_t>>&& componentSizes)
     : m_signature(sig)
 {
-    for (auto& componentSize : componentSizes)
+    // Sort the vector based on ID to ensure proper archetype initilization.
+    // NOTE: Forced to do this since ComponentStorage is not default constructible
+    std::sort(componentSizes.begin(), componentSizes.end(), [](const std::tuple<ID, size_t>& a, const std::tuple<ID, size_t>& b) {
+        return std::get<0>(a) < std::get<0>(b);  // Compare IDs
+    });
+
+    for (auto& [id, size] : componentSizes)
     {
-        m_components.push_back(ComponentStorage(componentSize));
+        m_components.push_back(ComponentStorage(size));  // Use the correct size for initialization
     }
 }
 

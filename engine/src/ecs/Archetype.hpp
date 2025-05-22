@@ -12,7 +12,7 @@ namespace Engine {
 class Archetype : public Identifiable {
 	SETUP_ID(Archetype, Archetype)
 public:
-    Archetype(Signature& sig, std::vector<size_t>&& componentSizes);
+    Archetype(Signature& sig, std::vector<std::tuple<ID, size_t>>&& componentSizes);
 
     uint32_t addEntity(std::vector<std::tuple<ID, void*>> components, ID entityID);
     ID* removeEntity(uint32_t index);

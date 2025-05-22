@@ -25,6 +25,9 @@ public:
 				sig.getIndex(GET_TYPE_ID(Component, std::decay_t<ComponentTypes>))...
 			};
 
+			for (auto idx : compIndices)
+				ASSERT(idx < compStorages.size(), "Component index out of bounds");
+
 			for (int entityIndex = 0; entityIndex < archetype->getEntitiesCount(); ++entityIndex)
 			{
 				callWithComponents(func, compStorages, compIndices, entityIndex,

@@ -41,7 +41,7 @@ public:
 		ASSERT(entityIt != m_entityRecords.end(), "Entity not found");
 
 		EntityRecord& rec = entityIt->second;
-		uint32_t componentIndex = rec.archetype->getSignature().getIndex(GET_TYPE_ID(Component, ComponentType));
+		uint32_t componentIndex = rec.archetype->getSignature().getIndex(GET_TYPE_ID(Component, std::decay_t<ComponentType>));
 		void* comp = rec.archetype->getComponent(rec.entityIndex, componentIndex);
 		return reinterpret_cast<ComponentType*>(comp);
 	}
@@ -119,7 +119,6 @@ private:
 		};
 		for (auto id : oldSig.getTypeIDs())
 		{
-
 			void* comp = oldArch.getComponent(rec.entityIndex, id);
 			transferedComponents.push_back({ id, comp });
 		}
