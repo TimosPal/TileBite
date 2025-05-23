@@ -31,6 +31,10 @@ public:
 			ImageResource(resourceName, path)
 		);
 		ID resourceID = m_gpuAssets->createTexture(resourceName + "Texture", std::move(imageHandle));
+
+		// TODO: Temporary logic, make every texture persistent for entire app.
+		m_gpuAssets->makeTexturePersistent(resourceName + "Texture");
+
 		return resourceID;
 	}
 

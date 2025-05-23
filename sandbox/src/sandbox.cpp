@@ -50,9 +50,11 @@ public:
 
         // Spawn logic every 0.01 seconds
         spawnTimer += deltaTime;
-        if (spawnTimer >= 0.01f && spawnCount < maxSpawns) {
+        if (spawnTimer >= 0.1f && spawnCount < maxSpawns) {
             spawnTimer = 0.0f;
             spawnCount++;
+
+            if (spawnCount % 1000 == 0) LOG_INFO("Count: {}", spawnCount);
 
             // Spawn at center
             float x = 0.0f;
@@ -67,20 +69,26 @@ public:
             float g = quickRandFloat(0.0f, 1.0f);
             float b = quickRandFloat(0.0f, 1.0f);
 
+            float size = 0;
+
             float textureRNG = quickRandFloat(0.0f, 1.0f);
             ID textureID;
-            if (textureRNG < 0.3f)
+            if (textureRNG < 0.99f)
+            {
                 textureID = getAssetsManager()->getTexture("bee");
-            else if (textureRNG < 0.5f)
-                textureID = 999;
+                size = 0.1f;
+            }
             else
-                textureID = 0;
+            {
+                textureID = getAssetsManager()->getTexture("ball");
+                size = 0.2f;
+            }
 
             ID unit = getWorld()->createEntity();
             getWorld()->addComponents(
                 unit,
-                SpriteComponent{ 1.0f, 1.0f, 1.0f, 1.0f, textureID, 0.0f, 1.0f, 1.0f, 0.0f },
-                TransformComponent{ x, y, 0.1f, 0.1f },
+                SpriteComponent{ r, g, b, 1.0f, textureID},
+                TransformComponent{ x, y, size, size },
                 VelocityComponent{ vx, vy }
             );
             
@@ -100,9 +108,12 @@ public:
 };
 
 class MyApp : public Engine::EngineApp {
+    AppConfig config() override { return AppConfig(800, 600, "Balls!"); }
+
     void setup() override
     {
         getAssetsManager().createTexture("bee", std::string(ResourcePaths::ImagesDir) + "./bee.png");
+        getAssetsManager().createTexture("ball", std::string(ResourcePaths::ImagesDir) + "./ball.png");
 
         pushLayer(std::make_unique<GameLayer>());
     }
