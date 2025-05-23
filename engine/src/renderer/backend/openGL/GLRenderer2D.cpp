@@ -125,19 +125,33 @@ bool GLRenderer2D::init()
 	// Load renderer resources
 	bool resResourceHubInit = m_resourceHub.init();
 	ASSERT(resResourceHubInit, "Resource hub not init");
-
+	
+	setupShaders();
 	setupBuffers();
-
-	m_gpuAssets.makeTexturePersistent(ResourceNames::DefaultSpriteTexture);
-
-	// Fallback texture (Missing texture)
-	m_fallbackTexture = m_resourceHub.getManager<GLTexture>().getResource(ResourceNames::FallbackTexture);
-	m_fallbackTexture.watch();
-	m_fallbackTexture.load();
+	setupTextures();
 
 	LOG_INFO("");
 
 	return true;
+}
+
+void GLRenderer2D::setupShaders()
+{
+	m_spriteProgramHandle = m_resourceHub.getManager<GLProgram>().getResource(ResourceNames::SpriteShader);
+	m_spriteProgramHandle.watch();
+	m_spriteProgramHandle.load();
+
+	// Setup a uniform texture sampler array in the fragment shader
+	// Each slot corresponds to an array index
+	// eg: slot 0 -> uTextures[0]
+	auto* spriteProgram = m_spriteProgramHandle.getResource();
+	constexpr int textureSlots = 32; // TODO: find dynamicaly
+	int samplers[textureSlots];
+	for (size_t i = 0; i < textureSlots; i++)
+	{
+		samplers[i] = i;
+	}
+	spriteProgram->setUniform("uTextures", samplers, textureSlots);
 }
 
 void GLRenderer2D::setupBuffers()
@@ -148,14 +162,12 @@ void GLRenderer2D::setupBuffers()
 	spriteLayout.add(VertexAttribute("aPos", ShaderAttributeType::Float2));
 	spriteLayout.add(VertexAttribute("aColor", ShaderAttributeType::Float4));
 	spriteLayout.add(VertexAttribute("aUV", ShaderAttributeType::Float2));
+	spriteLayout.add(VertexAttribute("aTextureIndex", ShaderAttributeType::Float));
 	m_spritesBatch = std::make_unique<GLMesh>(
 		spriteLayout.getStride() * verticesPerQuad * maxQuadsPerBatch,
 		quadsIndicesCount
 	);
 
-	m_spriteProgramHandle = m_resourceHub.getManager<GLProgram>().getResource(ResourceNames::SpriteShader);
-	m_spriteProgramHandle.watch();
-	m_spriteProgramHandle.load();
 	auto* spriteProgram = m_spriteProgramHandle.getResource();
 	m_spritesBatch->setupAttributes(spriteLayout, spriteProgram->getGLID());
 
@@ -177,6 +189,16 @@ void GLRenderer2D::setupBuffers()
 	m_spritesBatch->setIndexData(indexData.data(), indexData.size());
 
 	m_spriteBatchVertexData.resize(maxQuadsPerBatch * verticesPerQuad * spriteLayout.getStride());
+}
+
+void GLRenderer2D::setupTextures()
+{
+	m_gpuAssets.makeTexturePersistent(ResourceNames::DefaultSpriteTexture);
+
+	// Fallback texture (Missing texture)
+	m_fallbackTexture = m_resourceHub.getManager<GLTexture>().getResource(ResourceNames::FallbackTexture);
+	m_fallbackTexture.watch();
+	m_fallbackTexture.load();
 }
 
 bool GLRenderer2D::terminate()
@@ -281,11 +303,11 @@ void GLRenderer2D::render()
 		float v1 = command.spriteQuad.v1;
 
 		float quadVerts[] = {
-			// pos          // color      // uv
-			x,     y,       r, g, b, a,   u0, v0,
-			x + w, y,       r, g, b, a,   u1, v0,
-			x + w, y - h,   r, g, b, a,   u1, v1,
-			x,     y - h,   r, g, b, a,   u0, v1,
+			// pos          // color      // uv   // Texture index
+			x,     y,       r, g, b, a,   u0, v0, 0,
+			x + w, y,       r, g, b, a,   u1, v0, 0,
+			x + w, y - h,   r, g, b, a,   u1, v1, 0,
+			x,     y - h,   r, g, b, a,   u0, v1, 0
 		};
 
 		memcpy(m_spriteBatchVertexData.data() + vertexPos, quadVerts, sizeof(quadVerts));

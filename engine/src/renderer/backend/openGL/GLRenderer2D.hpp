@@ -36,7 +36,9 @@ private:
 	ResourceHandle<GLProgram> m_spriteProgramHandle;
 	ResourceHandle<GLTexture> m_fallbackTexture;
 
+	void setupShaders();
 	void setupBuffers();
+	void setupTextures();
 	void drawBatch(uint32_t& quadsCount, uint32_t& bytes, ID textureID, int& drawCalls);
 };
 

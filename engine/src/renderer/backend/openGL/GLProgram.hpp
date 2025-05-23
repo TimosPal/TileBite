@@ -22,6 +22,8 @@ public:
 
 	unsigned int getGLID() { return m_glProgram; }
 
+	void setUniform(const std::string& name, int* values, size_t count);
+
 	GLProgram(GLProgram&&) noexcept = default;
 	GLProgram& operator=(GLProgram&&) noexcept = default;
 	GLProgram(const GLProgram&) = delete;
@@ -30,9 +32,13 @@ private:
 	virtual bool createImplementation() override;
 	virtual bool destroyImplementation() override;
 
+	GLint getUniformLocation(const std::string& name);
+
 	ResourceHandle<GLShader> m_vertexHandle;
 	ResourceHandle<GLShader> m_fragmentHandle;
 	unsigned int m_glProgram = 0;
+
+	std::unordered_map<std::string, GLint> m_cachedUniformLocations;
 };
 
 } // Engine

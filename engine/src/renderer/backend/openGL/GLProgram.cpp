@@ -70,6 +70,24 @@ bool GLProgram::destroyImplementation()
 	return true;
 }
 
+GLint GLProgram::getUniformLocation(const std::string& name)
+{
+	// NOTE: use program before calling.
+
+	GLint loc;
+	auto it = m_cachedUniformLocations.find(name);
+	if (it == m_cachedUniformLocations.end()) {
+		GL_RET(glGetUniformLocation(m_glProgram, name.c_str()), loc);
+		m_cachedUniformLocations[name] = loc;
+	}
+	else {
+		loc = it->second;
+	}
+
+	ASSERT(loc != -1, "Uniform not found");
+	return loc;
+}
+
 bool GLProgram::isValid()
 {
 	if (!m_vertexHandle.isValid())
@@ -83,6 +101,13 @@ bool GLProgram::isValid()
 		return false;
 	}
 	return  true;
+}
+
+void GLProgram::setUniform(const std::string& name, int* values, size_t count)
+{
+	GL(glUseProgram(m_glProgram));
+	GLint loc = getUniformLocation(name);
+	GL(glUniform1iv(loc, count, values));
 }
 
 void GLProgram::use()
