@@ -128,6 +128,8 @@ bool GLRenderer2D::init()
 
 	setupBuffers();
 
+	m_gpuAssets.makeTexturePersistent(ResourceNames::DefaultSpriteTexture);
+
 	// Fallback texture (Missing texture)
 	m_fallbackTexture = m_resourceHub.getManager<GLTexture>().getResource(ResourceNames::FallbackTexture);
 	m_fallbackTexture.watch();
