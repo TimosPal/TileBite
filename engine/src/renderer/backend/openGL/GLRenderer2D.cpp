@@ -81,6 +81,13 @@ GLRenderer2D::GLRenderer2D(SystemResourceHub& systemResourceHub)
 	m_gpuAssets(m_resourceHub)
 {}
 
+uint8_t GLRenderer2D::numberOfGPUSlots() const
+{
+	GLint slots = 0;
+	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &slots);
+	return static_cast<uint8_t>(slots);
+}
+
 bool GLRenderer2D::init()
 {
 	// TODO:
@@ -137,6 +144,8 @@ bool GLRenderer2D::init()
 
 void GLRenderer2D::setupShaders()
 {
+	LOG_INFO("[Setting up shaders]");
+
 	m_spriteProgramHandle = m_resourceHub.getManager<GLProgram>().getResource(ResourceNames::SpriteShader);
 	m_spriteProgramHandle.watch();
 	m_spriteProgramHandle.load();
@@ -193,12 +202,17 @@ void GLRenderer2D::setupBuffers()
 
 void GLRenderer2D::setupTextures()
 {
+	LOG_INFO("[Setting up engine textures]");
+
 	m_gpuAssets.makeTexturePersistent(ResourceNames::DefaultSpriteTexture);
 
 	// Fallback texture (Missing texture)
 	m_fallbackTexture = m_resourceHub.getManager<GLTexture>().getResource(ResourceNames::FallbackTexture);
 	m_fallbackTexture.watch();
 	m_fallbackTexture.load();
+
+	m_textureSlotManager.setNumberOfSlots(numberOfGPUSlots());
+	LOG_INFO("GPU Texture slots: {}", m_textureSlotManager.getNumberOfSlots());
 }
 
 bool GLRenderer2D::terminate()
