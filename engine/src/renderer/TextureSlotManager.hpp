@@ -15,14 +15,19 @@ struct SlotData {
 class TextureSlotManager {
 public:
 	void setNumberOfSlots(uint8_t numberOfSlots);
-
-	uint8_t getLeastUsedSlot() const;
-	void addSlot(uint8_t slot, ID textureID);
 	void reset();
+	void makeDisabled();
+	
+	void addSlot(uint8_t slot, ID textureID);
+	uint8_t getLeastUsedSlot() const;
+
+	bool isSlotActive(uint8_t slot);
+	bool isTextureAssigned(ID textureID);
+	uint8_t getTextureToSlotID(ID textureID);
 
 	uint8_t getNumberOfSlots() const { return m_slotData.size(); }
-private:
 	void incrementSlotCounter(uint8_t slot);
+private:
 
 	std::vector<SlotData> m_slotData;
 	std::unordered_map<ID, uint8_t> m_textureIDToSlot;

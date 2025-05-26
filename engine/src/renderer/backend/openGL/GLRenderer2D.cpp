@@ -234,33 +234,13 @@ void GLRenderer2D::clearScreen()
 	GL(glClear(GL_COLOR_BUFFER_BIT));
 }
 
-void GLRenderer2D::drawBatch(uint32_t& quadsCount, uint32_t& bytes, ID textureID, int& drawCalls)
+void GLRenderer2D::drawBatch(uint32_t& quadsCount, uint32_t& bytes, int& drawCalls)
 {
-	// TODO: use all texture slots
-
 	m_spritesBatch->bind();
 	m_spritesBatch->setVertexData(m_spriteBatchVertexData.data(), bytes);
 	m_spriteProgramHandle.getResource()->use();
 
-	glActiveTexture(GL_TEXTURE0);
-
-	auto textureHandle = m_resourceHub.getManager<GLTexture>().getResource(textureID);
-	textureHandle.watch();
-	textureHandle.load();
-	if (textureHandle.isValid())
-	{
-		textureHandle.getResource()->bind();
-	}
-	else
-	{
-		m_fallbackTexture.getResource()->bind();
-	}
-
-	glUniform1i(glGetUniformLocation(m_spriteProgramHandle.getResource()->getGLID(), "uTexture"), 0);
 	m_spritesBatch->draw(quadsCount * 6);
-
-	textureHandle.unwatch();
-	textureHandle.unload();
 
 	quadsCount = 0;
 	bytes = 0;
@@ -273,7 +253,6 @@ void GLRenderer2D::render()
 
 	uint32_t vertexPos = 0;
 	uint32_t quadsCount = 0;
-	ID previousTextureID = -1;
 
 	// Sort by Texture ID to optimize drawCalls (less texture swapping)
 	std::sort(m_drawCommands.begin(), m_drawCommands.end(), [](const DrawCommand2D& a, const DrawCommand2D& b) {
@@ -286,6 +265,8 @@ void GLRenderer2D::render()
 		return false;
 	});
 
+	m_textureSlotManager.makeDisabled();
+
 	for (const auto& command : m_drawCommands)
 	{
 		// Currently supporting only 2d quads
@@ -293,12 +274,45 @@ void GLRenderer2D::render()
 
 		ID currentTextureID = command.spriteQuad.spriteID;
 
-		bool maxQuadsReached = quadsCount == maxQuadsPerBatch;
-		bool textureChange = quadsCount > 0 && previousTextureID != currentTextureID;
-		bool shouldFlush = maxQuadsReached || textureChange;
-		if (shouldFlush) drawBatch(quadsCount, vertexPos, previousTextureID, drawCalls);
+		uint8_t textureSlot;
+		bool batchTextureSlotChange = false;
+		bool newSlotAdded = false;
+		if (!m_textureSlotManager.isTextureAssigned(currentTextureID))
+		{
+			// We have to add a new slot for the new texture ID.
+			// (Else nothing needs to be done, texture is already correctly set for current batch)
+			textureSlot = m_textureSlotManager.getLeastUsedSlot();
+			if (m_textureSlotManager.isSlotActive(textureSlot))
+			{
+				// If the slot is active and we need to replace said texture, a flush should occure
+				// sice this texture slot is used by the current batch.
+				batchTextureSlotChange = true;
+			}
+			m_textureSlotManager.addSlot(textureSlot, currentTextureID);
+			newSlotAdded = true;
+		}
+		else
+		{
+			textureSlot = m_textureSlotManager.getTextureToSlotID(currentTextureID);
+		}
 
-		previousTextureID = currentTextureID;
+		bool maxQuadsReached = quadsCount == maxQuadsPerBatch;
+		bool shouldFlush = maxQuadsReached || batchTextureSlotChange;
+		if (shouldFlush) drawBatch(quadsCount, vertexPos, drawCalls);
+
+		if (newSlotAdded)
+		{
+			GL(glActiveTexture(GL_TEXTURE0 + textureSlot));
+			auto textureHandle = m_resourceHub.getManager<GLTexture>().getResource(currentTextureID);
+			if (textureHandle.isValid())
+			{
+				textureHandle.getResource()->bind();
+			}
+			else
+			{
+				m_fallbackTexture.getResource()->bind();
+			}
+		}
 
 		float x = command.spriteQuad.x;
 		float y = command.spriteQuad.y;
@@ -318,21 +332,22 @@ void GLRenderer2D::render()
 
 		float quadVerts[] = {
 			// pos          // color      // uv   // Texture index
-			x,     y,       r, g, b, a,   u0, v0, 0,
-			x + w, y,       r, g, b, a,   u1, v0, 0,
-			x + w, y - h,   r, g, b, a,   u1, v1, 0,
-			x,     y - h,   r, g, b, a,   u0, v1, 0
+			x,     y,       r, g, b, a,   u0, v0, textureSlot,
+			x + w, y,       r, g, b, a,   u1, v0, textureSlot,
+			x + w, y - h,   r, g, b, a,   u1, v1, textureSlot,
+			x,     y - h,   r, g, b, a,   u0, v1, textureSlot
 		};
 
 		memcpy(m_spriteBatchVertexData.data() + vertexPos, quadVerts, sizeof(quadVerts));
 		vertexPos += sizeof(quadVerts);
 		quadsCount++;
+		m_textureSlotManager.incrementSlotCounter(textureSlot);
 	}
 
 	// Render last remaining batch if it contains data
-	if(quadsCount) drawBatch(quadsCount, vertexPos, previousTextureID, drawCalls);
+	if(quadsCount) drawBatch(quadsCount, vertexPos, drawCalls);
 
-	// LOG_INFO("DrawCalls: {}", drawCalls);
+	//LOG_INFO("DrawCalls: {}", drawCalls);
 	m_drawCommands.clear();
 }
 

@@ -38,18 +38,53 @@ void TextureSlotManager::addSlot(uint8_t slot, ID textureID)
 {
     ASSERT(slot < m_slotData.size(), "Slot index out of range");
     
-    auto& oldTex = m_slotData[slot].AssignedTexture;
-    m_textureIDToSlot.erase(oldTex);
+    if (m_slotData[slot].AssignedTexture == textureID)
+    {
+		// Texture already assigned to this slot, no need to change anything
+        // Just enable it.
+        m_slotData[slot].isEnabled = true;
+    }
+    else
+    {
+        auto& oldTex = m_slotData[slot].AssignedTexture;
+        m_textureIDToSlot.erase(oldTex);
 
-    m_textureIDToSlot[textureID] = slot;
+        m_textureIDToSlot[textureID] = slot;
 
-    m_slotData[slot].AssignedTexture = textureID;
-    m_slotData[slot].isEnabled = true;
-    m_slotData[slot].Counter = 0;
+        m_slotData[slot].AssignedTexture = textureID;
+        m_slotData[slot].isEnabled = true;
+        m_slotData[slot].Counter = 0;
+    }
 }
+
+bool TextureSlotManager::isSlotActive(uint8_t slot)
+{
+    return m_slotData[slot].isEnabled;
+}
+
+bool TextureSlotManager::isTextureAssigned(ID textureID)
+{
+    auto it = m_textureIDToSlot.find(textureID);
+    return it != m_textureIDToSlot.end();
+}
+
+uint8_t TextureSlotManager::getTextureToSlotID(ID textureID)
+{
+    auto it = m_textureIDToSlot.find(textureID);
+    if (it != m_textureIDToSlot.end())
+    {
+        return it->second;
+    }
+
+    ASSERT_FALSE("TextureID not found");
+}
+
 
 void TextureSlotManager::incrementSlotCounter(uint8_t slot)
 {
+	// NOTE: if this counter exceed the maximum value, it will wrap around to 0
+    // which is fine because it will sort itself out. If more control is needed
+    // we can reset all counters for eg, every X frames.
     ASSERT(slot < m_slotData.size(), "Slot index out of range");
     m_slotData[slot].Counter++;
 }
@@ -58,6 +93,11 @@ void TextureSlotManager::reset()
 {
     for (auto& slot : m_slotData) slot = SlotData{};
     m_textureIDToSlot.clear();
+}
+
+void TextureSlotManager::makeDisabled()
+{
+    for (auto& slot : m_slotData) slot.isEnabled = false;
 }
 
 } // Engine
