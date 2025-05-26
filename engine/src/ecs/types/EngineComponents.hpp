@@ -1,25 +1,24 @@
 #ifndef ENGINE_COMPONENTS_HPP
 #define ENGINE_COMPONENTS_HPP
 
+#include <glm/glm.hpp>
+
 namespace Engine {
 
 struct SpriteComponent
 {
-	float r, g, b, a;
-
-	ID textureID = 0;
+	glm::vec4 Color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	
+	ID TextureID = 0;
 
 	// Quad uvs (Default set for whole texture)
-	float u0 = 0.0f;
-	float v0 = 1.0f;
-	float u1 = 1.0f;
-	float v1 = 0.0f;
+	glm::vec4 UVRect = glm::vec4(0.0f, 1.0f, 1.0f, 0.0f);
 };
 
 struct TransformComponent
 {
-	float x, y;
-	float w, h;
+	glm::vec2 Position = glm::vec2(0, 0);
+	glm::vec2 Size = glm::vec2(1, 1);
 };
 
 } // Engine

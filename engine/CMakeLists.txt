@@ -63,4 +63,8 @@ add_library(stb_image INTERFACE)
 target_include_directories(stb_image INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/external/stb)
 target_link_libraries(GameEngine PUBLIC stb_image)
 
+# GLM (math library)
+add_subdirectory(external/glm) 
+target_link_libraries(GameEngine PUBLIC glm)
+
 target_compile_definitions(GameEngine PUBLIC ENGINE_ASSETS_PATH="${CMAKE_CURRENT_SOURCE_DIR}/assets")

@@ -251,9 +251,9 @@ void GLRenderer2D::sortDrawCommands()
 		if (a.type != b.type)
 			return a.type < b.type;
 		if (a.type == DrawCommand2DType::Quad)
-			return a.spriteQuad.spriteID < b.spriteQuad.spriteID;
+			return a.spriteQuad.SpriteComp->TextureID < b.spriteQuad.SpriteComp->TextureID;
 		return false;
-		});
+	});
 }
 
 void GLRenderer2D::bindTextureToSlot(ID textureID, uint8_t slot)
@@ -285,7 +285,7 @@ void GLRenderer2D::render()
 		// Currently supporting only 2d quads
 		if (command.type != DrawCommand2DType::Quad) continue;
 
-		ID currentTextureID = command.spriteQuad.spriteID;
+		ID currentTextureID = command.spriteQuad.SpriteComp->TextureID;
 
 		uint8_t textureSlot;
 		bool batchTextureSlotChange = false;
@@ -321,21 +321,21 @@ void GLRenderer2D::render()
 		if (shouldFlush) drawBatch(quadsCount, vertexPos, drawCalls);
 		if (newSlotAdded) bindTextureToSlot(currentTextureID, textureSlot);
 
-		float x = command.spriteQuad.x;
-		float y = command.spriteQuad.y;
+		float x = command.spriteQuad.TransformComp->Position.x;
+		float y = command.spriteQuad.TransformComp->Position.y;
 			
-		float w = command.spriteQuad.w;
-		float h = command.spriteQuad.h;
+		float w = command.spriteQuad.TransformComp->Size.x;
+		float h = command.spriteQuad.TransformComp->Size.y;
 			
-		float r = command.spriteQuad.r;
-		float g = command.spriteQuad.g;
-		float b = command.spriteQuad.b;
-		float a = command.spriteQuad.a;
+		float r = command.spriteQuad.SpriteComp->Color.r;
+		float g = command.spriteQuad.SpriteComp->Color.g;
+		float b = command.spriteQuad.SpriteComp->Color.b;
+		float a = command.spriteQuad.SpriteComp->Color.a;
 
-		float u0 = command.spriteQuad.u0;
-		float v0 = command.spriteQuad.v0;
-		float u1 = command.spriteQuad.u1;
-		float v1 = command.spriteQuad.v1;
+		float u0 = command.spriteQuad.SpriteComp->UVRect.x;
+		float v0 = command.spriteQuad.SpriteComp->UVRect.y;
+		float u1 = command.spriteQuad.SpriteComp->UVRect.z;
+		float v1 = command.spriteQuad.SpriteComp->UVRect.w;
 
 		float quadVerts[] = {
 			// pos          // color      // uv   // Texture index
@@ -358,7 +358,7 @@ void GLRenderer2D::render()
 	// Render last remaining batch if it contains data
 	if(quadsCount) drawBatch(quadsCount, vertexPos, drawCalls);
 
-	LOG_INFO("DrawCalls: {}", drawCalls);
+	//LOG_INFO("DrawCalls: {}", drawCalls);
 	m_drawCommands.clear();
 }
 

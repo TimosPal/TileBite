@@ -28,24 +28,33 @@ public:
     const float angleStep = 10.0f;  // radians per spawn
     const float circleRadius = 0.5f;
     const float speed = 0.5f;
-    const int maxSpawns = 10000;
+    const int maxSpawns = 1000;
     int spawnCount = 0;
 
     void update(float deltaTime) override
     {
         // Move and bounce units
         getWorld()->query<TransformComponent, VelocityComponent>().each([deltaTime](TransformComponent* t, VelocityComponent* v) {
-            t->x += v->vx * deltaTime;
-            t->y += v->vy * deltaTime;
+            t->Position.x += v->vx * deltaTime;
+            t->Position.y += v->vy * deltaTime;
 
-            if (t->x < -1.0f || t->x > 1.0f) {
-                t->x = std::clamp(t->x, -1.0f, 1.0f);
+            bool bounced = false;
+            if (t->Position.x < -1.0f || t->Position.x > 1.0f) {
+                t->Position.x = std::clamp(t->Position.x, -1.0f, 1.0f);
                 v->vx *= -1.0f;
+				bounced = true;
             }
-            if (t->y < -1.0f || t->y > 1.0f) {
-                t->y = std::clamp(t->y, -1.0f, 1.0f);
+            if (t->Position.y < -1.0f || t->Position.y > 1.0f) {
+                t->Position.y = std::clamp(t->Position.y, -1.0f, 1.0f);
                 v->vy *= -1.0f;
+                bounced = true;
             }
+
+			if (bounced) {
+                float r = quickRandFloat(-0.2f, 0.2f);
+                t->Size.y -= t->Size.y * r;
+                t->Size.x -= t->Size.x * r;
+			}
         });
 
         // Spawn logic every 0.01 seconds
@@ -97,8 +106,8 @@ public:
             ID unit = getWorld()->createEntity();
             getWorld()->addComponents(
                 unit,
-                SpriteComponent{ r, g, b, 1.0f, textureID},
-                TransformComponent{ x, y, size, size },
+                SpriteComponent{ glm::vec4(r, g, b, 1.0f), textureID},
+                TransformComponent{ glm::vec2(x, y), glm::vec2(size, size)},
                 VelocityComponent{ vx, vy }
             );
             
@@ -109,11 +118,69 @@ public:
     }
 };
 
+class OrbitSystem : public ISystem {
+public:
+    float spawnTimer = 0.0f;
+    int spawnCount = 0;
+    const int maxSpawns = 3000;
+    float time = 0;
+
+    void update(float deltaTime) override
+    {
+        time += deltaTime;
+
+        // Update orbits
+        getWorld()->query<TransformComponent, VelocityComponent>().each([this, deltaTime](TransformComponent* t, VelocityComponent* v) {
+            float angle = atan2(t->Position.y, t->Position.x);
+            float radius = sqrt(t->Position.x * t->Position.x + t->Position.y * t->Position.y);
+
+            angle += v->vx * deltaTime; // vx used as angular speed
+
+            radius += 0.05f * sin(time + radius * 5.0f) * deltaTime; // pulsating orbit
+
+            t->Position.x = radius * cos(angle);
+            t->Position.y = radius * sin(angle);
+
+            float pulse = 1.0f + 0.3f * sin(time * 4.0f + radius * 10.0f);
+            t->Size.x = t->Size.y = v->vy * pulse; // vy used as base size
+        });
+
+        // Spawn more if needed
+        spawnTimer += deltaTime;
+        if (spawnTimer > 0.01f && spawnCount < maxSpawns) {
+            spawnTimer = 0.0f;
+            spawnCount++;
+
+            float angle = quickRandFloat(0.0f, 2.0f * 3.1415926f);
+            float radius = quickRandFloat(0.2f, 0.9f);
+            float size = quickRandFloat(0.02f, 0.06f);
+            float speed = quickRandFloat(0.5f, 2.0f);
+
+            float r = quickRandFloat(0.2f, 1.0f);
+            float g = quickRandFloat(0.2f, 1.0f);
+            float b = quickRandFloat(0.2f, 1.0f);
+
+            ID textureID = (quickRandFloat() < 0.5f)
+                ? getAssetsManager()->getTexture("bee")
+                : getAssetsManager()->getTexture("ball");
+
+            ID unit = getWorld()->createEntity();
+            getWorld()->addComponents(
+                unit,
+                SpriteComponent{ glm::vec4(r, g, b, 1.0f), textureID },
+                TransformComponent{ glm::vec2(radius * cos(angle), radius * sin(angle)), glm::vec2(size, size) },
+                VelocityComponent{ speed, size } // vx = angular speed, vy = size
+            );
+        }
+    }
+};
+
 class GameLayer : public Layer {
 public:
     void onAttach() override
     {
-        addSystem(std::make_unique<UnitSystem>());
+        addSystem(std::make_unique<OrbitSystem>());
+        //addSystem(std::make_unique<UnitSystem>());
     }
 };
 
