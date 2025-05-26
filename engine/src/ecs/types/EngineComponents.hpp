@@ -19,6 +19,7 @@ struct TransformComponent
 {
 	glm::vec2 Position = glm::vec2(0, 0);
 	glm::vec2 Size = glm::vec2(1, 1);
+	float Rotation = 0.0f; // In radians
 };
 
 } // Engine

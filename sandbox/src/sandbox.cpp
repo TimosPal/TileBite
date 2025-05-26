@@ -28,7 +28,7 @@ public:
     const float angleStep = 10.0f;  // radians per spawn
     const float circleRadius = 0.5f;
     const float speed = 0.5f;
-    const int maxSpawns = 1000;
+    const int maxSpawns = 10000;
     int spawnCount = 0;
 
     void update(float deltaTime) override
@@ -55,6 +55,8 @@ public:
                 t->Size.y -= t->Size.y * r;
                 t->Size.x -= t->Size.x * r;
 			}
+
+            t->Rotation += 1 * deltaTime;
         });
 
         // Spawn logic every 0.01 seconds
@@ -122,7 +124,7 @@ class OrbitSystem : public ISystem {
 public:
     float spawnTimer = 0.0f;
     int spawnCount = 0;
-    const int maxSpawns = 3000;
+    const int maxSpawns = 30000;
     float time = 0;
 
     void update(float deltaTime) override
@@ -143,6 +145,8 @@ public:
 
             float pulse = 1.0f + 0.3f * sin(time * 4.0f + radius * 10.0f);
             t->Size.x = t->Size.y = v->vy * pulse; // vy used as base size
+
+            t->Rotation += 0.5f * deltaTime;
         });
 
         // Spawn more if needed
@@ -179,8 +183,8 @@ class GameLayer : public Layer {
 public:
     void onAttach() override
     {
-        addSystem(std::make_unique<OrbitSystem>());
-        //addSystem(std::make_unique<UnitSystem>());
+        //addSystem(std::make_unique<OrbitSystem>());
+        addSystem(std::make_unique<UnitSystem>());
     }
 };
 

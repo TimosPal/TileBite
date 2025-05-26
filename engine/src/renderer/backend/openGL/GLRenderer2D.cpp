@@ -1,5 +1,8 @@
 #include "renderer/backend/openGL/GLRenderer2D.hpp"
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 #include "utilities/Logger.hpp"
 #include "renderer/backend/openGL/GLWrapper.hpp"
 #include "renderer/backend/openGL/GLProgram.hpp"
@@ -321,12 +324,28 @@ void GLRenderer2D::render()
 		if (shouldFlush) drawBatch(quadsCount, vertexPos, drawCalls);
 		if (newSlotAdded) bindTextureToSlot(currentTextureID, textureSlot);
 
-		float x = command.spriteQuad.TransformComp->Position.x;
-		float y = command.spriteQuad.TransformComp->Position.y;
-			
-		float w = command.spriteQuad.TransformComp->Size.x;
-		float h = command.spriteQuad.TransformComp->Size.y;
-			
+		auto& pos = command.spriteQuad.TransformComp->Position;
+		auto& size = command.spriteQuad.TransformComp->Size;
+		float angle = command.spriteQuad.TransformComp->Rotation;
+
+		float cosA = cos(angle);
+		float sinA = sin(angle);
+		float hw = size.x * 0.5f;
+		float hh = size.y * 0.5f;
+
+		// Quad corners after scale + rotation + translation
+		float tlx = pos.x + (-hw * cosA - hh * sinA);
+		float tly = pos.y + (-hw * sinA + hh * cosA);
+
+		float trx = pos.x + (hw * cosA - hh * sinA);
+		float try_ = pos.y + (hw * sinA + hh * cosA);
+
+		float brx = pos.x + (hw * cosA - (-hh) * sinA);
+		float bry = pos.y + (hw * sinA + (-hh) * cosA);
+
+		float blx = pos.x + (-hw * cosA - (-hh) * sinA);
+		float bly = pos.y + (-hw * sinA + (-hh) * cosA);
+
 		float r = command.spriteQuad.SpriteComp->Color.r;
 		float g = command.spriteQuad.SpriteComp->Color.g;
 		float b = command.spriteQuad.SpriteComp->Color.b;
@@ -338,11 +357,11 @@ void GLRenderer2D::render()
 		float v1 = command.spriteQuad.SpriteComp->UVRect.w;
 
 		float quadVerts[] = {
-			// pos          // color      // uv   // Texture index
-			x,     y,       r, g, b, a,   u0, v0, textureSlot,
-			x + w, y,       r, g, b, a,   u1, v0, textureSlot,
-			x + w, y - h,   r, g, b, a,   u1, v1, textureSlot,
-			x,     y - h,   r, g, b, a,   u0, v1, textureSlot
+			// pos       // color        // uv     // texture
+			tlx, tly,   r, g, b, a,     u0, v0,   textureSlot,
+			trx, try_,  r, g, b, a,     u1, v0,   textureSlot,
+			brx, bry,   r, g, b, a,     u1, v1,   textureSlot,
+			blx, bly,   r, g, b, a,     u0, v1,   textureSlot
 		};
 
 		memcpy(m_spriteBatchVertexData.data() + vertexPos, quadVerts, sizeof(quadVerts));
