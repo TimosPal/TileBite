@@ -23,7 +23,7 @@ public:
 
 	bool isSlotActive(uint8_t slot);
 	bool isTextureAssigned(ID textureID);
-	uint8_t getTextureToSlotID(ID textureID);
+	uint8_t getTextureToSlotID(ID textureID, bool& isAssigned);
 
 	uint8_t getNumberOfSlots() const { return m_slotData.size(); }
 	void incrementSlotCounter(uint8_t slot);

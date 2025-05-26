@@ -40,6 +40,8 @@ private:
 	void setupBuffers();
 	void setupTextures();
 	void drawBatch(uint32_t& quadsCount, uint32_t& bytes, int& drawCalls);
+	void sortDrawCommands();
+	void bindTextureToSlot(ID textureID, uint8_t slot);
 
 	uint8_t numberOfGPUSlots() const;
 };

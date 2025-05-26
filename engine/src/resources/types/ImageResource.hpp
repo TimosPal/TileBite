@@ -28,6 +28,8 @@ private:
 	std::string m_filePath;
 	unsigned char* m_data;
 	int m_width, m_height, m_channels;
+
+	bool m_fileExists;
 };
 
 } // Engine

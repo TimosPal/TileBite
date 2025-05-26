@@ -50,7 +50,7 @@ public:
 
         // Spawn logic every 0.01 seconds
         spawnTimer += deltaTime;
-        if (spawnTimer >= 0.1f && spawnCount < maxSpawns) {
+        if (spawnTimer >= 0.001f && spawnCount < maxSpawns) {
             spawnTimer = 0.0f;
             spawnCount++;
 
@@ -73,15 +73,25 @@ public:
 
             float textureRNG = quickRandFloat(0.0f, 1.0f);
             ID textureID;
-            if (textureRNG < 0.99f)
+            if (textureRNG < 0.3f)
+            {
+                textureID = 0;
+                size = 0.15f;
+            }
+            else if (textureRNG < 0.5f)
+            {
+                textureID = getAssetsManager()->getTexture("ball");
+                size = 0.2f;
+            }
+            else if (textureRNG < 0.8f)
             {
                 textureID = getAssetsManager()->getTexture("bee");
                 size = 0.1f;
             }
             else
             {
-                textureID = getAssetsManager()->getTexture("ball");
-                size = 0.2f;
+                textureID = 999;
+                size = 0.01f;
             }
 
             ID unit = getWorld()->createEntity();

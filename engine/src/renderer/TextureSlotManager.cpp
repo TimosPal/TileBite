@@ -37,24 +37,15 @@ uint8_t TextureSlotManager::getLeastUsedSlot() const
 void TextureSlotManager::addSlot(uint8_t slot, ID textureID)
 {
     ASSERT(slot < m_slotData.size(), "Slot index out of range");
-    
-    if (m_slotData[slot].AssignedTexture == textureID)
-    {
-		// Texture already assigned to this slot, no need to change anything
-        // Just enable it.
-        m_slotData[slot].isEnabled = true;
-    }
-    else
-    {
-        auto& oldTex = m_slotData[slot].AssignedTexture;
-        m_textureIDToSlot.erase(oldTex);
 
-        m_textureIDToSlot[textureID] = slot;
+    auto& oldTex = m_slotData[slot].AssignedTexture;
+    m_textureIDToSlot.erase(oldTex);
 
-        m_slotData[slot].AssignedTexture = textureID;
-        m_slotData[slot].isEnabled = true;
-        m_slotData[slot].Counter = 0;
-    }
+    m_textureIDToSlot[textureID] = slot;
+
+    m_slotData[slot].AssignedTexture = textureID;
+    m_slotData[slot].isEnabled = true;
+    m_slotData[slot].Counter = 0;
 }
 
 bool TextureSlotManager::isSlotActive(uint8_t slot)
@@ -68,15 +59,17 @@ bool TextureSlotManager::isTextureAssigned(ID textureID)
     return it != m_textureIDToSlot.end();
 }
 
-uint8_t TextureSlotManager::getTextureToSlotID(ID textureID)
+uint8_t TextureSlotManager::getTextureToSlotID(ID textureID, bool& isAssigned)
 {
     auto it = m_textureIDToSlot.find(textureID);
     if (it != m_textureIDToSlot.end())
     {
+        isAssigned = true;
         return it->second;
     }
 
-    ASSERT_FALSE("TextureID not found");
+    isAssigned = false;
+    return 0;
 }
 
 

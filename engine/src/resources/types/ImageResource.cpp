@@ -8,7 +8,9 @@ namespace Engine {
 ImageResource::ImageResource(const std::string& resourceName, const std::string& filePath)
 	: Resource<ImageResource>(resourceName)
 	, m_filePath(filePath)
-{}
+{
+	m_fileExists = std::filesystem::exists(m_filePath);
+}
 
 bool ImageResource::createImplementation()
 {
@@ -36,9 +38,8 @@ bool ImageResource::destroyImplementation()
 
 bool ImageResource::isValid()
 {
-	bool exists = std::filesystem::exists(m_filePath);
-	if (!exists) LOG_ERROR("Invalid image path {}", m_filePath);
-	return exists;
+	if (!m_fileExists) LOG_ERROR("Invalid image path {}", m_filePath);
+	return m_fileExists;
 }
 
 } // Engine

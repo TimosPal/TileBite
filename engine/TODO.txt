@@ -10,3 +10,5 @@ Assert -> better string format support
 
 GL objects dont check binds before binding themselves, or do any unsettings / bind undos
 (Not sure if needed)
+
+- Something wrong with texture slots?

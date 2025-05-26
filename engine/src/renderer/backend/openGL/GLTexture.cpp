@@ -33,7 +33,6 @@ bool GLTexture::createImplementation()
 	// TODO: 
 	// 1) refactor to use constructor arguments for wrapping / filtering
 	// 2) Mipmap generation (check if done properly)
-	// 3) Multiple texture slot support
 
 	GL(glGenTextures(1, &m_glTexture));
 	GL(glBindTexture(GL_TEXTURE_2D, m_glTexture));
