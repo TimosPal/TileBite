@@ -3,13 +3,14 @@
 #include "utilities/assertions.hpp"
 #include "layers/types/SystemLayer.hpp"
 #include "layers/types/GraphicsLayer.hpp"
+#include "renderer/OrthographicCamera.hpp"
 
 namespace Engine {
 
 EngineApp* EngineApp::s_instance;
 
 EngineApp::EngineApp()
-	: m_isRunning(true)
+	: m_isRunning(true), m_mainCamera(nullptr)
 {
 	// One instance allowed.
 	ASSERT(s_instance == nullptr, "Engine app already created");
@@ -61,6 +62,9 @@ void EngineApp::run()
 	// Engine loop.
 	float deltaTime = 0.0f;
 	auto lastFrameTime = Clock::now();
+
+	OrthographicCamera camera(-1, 1, -1, 1);
+	m_mainCamera = &camera;
 	while (m_isRunning)
 	{
 		auto currentFrameTime = Clock::now();
@@ -77,7 +81,8 @@ void EngineApp::run()
 
 		m_layers.onUpdate(deltaTime);
 
-		m_renderer2D->render();
+		ASSERT(m_mainCamera != nullptr, "Main camera not set");
+		m_renderer2D->render(*m_mainCamera);
 		m_window->swapBuffers();
 
 		if(fpsLogTimer >= 1.0f)

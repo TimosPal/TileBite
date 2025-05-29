@@ -58,6 +58,8 @@ private:
 	// ECS
 	World m_world;
 
+	OrthographicCamera* m_mainCamera;
+
 	bool m_isRunning;
 };
 

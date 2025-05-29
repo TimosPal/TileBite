@@ -1,8 +1,5 @@
 #include "renderer/backend/openGL/GLRenderer2D.hpp"
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-
 #include "utilities/Logger.hpp"
 #include "renderer/backend/openGL/GLWrapper.hpp"
 #include "renderer/backend/openGL/GLProgram.hpp"
@@ -238,7 +235,6 @@ void GLRenderer2D::drawBatch(uint32_t& quadsCount, uint32_t& bytes, int& drawCal
 {
 	m_spritesBatch->bind();
 	m_spritesBatch->setVertexData(m_spriteBatchVertexData.data(), bytes);
-	m_spriteProgramHandle.getResource()->use();
 
 	m_spritesBatch->draw(quadsCount * 6);
 
@@ -269,7 +265,7 @@ void GLRenderer2D::bindTextureToSlot(ID textureID, uint8_t slot)
 		m_fallbackTexture.getResource()->bind();
 }
 
-void GLRenderer2D::render()
+void GLRenderer2D::render(OrthographicCamera& camera)
 {
 	int drawCalls = 0;
 
@@ -279,6 +275,13 @@ void GLRenderer2D::render()
 	uint8_t previousTextureSlot = 0;
 	ID previousTextureID = 0;
 	bool firstFrame = true;
+
+	// TODO: supoprt draw commands that dont use this program.
+	// In the future, we may need to bind a shader based on the batched draw commands.
+	GLProgram* program =  m_spriteProgramHandle.getResource();
+	program->use();
+	camera.recalculate();
+	program->setUniform("uViewProjection", camera.getViewProjectionMatrix());
 
 	sortDrawCommands();
 	m_textureSlotManager.makeDisabled();

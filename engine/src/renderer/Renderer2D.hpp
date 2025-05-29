@@ -7,6 +7,7 @@
 #include "resources/SystemResourceHub.hpp"
 #include "renderer/IGPUAssets.hpp"
 #include "renderer/TextureSlotManager.hpp"
+#include "renderer/OrthographicCamera.hpp"
 
 namespace Engine {
 
@@ -16,7 +17,7 @@ public:
 	virtual bool terminate() { return false; }
 
     virtual void clearScreen() {}
-    virtual void render() {}
+    virtual void render(OrthographicCamera& camera) {}
 
 	virtual IGPUAssets& getGPUAssets() = 0;
 

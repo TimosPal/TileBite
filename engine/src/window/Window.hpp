@@ -24,6 +24,10 @@ public:
 	virtual void pollEvents() {}
 	virtual void swapBuffers() {}
 
+	uint32_t getWidth() const { return m_data.width; }
+	uint32_t getHeight() const { return m_data.height; }
+	std::string getTitle() const { return m_data.title; }
+
 	static std::unique_ptr<Window> createWindow(const Data& data);
 protected:
 	Data m_data;

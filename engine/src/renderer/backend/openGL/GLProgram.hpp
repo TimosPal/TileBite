@@ -1,6 +1,8 @@
 #ifndef GL_PROGRAM_HPP
 #define GL_PROGRAM_HPP
 
+#include <glm/mat3x3.hpp>
+
 #include "resources/Resource.hpp"
 #include "resources/ResourceHandle.hpp"
 #include "renderer/backend/openGL/GLShader.hpp"
@@ -23,6 +25,7 @@ public:
 	unsigned int getGLID() { return m_glProgram; }
 
 	void setUniform(const std::string& name, int* values, size_t count);
+	void setUniform(const std::string& name, const glm::mat4& matrix);
 
 	GLProgram(GLProgram&&) noexcept = default;
 	GLProgram& operator=(GLProgram&&) noexcept = default;
