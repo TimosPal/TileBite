@@ -36,6 +36,10 @@ public:
 	// NOTE: this dependency injection is abstracted to make client side code easier to use
 	void setSceneManager(SceneManager* sceneManager) { m_sceneManager = sceneManager; }
 	void setAssetsManager(AssetsManager* assets) { m_assetsManager = assets; }
+	void setPushEventCallable(std::function<void(std::unique_ptr<Event>)> pushEventCallable)
+	{
+		m_pushEventCallable = std::move(pushEventCallable);
+	}
 
 protected:
 	SceneManager& getSceneManager()
@@ -70,8 +74,14 @@ protected:
 		// (Removes the need for client side construction to include injections)
 		system->setAssetsManager(&getAssetsManager());
 		system->setSceneManager(&getSceneManager());
+		system->setPushEventCallable(m_pushEventCallable);
 
 		m_systemManager.addSystem(std::move(system));
+	}
+
+	void pushEvent(std::unique_ptr<Event> event)
+	{
+		m_pushEventCallable(std::move(event));
 	}
 
 private:
@@ -80,6 +90,8 @@ private:
 	
 	SceneManager* m_sceneManager;
 	AssetsManager* m_assetsManager;
+
+	std::function<void(std::unique_ptr<Event>)> m_pushEventCallable;
 };
 
 } // Engine

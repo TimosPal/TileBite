@@ -33,7 +33,7 @@ public:
 
 	void stop() { m_isRunning = false; }
 
-	void onEvent(std::unique_ptr<Event> event);
+	void pushEvent(std::unique_ptr<Event> event);
 
 	void pushLayer(std::unique_ptr<Layer> layer);
 	void pushOverlay(std::unique_ptr<Layer> layer);

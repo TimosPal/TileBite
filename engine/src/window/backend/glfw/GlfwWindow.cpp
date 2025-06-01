@@ -44,15 +44,15 @@ bool GlfwWindow::init()
 	// Close            
 	glfwSetWindowCloseCallback(m_glfwWindow, [](GLFWwindow* window) {
 		Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
-		data->onEvent(std::make_unique<WindowCloseEvent>());
-	});
-	
+		data->pushEvent(std::make_unique<WindowCloseEvent>());
+		});
+
 	// Resize window
 	glfwSetFramebufferSizeCallback(m_glfwWindow, [](GLFWwindow* window, int width, int height) {
 		Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
 		data->width = width;
 		data->height = height;
-		data->onEvent(std::make_unique<WindowResizeEvent>(WindowResizeEvent(width, height)));
+		data->pushEvent(std::make_unique<WindowResizeEvent>(WindowResizeEvent(width, height)));
 	});
 
 	return true; 

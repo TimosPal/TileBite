@@ -13,7 +13,7 @@ public:
 		uint32_t height;
 		std::string title;
 
-		std::function<void(std::unique_ptr<Event>)> onEvent;
+		std::function<void(std::unique_ptr<Event>)> pushEvent;
 	};
 
 	Window(const Data& data) : m_data(data) {}

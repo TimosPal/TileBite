@@ -3,3 +3,5 @@
 - GL objects dont check binds before binding themselves, or do any unsettings / bind undos (Not sure if needed)
 - Not sure if texture slots work as intended, need to test
 - Sprite drawing order is based on sorting order, causes flickering when drawing new objects
+- Injection of scene manager / asset manager into systems global / scene ones is duplicate code
+- Refactor pushEvent injections

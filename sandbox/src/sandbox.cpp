@@ -187,14 +187,34 @@ public:
                 VelocityComponent{ speed, size } // vx = angular speed, vy = size
             );
         }
+
+        if (spawnCount == 100)
+        {
+            pushEvent(std::make_unique<WindowCloseEvent>());
+        }
     }
 };
 
 class GlobalSystemTest : public ISystem {
 public:
+	float timer = 0.0f;
+	bool toggle = true;
     void update(float deltaTime) override
     {
-		LOG_INFO("GlobalSystemTest: Delta Time: {}", deltaTime);
+		timer += deltaTime;
+        if (timer >= 2.0f)
+        {
+            if (toggle)
+            {
+                getSceneManager()->setActiveScene("Scene2");
+            }
+            else
+            {
+                getSceneManager()->setActiveScene("MainScene");
+            }
+			toggle = !toggle;
+            timer = 0;
+        }
     }
 };
 
@@ -202,9 +222,19 @@ class GameLayer : public Layer {
 public:
     void onAttach() override
     {
-        //addSystem(std::make_unique<OrbitSystem>());
-        //addSystem(std::make_unique<UnitSystem>());
 		addSystem(std::make_unique<GlobalSystemTest>());
+
+        auto cameraController = std::make_shared<CameraController>(-1.0f, 1.0f, -1.0f, 1.0f);
+
+        auto scene = getSceneManager().createScene("MainScene");
+        scene->addSystem(std::make_unique<OrbitSystem>());
+        scene->setCameraController(cameraController);
+
+        auto scene2 = getSceneManager().createScene("Scene2");
+        scene2->addSystem(std::make_unique<UnitSystem>());
+        scene2->setCameraController(cameraController);
+
+		getSceneManager().setActiveScene("MainScene");
     }
 };
 
@@ -217,16 +247,6 @@ class MyApp : public Engine::EngineApp {
         getAssetsManager().createTexture("ball", std::string(ResourcePaths::ImagesDir) + "./ball.png");
 
         pushLayer(std::make_unique<GameLayer>());
-
-		auto scene = getSceneManager().createScene("MainScene");
-		getSceneManager().setActiveScene("MainScene");
-
-		scene->addSystem(std::make_unique<OrbitSystem>());
-
-		// Create a camera controller for the main scene
-		auto activeScene = getSceneManager().getActiveScene();
-        auto cameraController = std::make_shared<CameraController>(-1.0f, 1.0f, -1.0f, 1.0f);
-		activeScene->setCameraController(cameraController);
     }
 };
 

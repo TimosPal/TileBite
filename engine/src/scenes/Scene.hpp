@@ -24,6 +24,7 @@ public:
 		// (Removes the need for client side construction to include injections)
 		system->setAssetsManager(getAssetsManager());
 		system->setSceneManager(getSceneManager());
+		system->setPushEventCallable(m_pushEventCallable);
 
 		m_systemManager.addSystem(std::move(system));
 	}
@@ -40,6 +41,10 @@ public:
 
 	void setSceneManager(SceneManager* sceneManager) { m_sceneManager = sceneManager; }
 	void setAssetsManager(AssetsManager* assets) { m_assetsManager = assets; }
+	void setPushEventCallable(std::function<void(std::unique_ptr<Event>)> pushEventCallable)
+	{
+		m_pushEventCallable = std::move(pushEventCallable);
+	}
 private:
 	World m_world;
 	std::shared_ptr<CameraController> m_cameraController;
@@ -47,6 +52,8 @@ private:
 
 	SceneManager* m_sceneManager = nullptr;
 	AssetsManager* m_assetsManager = nullptr;
+
+	std::function<void(std::unique_ptr<Event>)> m_pushEventCallable;
 };
 
 } // Engine

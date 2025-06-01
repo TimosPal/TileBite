@@ -14,11 +14,18 @@ public:
 	std::shared_ptr<Scene> createScene(const std::string& name);
 	bool setActiveScene(const std::string& name);
 	std::shared_ptr<Scene> getActiveScene() const;
+
+	void setPushEventCallable(std::function<void(std::unique_ptr<Event>)> pushEventCallable)
+	{
+		m_pushEventCallable = std::move(pushEventCallable);
+	}
 private:
-	std::shared_ptr<Scene> m_activeScene;
+	std::shared_ptr<Scene> m_activeScene = nullptr;
 	std::unordered_map<std::string, std::shared_ptr<Scene>> m_scenes;
 
 	AssetsManager* m_assetsManager = nullptr;
+
+	std::function<void(std::unique_ptr<Event>)> m_pushEventCallable;
 };
 
 } // Engine

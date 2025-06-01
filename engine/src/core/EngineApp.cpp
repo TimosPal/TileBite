@@ -16,6 +16,10 @@ EngineApp::EngineApp()
 	// One instance allowed.
 	ASSERT(s_instance == nullptr, "Engine app already created");
 	s_instance = this;
+
+	m_sceneManager.setPushEventCallable([&](std::unique_ptr<Event> event) {
+		pushEvent(std::move(event));
+	});
 }
 
 void EngineApp::init()
@@ -23,7 +27,7 @@ void EngineApp::init()
 	// Application initialization.
 	// Window creation.
 	Window::Data data = config();
-	data.onEvent = [&](std::unique_ptr<Event> event) { onEvent(std::move(event)); };
+	data.pushEvent = [&](std::unique_ptr<Event> event) { pushEvent(std::move(event)); };
 	m_window = Window::createWindow(data);
 	ASSERT(m_window != nullptr, "Window not created");
 	bool resInitWindow = m_window->init();
@@ -120,7 +124,7 @@ void EngineApp::terminate()
 	ASSERT(resTerminateWindow, "Window not terminated");
 }
 
-void EngineApp::onEvent(std::unique_ptr<Event> event)
+void EngineApp::pushEvent(std::unique_ptr<Event> event)
 {
 	if (event->getIsBlocking())
 	{
@@ -139,6 +143,9 @@ void EngineApp::pushLayer(std::unique_ptr<Layer> layer)
 	// Inject dependencies to hide from client side.
 	layer->setSceneManager(&m_sceneManager);
 	layer->setAssetsManager(&m_assetsManager);
+	layer->setPushEventCallable([&](std::unique_ptr<Event> event) {
+		pushEvent(std::move(event));
+	});
 
 	m_layers.pushLayer(std::move(layer));
 }
@@ -148,6 +155,9 @@ void EngineApp::pushOverlay(std::unique_ptr<Layer> layer)
 	// Inject dependencies to hide from client side.
 	layer->setSceneManager(&m_sceneManager);
 	layer->setAssetsManager(&m_assetsManager);
+	layer->setPushEventCallable([&](std::unique_ptr<Event> event) {
+		pushEvent(std::move(event));
+	});
 
 	m_layers.pushOverlay(std::move(layer));
 }
