@@ -13,7 +13,8 @@ public:
 
 	virtual void update(float deltaTime) override
 	{
-		getWorld()->query<SpriteComponent, TransformComponent>().each([this](SpriteComponent* spriteComp, TransformComponent* transformComp) {
+		auto& activeWorld = getSceneManager()->getActiveScene()->getWorld();
+		activeWorld.query<SpriteComponent, TransformComponent>().each([this](SpriteComponent* spriteComp, TransformComponent* transformComp) {
 			m_renderer2D->drawQuad(SpriteQuad{ transformComp, spriteComp });
 		});
 	}

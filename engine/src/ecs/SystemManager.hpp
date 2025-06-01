@@ -16,14 +16,15 @@ public:
         m_systems.push_back(std::move(system));
     }
 
-    void updateSystems(World& world, float deltaTime)
+    void updateSystems(SceneManager& m_sceneManager, float deltaTime)
     {
         for (auto& system : m_systems)
         {
             system->update(deltaTime);
         }
 
-        world.executeDeferredActions();
+        World& activeWorld = m_sceneManager.getActiveScene()->getWorld();
+        activeWorld.executeDeferredActions();
     }
 
 private:

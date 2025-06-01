@@ -22,7 +22,7 @@ public:
 	virtual bool terminate() override;
 
 	virtual void clearScreen() override;
-	virtual void render(OrthographicCamera& camera) override;
+	virtual void render(CameraController& camera) override;
 
 	virtual IGPUAssets& getGPUAssets() override { return m_gpuAssets; }
 

@@ -3,14 +3,14 @@
 #include "utilities/assertions.hpp"
 #include "layers/types/SystemLayer.hpp"
 #include "layers/types/GraphicsLayer.hpp"
-#include "renderer/OrthographicCamera.hpp"
+#include "renderer/Camera/OrthographicCamera.hpp"
 
 namespace Engine {
 
 EngineApp* EngineApp::s_instance;
 
 EngineApp::EngineApp()
-	: m_isRunning(true), m_mainCamera(nullptr)
+	: m_isRunning(true)
 {
 	// One instance allowed.
 	ASSERT(s_instance == nullptr, "Engine app already created");
@@ -63,8 +63,6 @@ void EngineApp::run()
 	float deltaTime = 0.0f;
 	auto lastFrameTime = Clock::now();
 
-	OrthographicCamera camera(-1, 1, -1, 1);
-	m_mainCamera = &camera;
 	while (m_isRunning)
 	{
 		auto currentFrameTime = Clock::now();
@@ -81,8 +79,9 @@ void EngineApp::run()
 
 		m_layers.onUpdate(deltaTime);
 
-		ASSERT(m_mainCamera != nullptr, "Main camera not set");
-		m_renderer2D->render(*m_mainCamera);
+		auto activeSceneCamController = m_sceneManager.getActiveScene()->getCameraController();
+		ASSERT(activeSceneCamController != nullptr, "Main camera not set");
+		m_renderer2D->render(*activeSceneCamController);
 		m_window->swapBuffers();
 
 		if(fpsLogTimer >= 1.0f)
@@ -133,7 +132,7 @@ void EngineApp::onEvent(std::unique_ptr<Event> event)
 void EngineApp::pushLayer(std::unique_ptr<Layer> layer)
 {
 	// Inject dependencies to hide from client side.
-	layer->setWorld(&m_world);
+	layer->setSceneManager(&m_sceneManager);
 	layer->setAssetsManager(&m_assetsManager);
 
 	m_layers.pushLayer(std::move(layer));
@@ -142,7 +141,7 @@ void EngineApp::pushLayer(std::unique_ptr<Layer> layer)
 void EngineApp::pushOverlay(std::unique_ptr<Layer> layer)
 {
 	// Inject dependencies to hide from client side.
-	layer->setWorld(&m_world);
+	layer->setSceneManager(&m_sceneManager);
 	layer->setAssetsManager(&m_assetsManager);
 
 	m_layers.pushOverlay(std::move(layer));

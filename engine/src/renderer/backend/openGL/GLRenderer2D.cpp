@@ -265,7 +265,7 @@ void GLRenderer2D::bindTextureToSlot(ID textureID, uint8_t slot)
 		m_fallbackTexture.getResource()->bind();
 }
 
-void GLRenderer2D::render(OrthographicCamera& camera)
+void GLRenderer2D::render(CameraController& camera)
 {
 	int drawCalls = 0;
 

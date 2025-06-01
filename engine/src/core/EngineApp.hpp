@@ -7,10 +7,10 @@
 #include "events/EventDispatcher.hpp"
 #include "layers/LayerStack.hpp"
 #include "window/Window.hpp"
-#include "ecs/World.hpp"
 #include "renderer/Renderer2D.hpp"
 #include "resources/SystemResourceHub.hpp"
 #include "resources/AssetsManager.hpp"
+#include "scenes/SceneManager.hpp"
 
 namespace Engine {
 
@@ -38,7 +38,7 @@ public:
 	void pushLayer(std::unique_ptr<Layer> layer);
 	void pushOverlay(std::unique_ptr<Layer> layer);
 
-	World& getWorld() { return m_world; }
+	SceneManager& getSceneManager() { return m_sceneManager; }
 	AssetsManager& getAssetsManager() { return m_assetsManager; }
 
 private:
@@ -55,10 +55,7 @@ private:
 	EventQueue m_eventQueue;
 	LayerStack m_layers;
 
-	// ECS
-	World m_world;
-
-	OrthographicCamera* m_mainCamera;
+	SceneManager m_sceneManager;
 
 	bool m_isRunning;
 };

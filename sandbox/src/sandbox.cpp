@@ -28,13 +28,15 @@ public:
     const float angleStep = 10.0f;  // radians per spawn
     const float circleRadius = 0.5f;
     const float speed = 0.5f;
-    const int maxSpawns = 10000;
+    const int maxSpawns = 1000;
     int spawnCount = 0;
 
     void update(float deltaTime) override
     {
+		auto& activeWorld = getSceneManager()->getActiveScene()->getWorld();
+
         // Move and bounce units
-        getWorld()->query<TransformComponent, VelocityComponent>().each([deltaTime](TransformComponent* t, VelocityComponent* v) {
+        activeWorld.query<TransformComponent, VelocityComponent>().each([deltaTime](TransformComponent* t, VelocityComponent* v) {
             t->Position.x += v->vx * deltaTime;
             t->Position.y += v->vy * deltaTime;
 
@@ -105,8 +107,8 @@ public:
                 size = 0.01f;
             }
 
-            ID unit = getWorld()->createEntity();
-            getWorld()->addComponents(
+            ID unit = activeWorld.createEntity();
+            activeWorld.addComponents(
                 unit,
                 SpriteComponent{ glm::vec4(r, g, b, 1.0f), textureID},
                 TransformComponent{ glm::vec2(x, y), glm::vec2(size, size)},
@@ -124,15 +126,17 @@ class OrbitSystem : public ISystem {
 public:
     float spawnTimer = 0.0f;
     int spawnCount = 0;
-    const int maxSpawns = 30000;
+    const int maxSpawns = 1000;
     float time = 0;
 
     void update(float deltaTime) override
     {
         time += deltaTime;
 
+        auto& activeWorld = getSceneManager()->getActiveScene()->getWorld();
+
         // Update orbits
-        getWorld()->query<TransformComponent, VelocityComponent>().each([this, deltaTime](TransformComponent* t, VelocityComponent* v) {
+        activeWorld.query<TransformComponent, VelocityComponent>().each([this, deltaTime](TransformComponent* t, VelocityComponent* v) {
             float angle = atan2(t->Position.y, t->Position.x);
             float radius = sqrt(t->Position.x * t->Position.x + t->Position.y * t->Position.y);
 
@@ -146,7 +150,7 @@ public:
             float pulse = 1.0f + 0.3f * sin(time * 4.0f + radius * 10.0f);
             t->Size.x = t->Size.y = v->vy * pulse; // vy used as base size
 
-            t->Rotation += 0.5f * deltaTime;
+            t->Rotation -= 0.5f * deltaTime;
         });
 
         // Spawn more if needed
@@ -168,8 +172,8 @@ public:
                 ? getAssetsManager()->getTexture("bee")
                 : getAssetsManager()->getTexture("ball");
 
-            ID unit = getWorld()->createEntity();
-            getWorld()->addComponents(
+            ID unit = activeWorld.createEntity();
+            activeWorld.addComponents(
                 unit,
                 SpriteComponent{ glm::vec4(r, g, b, 1.0f), textureID },
                 TransformComponent{ glm::vec2(radius * cos(angle), radius * sin(angle)), glm::vec2(size, size) },
@@ -183,8 +187,8 @@ class GameLayer : public Layer {
 public:
     void onAttach() override
     {
-        //addSystem(std::make_unique<OrbitSystem>());
-        addSystem(std::make_unique<UnitSystem>());
+        addSystem(std::make_unique<OrbitSystem>());
+        //addSystem(std::make_unique<UnitSystem>());
     }
 };
 
@@ -197,6 +201,14 @@ class MyApp : public Engine::EngineApp {
         getAssetsManager().createTexture("ball", std::string(ResourcePaths::ImagesDir) + "./ball.png");
 
         pushLayer(std::make_unique<GameLayer>());
+
+		getSceneManager().createScene("MainScene");
+		getSceneManager().setActiveScene("MainScene");
+
+		// Create a camera controller for the main scene
+		auto activeScene = getSceneManager().getActiveScene();
+        auto cameraController = std::make_shared<CameraController>(-1.0f, 1.0f, -1.0f, 1.0f);
+		activeScene->setCameraController(cameraController);
     }
 };
 

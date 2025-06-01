@@ -6,6 +6,7 @@
 #include "events/EventDispatcher.hpp"
 #include "ecs/SystemManager.hpp"
 #include "resources/AssetsManager.hpp"
+#include "scenes/SceneManager.hpp"
 
 namespace Engine {
 
@@ -24,7 +25,7 @@ public:
 	virtual void onUpdate(float deltaTime)
 	{
 		// Update systems.
-		m_systemManager.updateSystems(getWorld(), deltaTime);
+		m_systemManager.updateSystems(getSceneManager(), deltaTime);
 	}
 
 	virtual void onEvent(Event& event) 
@@ -33,19 +34,19 @@ public:
 	}
 
 	// NOTE: this dependency injection is abstracted to make client side code easier to use
-	void setWorld(World* world) { m_world = world; }
+	void setSceneManager(SceneManager* sceneManager) { m_sceneManager = sceneManager; }
 	void setAssetsManager(AssetsManager* assets) { m_assetsManager = assets; }
 
 protected:
-	World& getWorld() 
+	SceneManager& getSceneManager()
 	{ 
-		ASSERT(m_world != nullptr, "World not injected");
-		return *m_world; 
+		ASSERT(m_sceneManager != nullptr, "Scene manager not injected");
+		return *m_sceneManager;
 	}
 
 	AssetsManager& getAssetsManager()
 	{
-		ASSERT(m_world != nullptr, "Assets manager not injected");
+		ASSERT(m_assetsManager != nullptr, "Assets manager not injected");
 		return *m_assetsManager;
 	}
 
@@ -68,7 +69,7 @@ protected:
 		// Inject world and asset manager for hidden client side use
 		// (Removes the need for client side construction to include injections)
 		system->setAssetsManager(&getAssetsManager());
-		system->setWorld(&getWorld());
+		system->setSceneManager(&getSceneManager());
 
 		m_systemManager.addSystem(std::move(system));
 	}
@@ -77,7 +78,7 @@ private:
 	EventDispatcher m_eventDispatcher;
 	SystemManager m_systemManager;
 	
-	World* m_world;
+	SceneManager* m_sceneManager;
 	AssetsManager* m_assetsManager;
 };
 
