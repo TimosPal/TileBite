@@ -188,7 +188,7 @@ public:
             );
         }
 
-        if (spawnCount == 100)
+        if (spawnCount == 1000)
         {
             pushEvent(std::make_unique<WindowCloseEvent>());
         }

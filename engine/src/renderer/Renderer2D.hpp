@@ -28,6 +28,8 @@ public:
 		);
 	}
 
+	virtual void setViewportSize(uint32_t width, uint32_t height) {}
+
 	static std::unique_ptr<Renderer2D> createRenderer2D(SystemResourceHub& systemResourceHub);
 
 protected:

@@ -24,6 +24,8 @@ public:
 	virtual void clearScreen() override;
 	virtual void render(CameraController& camera) override;
 
+	virtual void setViewportSize(uint32_t width, uint32_t height) override;
+
 	virtual IGPUAssets& getGPUAssets() override { return m_gpuAssets; }
 
 private:

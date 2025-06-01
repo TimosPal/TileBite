@@ -394,4 +394,9 @@ void GLRenderer2D::render(CameraController& camera)
 	m_drawCommands.clear();
 }
 
+void GLRenderer2D::setViewportSize(uint32_t width, uint32_t height)
+{
+	GL(glViewport(0, 0, width, height));
+}
+
 } // Engine
