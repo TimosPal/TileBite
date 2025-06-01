@@ -134,6 +134,13 @@ public:
         time += deltaTime;
 
         auto& activeWorld = getSceneManager()->getActiveScene()->getWorld();
+        float angle = fmod(time * 10.0f, 360.0f); // rotates faster, noticeable
+
+        auto cam = getSceneManager()->getActiveScene()->getCameraController();
+        cam->setRotation(angle);
+		cam->setZoom(1.0f + 0.2f * sin(time * 2.0f)); // zoom in and out
+		cam->setPosition(glm::vec2(sin(time * 0.6f), cos(time * 0.3f)));
+
 
         // Update orbits
         activeWorld.query<TransformComponent, VelocityComponent>().each([this, deltaTime](TransformComponent* t, VelocityComponent* v) {
@@ -183,12 +190,21 @@ public:
     }
 };
 
+class GlobalSystemTest : public ISystem {
+public:
+    void update(float deltaTime) override
+    {
+		LOG_INFO("GlobalSystemTest: Delta Time: {}", deltaTime);
+    }
+};
+
 class GameLayer : public Layer {
 public:
     void onAttach() override
     {
-        addSystem(std::make_unique<OrbitSystem>());
+        //addSystem(std::make_unique<OrbitSystem>());
         //addSystem(std::make_unique<UnitSystem>());
+		addSystem(std::make_unique<GlobalSystemTest>());
     }
 };
 
@@ -202,8 +218,10 @@ class MyApp : public Engine::EngineApp {
 
         pushLayer(std::make_unique<GameLayer>());
 
-		getSceneManager().createScene("MainScene");
+		auto scene = getSceneManager().createScene("MainScene");
 		getSceneManager().setActiveScene("MainScene");
+
+		scene->addSystem(std::make_unique<OrbitSystem>());
 
 		// Create a camera controller for the main scene
 		auto activeScene = getSceneManager().getActiveScene();

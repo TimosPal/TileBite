@@ -10,7 +10,8 @@ namespace Engine {
 EngineApp* EngineApp::s_instance;
 
 EngineApp::EngineApp()
-	: m_isRunning(true)
+	: m_isRunning(true),
+	m_sceneManager(&m_assetsManager)
 {
 	// One instance allowed.
 	ASSERT(s_instance == nullptr, "Engine app already created");
@@ -78,8 +79,12 @@ void EngineApp::run()
 		m_renderer2D->clearScreen();
 
 		m_layers.onUpdate(deltaTime);
+		auto activeScene = m_sceneManager.getActiveScene();
+		ASSERT(activeScene != nullptr, "Active scene not set");
+		activeScene->onUpdate(deltaTime);
+		activeScene->updateWorldActions();
 
-		auto activeSceneCamController = m_sceneManager.getActiveScene()->getCameraController();
+		auto activeSceneCamController = activeScene->getCameraController();
 		ASSERT(activeSceneCamController != nullptr, "Main camera not set");
 		m_renderer2D->render(*activeSceneCamController);
 		m_window->swapBuffers();

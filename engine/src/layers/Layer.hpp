@@ -25,7 +25,7 @@ public:
 	virtual void onUpdate(float deltaTime)
 	{
 		// Update systems.
-		m_systemManager.updateSystems(getSceneManager(), deltaTime);
+		m_systemManager.updateSystems(deltaTime);
 	}
 
 	virtual void onEvent(Event& event) 

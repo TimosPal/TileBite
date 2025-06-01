@@ -8,12 +8,17 @@ namespace Engine {
 
 class SceneManager {
 public:
+	SceneManager(AssetsManager* assetsManager) :
+		m_assetsManager(assetsManager) {}
+
 	std::shared_ptr<Scene> createScene(const std::string& name);
 	bool setActiveScene(const std::string& name);
 	std::shared_ptr<Scene> getActiveScene() const;
 private:
 	std::shared_ptr<Scene> m_activeScene;
 	std::unordered_map<std::string, std::shared_ptr<Scene>> m_scenes;
+
+	AssetsManager* m_assetsManager = nullptr;
 };
 
 } // Engine

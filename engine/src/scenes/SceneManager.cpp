@@ -6,6 +6,8 @@ namespace Engine {
 std::shared_ptr<Scene> SceneManager::createScene(const std::string& name)
 {
 	auto scene = std::make_shared<Scene>();
+	scene->setAssetsManager(m_assetsManager);
+	scene->setSceneManager(this);
 	m_scenes[name] = scene;
 	return scene;
 }

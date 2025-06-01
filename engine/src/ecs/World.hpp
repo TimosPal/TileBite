@@ -10,7 +10,7 @@
 
 namespace Engine {
 
-class SystemManager; // Forward declaration for friendship.
+class Scene; // Forward declaration for friendship.
 
 // Can retrieve an entity row from the ComponentStorage given
 // an archetype reference.
@@ -26,7 +26,7 @@ class World {
 public:
 	// NOTE: using friendship to avoid making a wrapper view class for a single function 
 	// If more private API is needed then a wrapper class should be created.
-	friend class SystemManager; // Allow SystemManager to access executeDeferredActions.
+	friend class Scene; // Allow Scene to access executeDeferredActions.
 
 	// NOTE: createEntity and addComponents are delaying actions by adding them to a deferredActions vector.
 	// This way systems can change the world state without causing inconsistencies. The world needs to run the

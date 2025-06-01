@@ -3,7 +3,6 @@
 
 #include "core/pch.hpp"
 #include "ecs/ISystem.hpp"
-#include "ecs/World.hpp"
 
 namespace Engine {
 
@@ -16,15 +15,12 @@ public:
         m_systems.push_back(std::move(system));
     }
 
-    void updateSystems(SceneManager& m_sceneManager, float deltaTime)
+    void updateSystems(float deltaTime)
     {
         for (auto& system : m_systems)
         {
             system->update(deltaTime);
         }
-
-        World& activeWorld = m_sceneManager.getActiveScene()->getWorld();
-        activeWorld.executeDeferredActions();
     }
 
 private:
