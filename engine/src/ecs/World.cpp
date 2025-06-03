@@ -6,11 +6,13 @@ namespace Engine {
 
 void World::executeDeferredActions()
 {
-	for (auto& action : m_deferredActions)
+	for (auto& action : m_deferredActions.actions)
 	{
 		action();
 	}
-	m_deferredActions.clear();
+	m_deferredActions.actions.clear();
+	m_deferredActions.removedEntities.clear();
+	m_deferredActions.enhancedEntities.clear();
 }
 
 ID World::createEntity()
@@ -19,11 +21,63 @@ ID World::createEntity()
 	// entities, but does return the appropriate ID for the rest of the system to use.
 	ID entityID = GET_INSTANCE_ID(World, void); // consider global ids under World.
 	
-	m_deferredActions.push_back([this, entityID]() mutable {
+	m_deferredActions.actions.push_back([this, entityID]() mutable {
 		createEntityImpl(entityID);
 	});
 
 	return entityID;
+}
+
+bool World::entityExists(ID entity) const
+{
+	auto entityIt = m_entityRecords.find(entity);
+	if (entityIt == m_entityRecords.end())
+	{
+		return false;
+	}
+	return true;
+}
+
+void World::removeEntity(ID id)
+{
+	if (m_deferredActions.removedEntities.find(id) != m_deferredActions.removedEntities.end())
+	{
+		// Avoid double removals
+		return;
+	}
+
+	// Delays the deletion of the entity to avoid incosistencies for the same reason as createe
+	m_deferredActions.actions.push_back([this, id]() mutable {
+		removeEntityImpl(id);
+	});
+	m_deferredActions.removedEntities.insert(id);
+}
+
+void World::removeEntityImpl(ID id)
+{
+	auto entityIt = m_entityRecords.find(id);
+	ASSERT(entityIt != m_entityRecords.end(), "Entity not found during removal");
+	EntityRecord& rec = entityIt->second;
+	std::shared_ptr<Archetype> arch = rec.archetype;
+	removeEntityFromArchHelper(rec.entityIndex, *arch);
+	m_entityRecords.erase(entityIt);
+}
+
+void World::removeEntityFromArchHelper(uint32_t entityIndex, Archetype& arch)
+{
+	// Remove uses swap idiom, meaning we move last element to deleted position.
+	// Therefore we have to update the entity record of the swapped element to reflect
+	// the updated position.
+	ID* swappedID = arch.removeEntity(entityIndex);
+	if (swappedID)
+	{
+		// If the last element was removed then there is no need
+		// to update any records since no swapping happend.
+		auto swappedIt = m_entityRecords.find(*swappedID);
+		ASSERT(swappedIt != m_entityRecords.end(), "Entity not found during swapping");
+		EntityRecord& swappedRec = swappedIt->second;
+		swappedRec.entityIndex = entityIndex;
+	}
 }
 
 void World::createEntityImpl(ID entityID)

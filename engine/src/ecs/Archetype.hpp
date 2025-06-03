@@ -23,6 +23,8 @@ public:
 
 	uint32_t getEntitiesCount() const { return m_entitiesCount; }
 
+	std::vector<ID>& getEntityIDs() { return m_entityIDs; }
+
 	template <typename ...ComponentTypes>
     class Iterator;
 

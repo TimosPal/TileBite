@@ -21,231 +21,191 @@ struct VelocityComponent {
     float vx, vy;
 };
 
-class UnitSystem : public ISystem {
+struct Leader {
+    ID target;
+	bool hasTarget = false;
+};
+
+struct Follower {
+    ID target;
+};
+
+struct Food {
+    bool isTargeted;
+};
+
+class LeaderSystem : public ISystem {
 public:
-    float spawnTimer = 0.0f;
-    float currentAngle = 0.0f;
-    const float angleStep = 10.0f;  // radians per spawn
-    const float circleRadius = 0.5f;
-    const float speed = 0.5f;
-    const int maxSpawns = 1000;
-    int spawnCount = 0;
 
     void update(float deltaTime) override
     {
-		auto& activeWorld = getSceneManager()->getActiveScene()->getWorld();
+        auto& world = getSceneManager()->getActiveScene()->getWorld();
 
-        // Move and bounce units
-        activeWorld.query<TransformComponent, VelocityComponent>().each([deltaTime](TransformComponent* t, VelocityComponent* v) {
-            t->Position.x += v->vx * deltaTime;
-            t->Position.y += v->vy * deltaTime;
+        world.query<TransformComponent, VelocityComponent, Leader>().each(
+            [&](ID id, TransformComponent* t, VelocityComponent* v, Leader* l) {
+				if (l->hasTarget) {
+                    if (!world.entityExists(l->target))
+                    {
+						l->hasTarget = false;
+                        return;
+                    }
 
-            bool bounced = false;
-            if (t->Position.x < -1.0f || t->Position.x > 1.0f) {
-                t->Position.x = std::clamp(t->Position.x, -1.0f, 1.0f);
-                v->vx *= -1.0f;
-				bounced = true;
+                    TransformComponent* foodTransform = world.getComponent<TransformComponent>(l->target);
+					
+                    float dx = foodTransform->Position.x - t->Position.x;
+					float dy = foodTransform->Position.y - t->Position.y;
+					float distance = std::sqrt(dx * dx + dy * dy);
+					if (distance > foodTransform->Size.x + 0.01f) {
+						t->Position.x += (dx / distance) * v->vx * deltaTime;
+						t->Position.y += (dy / distance) * v->vy * deltaTime;
+						t->Rotation = std::atan2(dy, dx);
+					}
+                    else
+                    {
+                        l->hasTarget = false;
+						world.removeEntity(l->target);
+                    }
+				}
+                else
+                {
+					// Find nearest food
+					float closestDistance = std::numeric_limits<float>::max();
+					ID closestFoodID = 0;
+                    bool found = false;
+					world.query<TransformComponent, Food>().each([&](ID entityID, TransformComponent* foodTransform, Food* f) {
+						if (f->isTargeted) return; // Skip if food is already targeted
+
+						float dx = foodTransform->Position.x - t->Position.x;
+						float dy = foodTransform->Position.y - t->Position.y;
+						float distance = std::sqrt(dx * dx + dy * dy);
+						if (distance < closestDistance) {
+							closestDistance = distance;
+							closestFoodID = entityID;
+							found = true;
+						}
+					});
+
+                    if (found)
+                    {
+						l->target = closestFoodID;
+						l->hasTarget = true;
+                        Food* foodComp = world.getComponent<Food>(l->target);
+						foodComp->isTargeted = true;
+					}
+                }
             }
-            if (t->Position.y < -1.0f || t->Position.y > 1.0f) {
-                t->Position.y = std::clamp(t->Position.y, -1.0f, 1.0f);
-                v->vy *= -1.0f;
-                bounced = true;
-            }
-
-			if (bounced) {
-                float r = quickRandFloat(-0.2f, 0.2f);
-                t->Size.y -= t->Size.y * r;
-                t->Size.x -= t->Size.x * r;
-			}
-
-            t->Rotation += 1 * deltaTime;
-        });
-
-        // Spawn logic every 0.01 seconds
-        spawnTimer += deltaTime;
-        if (spawnTimer >= 0.001f && spawnCount < maxSpawns) {
-            spawnTimer = 0.0f;
-            spawnCount++;
-
-            if (spawnCount % 1000 == 0) LOG_INFO("Count: {}", spawnCount);
-
-            // Spawn at center
-            float x = 0.0f;
-            float y = 0.0f;
-
-            // Velocity radially outward
-            float vx = speed * cos(currentAngle);
-            float vy = speed * sin(currentAngle);
-
-            // Random color
-            float r = quickRandFloat(0.0f, 1.0f);
-            float g = quickRandFloat(0.0f, 1.0f);
-            float b = quickRandFloat(0.0f, 1.0f);
-
-            float size = 0;
-
-            float textureRNG = quickRandFloat(0.0f, 1.0f);
-            ID textureID;
-            if (textureRNG < 0.3f)
-            {
-                textureID = 0;
-                size = 0.15f;
-            }
-            else if (textureRNG < 0.5f)
-            {
-                textureID = getAssetsManager()->getTexture("ball");
-                size = 0.2f;
-            }
-            else if (textureRNG < 0.8f)
-            {
-                textureID = getAssetsManager()->getTexture("bee");
-                size = 0.1f;
-            }
-            else
-            {
-                textureID = 999;
-                size = 0.01f;
-            }
-
-            ID unit = activeWorld.createEntity();
-            activeWorld.addComponents(
-                unit,
-                SpriteComponent{ glm::vec4(r, g, b, 1.0f), textureID},
-                TransformComponent{ glm::vec2(x, y), glm::vec2(size, size)},
-                VelocityComponent{ vx, vy }
-            );
-            
-            currentAngle += angleStep * deltaTime;
-            if (currentAngle > 2.0f * 3.1415926f)
-                currentAngle -= 2.0f * 3.1415926f;
-        }
+        );
     }
 };
 
-class OrbitSystem : public ISystem {
+class FollowerSystem : public ISystem {
 public:
-    float spawnTimer = 0.0f;
-    int spawnCount = 0;
-    const int maxSpawns = 1000;
-    float time = 0;
-
     void update(float deltaTime) override
     {
-        time += deltaTime;
+        auto& world = getSceneManager()->getActiveScene()->getWorld();
 
-        auto& activeWorld = getSceneManager()->getActiveScene()->getWorld();
-        float angle = fmod(time * 10.0f, 360.0f); // rotates faster, noticeable
-
-        auto cam = getSceneManager()->getActiveScene()->getCameraController();
-        cam->setRotation(angle);
-		cam->setZoom(1.0f + 0.2f * sin(time * 2.0f)); // zoom in and out
-		cam->setPosition(glm::vec2(sin(time * 0.6f), cos(time * 0.3f)));
-
-
-        // Update orbits
-        activeWorld.query<TransformComponent, VelocityComponent>().each([this, deltaTime](TransformComponent* t, VelocityComponent* v) {
-            float angle = atan2(t->Position.y, t->Position.x);
-            float radius = sqrt(t->Position.x * t->Position.x + t->Position.y * t->Position.y);
-
-            angle += v->vx * deltaTime; // vx used as angular speed
-
-            radius += 0.05f * sin(time + radius * 5.0f) * deltaTime; // pulsating orbit
-
-            t->Position.x = radius * cos(angle);
-            t->Position.y = radius * sin(angle);
-
-            float pulse = 1.0f + 0.3f * sin(time * 4.0f + radius * 10.0f);
-            t->Size.x = t->Size.y = v->vy * pulse; // vy used as base size
-
-            t->Rotation -= 0.5f * deltaTime;
+        std::unordered_map<ID, TransformComponent*> transformCache;
+        world.query<TransformComponent>().each([&](ID id, TransformComponent* t) {
+            transformCache[id] = t;
         });
 
-        // Spawn more if needed
-        spawnTimer += deltaTime;
-        if (spawnTimer > 0.01f && spawnCount < maxSpawns) {
-            spawnTimer = 0.0f;
-            spawnCount++;
+        world.query<TransformComponent, VelocityComponent, Follower>().each(
+            [&](ID id, TransformComponent* t, VelocityComponent* v, Follower* f) {
+                auto it = transformCache.find(f->target);
 
-            float angle = quickRandFloat(0.0f, 2.0f * 3.1415926f);
-            float radius = quickRandFloat(0.2f, 0.9f);
-            float size = quickRandFloat(0.02f, 0.06f);
-            float speed = quickRandFloat(0.5f, 2.0f);
-
-            float r = quickRandFloat(0.2f, 1.0f);
-            float g = quickRandFloat(0.2f, 1.0f);
-            float b = quickRandFloat(0.2f, 1.0f);
-
-            ID textureID = (quickRandFloat() < 0.5f)
-                ? getAssetsManager()->getTexture("bee")
-                : getAssetsManager()->getTexture("ball");
-
-            ID unit = activeWorld.createEntity();
-            activeWorld.addComponents(
-                unit,
-                SpriteComponent{ glm::vec4(r, g, b, 1.0f), textureID },
-                TransformComponent{ glm::vec2(radius * cos(angle), radius * sin(angle)), glm::vec2(size, size) },
-                VelocityComponent{ speed, size } // vx = angular speed, vy = size
-            );
-        }
-
-        if (spawnCount == 1000)
-        {
-            pushEvent(std::make_unique<WindowCloseEvent>());
-        }
-    }
-};
-
-class GlobalSystemTest : public ISystem {
-public:
-	float timer = 0.0f;
-	bool toggle = true;
-    void update(float deltaTime) override
-    {
-		timer += deltaTime;
-        if (timer >= 2.0f)
-        {
-            if (toggle)
-            {
-                getSceneManager()->setActiveScene("Scene2");
+                TransformComponent* target = it->second;
+                float dx = target->Position.x - t->Position.x;
+                float dy = target->Position.y - t->Position.y;
+                float distance = std::sqrt(dx * dx + dy * dy);
+                if (distance > target->Size.x + 0.01f) {
+                    t->Position.x += (dx / distance) * v->vx * deltaTime;
+                    t->Position.y += (dy / distance) * v->vy * deltaTime;
+                    t->Rotation = std::atan2(dy, dx);
+                }
             }
-            else
-            {
-                getSceneManager()->setActiveScene("MainScene");
-            }
-			toggle = !toggle;
-            timer = 0;
-        }
+        );
     }
+
 };
 
 class GameLayer : public Layer {
 public:
+    void createSnake(Scene* scene, float speed)
+    {
+        int followerCount = 10;
+        float size = 0.015;
+
+		float rx = quickRandFloat(-1.0f, 1.0f);
+		float ry = quickRandFloat(-1.0f, 1.0f);
+
+        // create leader
+        ID leaderEntity = scene->getWorld().createEntity();
+        scene->getWorld().addComponents(
+            leaderEntity,
+            TransformComponent{ glm::vec2(rx, ry), glm::vec2(size, size) },
+            SpriteComponent{ glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), 0 },
+            VelocityComponent{ speed, speed },
+            Leader{0, false}
+        );
+
+        // create follwers for leader
+        ID previousFollowerEntity = leaderEntity;
+        for (size_t i = 0; i < followerCount; i++)
+        {
+            glm::vec4 color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+
+            float randx = quickRandFloat(-1.0f, 1.0f);
+            float randy = quickRandFloat(-1.0f, 1.0f);
+
+            ID followerEntity = scene->getWorld().createEntity();
+            scene->getWorld().addComponents(
+                followerEntity,
+                TransformComponent{ glm::vec2(randx, randy), glm::vec2(size, size) },
+                SpriteComponent{ color, 0 },
+                VelocityComponent{ speed * 10, speed * 10 },
+                Follower{ previousFollowerEntity }
+            );
+            previousFollowerEntity = followerEntity;
+        }
+    }
+
     void onAttach() override
     {
-		addSystem(std::make_unique<GlobalSystemTest>());
-
         auto cameraController = std::make_shared<CameraController>(-1.0f, 1.0f, -1.0f, 1.0f);
 
         auto scene = getSceneManager().createScene("MainScene");
-        scene->addSystem(std::make_unique<OrbitSystem>());
+        scene->addSystem(std::make_unique<FollowerSystem>());
+		scene->addSystem(std::make_unique<LeaderSystem>());
         scene->setCameraController(cameraController);
 
-        auto scene2 = getSceneManager().createScene("Scene2");
-        scene2->addSystem(std::make_unique<UnitSystem>());
-        scene2->setCameraController(cameraController);
+        getSceneManager().setActiveScene("MainScene");
 
-		getSceneManager().setActiveScene("MainScene");
+		// create food
+		for (int i = 0; i < 100; i++)
+		{
+			float randx = quickRandFloat(-1.0f, 1.0f);
+			float randy = quickRandFloat(-1.0f, 1.0f);
+			ID foodEntity = scene->getWorld().createEntity();
+			scene->getWorld().addComponents(
+				foodEntity,
+				TransformComponent{ glm::vec2(randx, randy), glm::vec2(0.01, 0.01) },
+				SpriteComponent{ glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 0 },
+				Food{false}
+			);
+		}
+
+        createSnake(scene.get(), 0.6);
+        createSnake(scene.get(), 0.6);
+        createSnake(scene.get(), 0.6);
+        createSnake(scene.get(), 0.6);
     }
 };
 
 class MyApp : public Engine::EngineApp {
-    AppConfig config() override { return AppConfig(800, 600, "Balls!"); }
+    AppConfig config() override { return AppConfig(800, 600, "Bouncing Balls Bigger"); }
 
     void setup() override
     {
-        getAssetsManager().createTexture("bee", std::string(ResourcePaths::ImagesDir) + "./bee.png");
-        getAssetsManager().createTexture("ball", std::string(ResourcePaths::ImagesDir) + "./ball.png");
-
         pushLayer(std::make_unique<GameLayer>());
     }
 };

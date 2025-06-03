@@ -19,6 +19,13 @@ struct EntityRecord {
 	std::shared_ptr<Archetype> archetype;
 };
 
+struct DefferedActions {
+	std::vector<std::function<void()>> actions;
+
+	std::set<ID> removedEntities;
+	std::set<ID> enhancedEntities;
+};
+
 static constexpr size_t DEFAULT_ARCHETYPES_SIZE = 128;
 
 // The World class is responsible for managing entities and their components.
@@ -33,6 +40,10 @@ public:
 	// actions in the next update.
 
 	ID createEntity();
+
+	void removeEntity(ID id);
+
+	bool entityExists(ID entity) const;
 
 	template <typename ComponentType>
 	ComponentType* getComponent(ID entityID)
@@ -50,11 +61,18 @@ public:
 	// systems change world states.
 	template <typename ...ComponentTypes>
 	void addComponents(ID entityID, ComponentTypes&&... components) {
+		if (m_deferredActions.enhancedEntities.find(entityID) != m_deferredActions.enhancedEntities.end())
+		{
+			// If the entity is already being enhanced, we can skip this action.
+			return;
+		}
+
 		// Capture components by forwarding each of them separately
-		m_deferredActions.push_back([this, entityID, ...components = std::forward<ComponentTypes>(components)]() mutable {
+		m_deferredActions.actions.push_back([this, entityID, ...components = std::forward<ComponentTypes>(components)]() mutable {
 			// Forward the components correctly to addImpl
 			addComponentsImpl(entityID, std::forward<ComponentTypes>(components)...);
 		});
+		m_deferredActions.enhancedEntities.insert(entityID);
 	}
 
 	template <typename ...ComponentTypes>
@@ -89,6 +107,8 @@ private:
 	void executeDeferredActions();
 
 	void createEntityImpl(ID entityID);
+
+	void removeEntityImpl(ID id);
 
 	template <typename ...ComponentTypes>
 	void addComponentsImpl(ID entityID, ComponentTypes&&... components)
@@ -125,26 +145,15 @@ private:
 
 		// Populate the component storage of the archetype with added component data.
 		uint32_t index = rec.archetype->addEntity(transferedComponents, entityID);
-
-		// Remove uses swap idiom, meaning we move last element to deleted position.
-		// Therefore we have to update the entity record of the swapped element to reflect
-		// the updated position.
-		ID* swappedID = oldArch.removeEntity(rec.entityIndex);
-		if (swappedID)
-		{
-			// If the last element was removed then there is no need
-			// to update any records since no swapping happend.
-			auto swappedIt = m_entityRecords.find(*swappedID);
-			ASSERT(swappedIt != m_entityRecords.end(), "Entity not found");
-			EntityRecord& swappedRec = swappedIt->second;
-			swappedRec.entityIndex = rec.entityIndex;
-		}
-
+		
+		removeEntityFromArchHelper(rec.entityIndex, oldArch);
 		rec.entityIndex = index;
 	}
 
+	void removeEntityFromArchHelper(uint32_t entityIndex, Archetype& arch);
+
 	// Store actions to avoid incosistencies when systems change world states.
-	std::vector<std::function<void()>> m_deferredActions;
+	DefferedActions m_deferredActions;
 
 	std::unordered_map<Signature, std::shared_ptr<Archetype>> m_archetypes;
 	std::unordered_map<ID, EntityRecord> m_entityRecords;

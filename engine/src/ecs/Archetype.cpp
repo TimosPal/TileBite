@@ -21,11 +21,9 @@ Archetype::Archetype(Signature& sig, std::vector<std::tuple<ID, size_t>>&& compo
 
 void* Archetype::getComponent(uint32_t entityIndex, uint32_t componentIndex)
 {
-	uint32_t storageComponentIndex = m_signature.getIndex(componentIndex);
-
 	ASSERT(entityIndex < m_entitiesCount, "Entity index out of bounds");
-	ASSERT(storageComponentIndex < m_signature.getCount(), "Component index out of bounds");
-    return m_components[storageComponentIndex].get(entityIndex);
+	ASSERT(componentIndex < m_signature.getCount(), "Component index out of bounds");
+    return m_components[componentIndex].get(entityIndex);
 }
 
 uint32_t Archetype::addEntity(std::vector<std::tuple<ID, void*>> components, ID entityID)

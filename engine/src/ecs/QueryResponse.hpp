@@ -28,9 +28,10 @@ public:
 			for (auto idx : compIndices)
 				ASSERT(idx < compStorages.size(), "Component index out of bounds");
 
+			auto entityIDs = archetype->getEntityIDs();
 			for (int entityIndex = 0; entityIndex < archetype->getEntitiesCount(); ++entityIndex)
 			{
-				callWithComponents(func, compStorages, compIndices, entityIndex,
+				callWithComponents(func, entityIDs[entityIndex], compStorages, compIndices, entityIndex,
 					std::index_sequence_for<ComponentTypes...>{});
 			}
 		}
@@ -38,12 +39,14 @@ public:
 
 	template<typename Func, size_t... I>
 	inline void callWithComponents(Func& func,
+		ID entityID,
 		std::vector<ComponentStorage>& compStorages,
 		std::array<uint32_t, sizeof...(ComponentTypes)>& compIndices,
 		int entityIndex,
 		std::index_sequence<I...>)
 	{
 		func(
+			entityID,
 			static_cast<std::decay_t<ComponentTypes>*>
 			(compStorages[compIndices[I]].get(entityIndex))
 			...

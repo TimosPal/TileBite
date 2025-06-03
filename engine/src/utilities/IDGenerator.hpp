@@ -2,12 +2,14 @@
 #define ID_GENERATOR_HPP
 
 #include "core/Types.hpp"
+#include "core/pch.hpp"
 
 namespace Engine {
 
 // Helper macros for easier syntax (template keyword can be accidentaly ommited)
 #define GET_TYPE_ID(Base, Sub) (Engine::IDGenerator<Base>::template getTypeID<Sub>())
 #define GET_INSTANCE_ID(Base, Sub) (Engine::IDGenerator<Base>::template getInstanceID<Sub>())
+#define GET_TYPE_NAME(Base, ID) (Engine::IDGenerator<Base>::getTypeName(ID))
 
 /*
 Generator used to produce unique or instance based IDs.
@@ -21,7 +23,7 @@ public:
     template<typename SubType = BaseType>
     inline static const ID getTypeID()
     {
-        static const ID id = generateTypeID();
+        static const ID id = generateTypeID(typeid(SubType).name());
         return id;
     }
 
@@ -33,16 +35,32 @@ public:
         return id++;
     }
 
+	// Returns the name of the type associated with the ID
+	static std::string getTypeName(ID id)
+	{
+		auto it = s_idToNameMap.find(id);
+		if (it != s_idToNameMap.end())
+		{
+			return it->second;
+		}
+		return "Unknown ID";
+	}
+
 private:
     IDGenerator() = delete;
     ~IDGenerator() = delete;
 
     // This generates unique type-based IDs
-    inline static ID generateTypeID()
+    inline static ID generateTypeID(std::string className)
     {
         static ID id = 0;
-        return id++;
+        ID newID = id++;
+		s_idToNameMap[newID] = className;
+        return newID;
     }
+
+    // Optional: Map IDs to names for debugging purposes
+    inline static std::unordered_map<ID, std::string> s_idToNameMap = {};
 };
 
 } // Engine
