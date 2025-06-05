@@ -1,6 +1,7 @@
 #include "layers/types/GraphicsLayer.hpp"
 
 #include "ecs/types/SpriteRenderSystem.hpp"
+#include "ecs/types/TilemapRenderSystem.hpp"
 #include "renderer/Renderer2D.hpp"
 #include "events/types/WindowResizeEvent.hpp"
 
@@ -21,6 +22,7 @@ void GraphicsLayer::onAttach()
 	subscribe<WindowResizeEvent>(windowResizeEventCallback);
 
 	addSystem(std::make_unique<SpriteRenderSystem>(m_renderer2D));
+	addSystem(std::make_unique<TilemapRenderSystem>(m_renderer2D));
 }
 
 } // Engine

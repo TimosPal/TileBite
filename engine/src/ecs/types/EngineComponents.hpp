@@ -22,6 +22,23 @@ struct TransformComponent
 	float Rotation = 0.0f; // In radians
 };
 
+struct Tile {
+	SpriteComponent sprite;
+	TransformComponent transform;
+};
+
+struct TilemapComponent {
+    int width;
+    int height;
+	float tileSize;
+    Tile tiles[4000]; // Flattened 1D array: tiles[y * width + x]
+
+    // Helper to get tile at (x, y)
+    inline Tile& getTile(int x, int y) {
+        return tiles[y * width + x];
+    }
+};
+
 } // Engine
 
 #endif // !ENGINE_COMPONENTS_HPP

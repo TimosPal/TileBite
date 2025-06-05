@@ -18,12 +18,17 @@ inline float quickRandFloat(float min = -1.0f, float max = 1.0f) {
 }
 
 struct VelocityComponent {
-    float vx, vy;
+    float v;
+    float startingV;
 };
 
 struct Leader {
     ID target;
 	bool hasTarget = false;
+    ID lastBodyPart = 0;
+    int bodyPartsCount = 0;
+
+    glm::vec4 color;
 };
 
 struct Follower {
@@ -55,15 +60,35 @@ public:
                     float dx = foodTransform->Position.x - t->Position.x;
 					float dy = foodTransform->Position.y - t->Position.y;
 					float distance = std::sqrt(dx * dx + dy * dy);
-					if (distance > foodTransform->Size.x + 0.01f) {
-						t->Position.x += (dx / distance) * v->vx * deltaTime;
-						t->Position.y += (dy / distance) * v->vy * deltaTime;
+					if (distance > foodTransform->Size.x) {
+						t->Position.x += (dx / distance) * v->v * deltaTime;
+						t->Position.y += (dy / distance) * v->v * deltaTime;
 						t->Rotation = std::atan2(dy, dx);
 					}
                     else
                     {
                         l->hasTarget = false;
 						world.removeEntity(l->target);
+
+                        ID lastBodyPart = id;
+                        if(l->bodyPartsCount > 0)
+							lastBodyPart = l->lastBodyPart;
+						l->bodyPartsCount++;
+
+                        // Create new body part
+                        glm::vec4 color = l->color;
+
+                        ID followerEntity = world.createEntity();
+						l->lastBodyPart = followerEntity;
+                        world.addComponents(
+                            followerEntity,
+                            TransformComponent{ glm::vec2(foodTransform->Position.x, foodTransform->Position.y), glm::vec2(0.01, 0.01) },
+                            SpriteComponent{ color, 0 },
+                            VelocityComponent{ 2, 2 },
+                            Follower{ lastBodyPart }
+                        );
+
+						v->v = v->startingV / (1.0f + l->bodyPartsCount * 0.01f);
                     }
 				}
                 else
@@ -118,14 +143,40 @@ public:
                 float dy = target->Position.y - t->Position.y;
                 float distance = std::sqrt(dx * dx + dy * dy);
                 if (distance > target->Size.x + 0.01f) {
-                    t->Position.x += (dx / distance) * v->vx * deltaTime;
-                    t->Position.y += (dy / distance) * v->vy * deltaTime;
+                    t->Position.x += (dx / distance) * v->v * deltaTime;
+                    t->Position.y += (dy / distance) * v->v * deltaTime;
                     t->Rotation = std::atan2(dy, dx);
                 }
             }
         );
     }
 
+};
+
+class FoodSystem : public ISystem {
+public:
+    void update(float deltaTime) override
+    {
+        auto& world = getSceneManager()->getActiveScene()->getWorld();
+
+        world.query<TransformComponent, VelocityComponent, Food>().each(
+            [&](ID id, TransformComponent* t, VelocityComponent* v, Food* f) {
+                t->Position += glm::vec2(std::cos(t->Rotation), std::sin(t->Rotation)) * v->v * deltaTime;
+
+                // Bounce off X edges
+                if (t->Position.x < -1.0f || t->Position.x > 1.0f) {
+                    t->Rotation = glm::pi<float>() - t->Rotation;
+                    t->Position.x = glm::clamp(t->Position.x, -1.0f, 1.0f);
+                }
+
+                // Bounce off Y edges
+                if (t->Position.y < -1.0f || t->Position.y > 1.0f) {
+                    t->Rotation = -t->Rotation;
+                    t->Position.y = glm::clamp(t->Position.y, -1.0f, 1.0f);
+                }
+            }
+        );
+    }
 };
 
 class GameLayer : public Layer {
@@ -138,6 +189,13 @@ public:
 		float rx = quickRandFloat(-1.0f, 1.0f);
 		float ry = quickRandFloat(-1.0f, 1.0f);
 
+        glm::vec4 color = glm::vec4(
+            quickRandFloat(0.4f, 1.0f),            // R bright
+            quickRandFloat(0.0f, 0.3f),            // G low to avoid green tint
+            quickRandFloat(0.4f, 1.0f),            // B bright
+            1.0f
+        );
+
         // create leader
         ID leaderEntity = scene->getWorld().createEntity();
         scene->getWorld().addComponents(
@@ -145,64 +203,88 @@ public:
             TransformComponent{ glm::vec2(rx, ry), glm::vec2(size, size) },
             SpriteComponent{ glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), 0 },
             VelocityComponent{ speed, speed },
-            Leader{0, false}
+            Leader{0, false, 0, 0, color }
         );
-
-        // create follwers for leader
-        ID previousFollowerEntity = leaderEntity;
-        for (size_t i = 0; i < followerCount; i++)
-        {
-            glm::vec4 color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-
-            float randx = quickRandFloat(-1.0f, 1.0f);
-            float randy = quickRandFloat(-1.0f, 1.0f);
-
-            ID followerEntity = scene->getWorld().createEntity();
-            scene->getWorld().addComponents(
-                followerEntity,
-                TransformComponent{ glm::vec2(randx, randy), glm::vec2(size, size) },
-                SpriteComponent{ color, 0 },
-                VelocityComponent{ speed * 10, speed * 10 },
-                Follower{ previousFollowerEntity }
-            );
-            previousFollowerEntity = followerEntity;
-        }
     }
 
-    void onAttach() override
+    void scene1()
     {
         auto cameraController = std::make_shared<CameraController>(-1.0f, 1.0f, -1.0f, 1.0f);
 
         auto scene = getSceneManager().createScene("MainScene");
         scene->addSystem(std::make_unique<FollowerSystem>());
-		scene->addSystem(std::make_unique<LeaderSystem>());
+        scene->addSystem(std::make_unique<LeaderSystem>());
+        scene->addSystem(std::make_unique<FoodSystem>());
         scene->setCameraController(cameraController);
 
-        getSceneManager().setActiveScene("MainScene");
+        int foodC = 2000;
+        int snakeC = 20;
 
-		// create food
-		for (int i = 0; i < 100; i++)
-		{
-			float randx = quickRandFloat(-1.0f, 1.0f);
-			float randy = quickRandFloat(-1.0f, 1.0f);
-			ID foodEntity = scene->getWorld().createEntity();
-			scene->getWorld().addComponents(
-				foodEntity,
-				TransformComponent{ glm::vec2(randx, randy), glm::vec2(0.01, 0.01) },
-				SpriteComponent{ glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 0 },
-				Food{false}
-			);
-		}
+        // create food
+        for (int i = 0; i < foodC; i++)
+        {
+            float randx = quickRandFloat(-1.0f, 1.0f);
+            float randy = quickRandFloat(-1.0f, 1.0f);
+            float r = quickRandFloat(0.01f, 0.05f);
+            float foodSpeed = quickRandFloat(-0.04, 0.04);
+            float rSize = quickRandFloat(0.003f, 0.01f);
+            ID foodEntity = scene->getWorld().createEntity();
+            scene->getWorld().addComponents(
+                foodEntity,
+                TransformComponent{ glm::vec2(randx, randy), glm::vec2(rSize, rSize), r },
+                VelocityComponent{ foodSpeed, foodSpeed },
+                SpriteComponent{ glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 0 },
+                Food{ false }
+            );
+        }
 
-        createSnake(scene.get(), 0.6);
-        createSnake(scene.get(), 0.6);
-        createSnake(scene.get(), 0.6);
-        createSnake(scene.get(), 0.6);
+        for (size_t i = 0; i < snakeC; i++)
+        {
+            float rS = quickRandFloat(0.5, 3);
+            createSnake(scene.get(), rS);
+        }
+    }
+
+    void scene2()
+    {
+        auto cameraController = std::make_shared<CameraController>(-1.0f, 1.0f, -1.0f, 1.0f);
+
+        auto scene = getSceneManager().createScene("SecondScene");
+        scene->setCameraController(cameraController);
+
+        ID tilemap = scene->getWorld().createEntity();
+		TilemapComponent tilemapComp;
+		tilemapComp.width = 40;
+		tilemapComp.height = 100;
+		tilemapComp.tileSize = 0.01f;
+		//tilemapComp.tiles.resize(tilemapComp.width * tilemapComp.height);
+		for (size_t y = 0; y < tilemapComp.height; y++)
+        {
+            for (size_t x = 0; x < tilemapComp.width; x++)
+            {
+                Tile& tile = tilemapComp.getTile(x, y);
+
+                auto rngCol = glm::vec4(quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), 1.0f);
+                tile.sprite = SpriteComponent{ rngCol, 0 };
+            }
+        }
+		scene->getWorld().addComponents(
+			tilemap,
+			TransformComponent{ glm::vec2(0, 0), glm::vec2(1, 1) },
+			std::move(tilemapComp)
+		);
+    }
+
+    void onAttach() override
+    {
+        //scene1();
+        scene2();
+        getSceneManager().setActiveScene("SecondScene");
     }
 };
 
 class MyApp : public Engine::EngineApp {
-    AppConfig config() override { return AppConfig(800, 600, "Bouncing Balls Bigger"); }
+    AppConfig config() override { return AppConfig(800, 600, "Testing demos"); }
 
     void setup() override
     {
