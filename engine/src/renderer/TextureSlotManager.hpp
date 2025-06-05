@@ -27,7 +27,13 @@ public:
 
 	uint8_t getNumberOfSlots() const { return m_slotData.size(); }
 	void incrementSlotCounter(uint8_t slot);
+
+	bool isDirty() const { return m_isDirty; }
+	void setDirty(bool dirty) { m_isDirty = dirty; }
+
+	std::vector<int> createTextureMapping(int numberOfTextures);
 private:
+	bool m_isDirty = false;
 
 	std::vector<SlotData> m_slotData;
 	std::unordered_map<ID, uint8_t> m_textureIDToSlot;

@@ -83,9 +83,13 @@ GLRenderer2D::GLRenderer2D(SystemResourceHub& systemResourceHub)
 
 uint8_t GLRenderer2D::numberOfGPUSlots() const
 {
-	GLint slots = 0;
-	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &slots);
-	return static_cast<uint8_t>(slots);
+	return 2;
+	static const uint8_t cachedSlots = []() {
+		GLint slots = 0;
+		GL(glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &slots));
+		return static_cast<uint8_t>(slots);
+	}();
+	return cachedSlots;
 }
 
 bool GLRenderer2D::init()
@@ -236,6 +240,16 @@ void GLRenderer2D::drawBatch(uint32_t& quadsCount, uint32_t& bytes, int& drawCal
 	m_spritesBatch->bind();
 	m_spritesBatch->setVertexData(m_spriteBatchVertexData.data(), bytes);
 
+	if (m_textureSlotManager.isDirty())
+	{
+		// Update uniform buffer to correspond to the current texture slots
+		auto* spriteProgram = m_spriteProgramHandle.getResource();
+		auto mapping = m_textureSlotManager.createTextureMapping(maxTextures);
+		spriteProgram->setUniform("uTexSlotMap", mapping.data(), maxTextures);
+
+		m_textureSlotManager.setDirty(false);
+	}
+
 	m_spritesBatch->draw(quadsCount * 6);
 
 	quadsCount = 0;
@@ -263,6 +277,8 @@ void GLRenderer2D::bindTextureToSlot(ID textureID, uint8_t slot)
 		textureHandle.getResource()->bind();
 	else
 		m_fallbackTexture.getResource()->bind();
+
+	m_textureSlotManager.setDirty(true);
 }
 
 void GLRenderer2D::render(CameraController& camera)
@@ -371,10 +387,10 @@ void GLRenderer2D::render(CameraController& camera)
 
 		float quadVerts[] = {
 			// pos						  // color      // uv     // texture
-			topLeftX,     topLeftY,       r, g, b, a,   u0, v0,   textureSlot,
-			topRightX,    topRightY,      r, g, b, a,   u1, v0,   textureSlot,
-			bottomRightX, bottomRightY,   r, g, b, a,   u1, v1,   textureSlot,
-			bottomLeftX,  bottomLeftY,    r, g, b, a,   u0, v1,   textureSlot
+			topLeftX,     topLeftY,       r, g, b, a,   u0, v0,   currentTextureID,
+			topRightX,    topRightY,      r, g, b, a,   u1, v0,   currentTextureID,
+			bottomRightX, bottomRightY,   r, g, b, a,   u1, v1,   currentTextureID,
+			bottomLeftX,  bottomLeftY,    r, g, b, a,   u0, v1,   currentTextureID
 		};
 
 		memcpy(m_spriteBatchVertexData.data() + vertexPos, quadVerts, sizeof(quadVerts));

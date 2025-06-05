@@ -93,4 +93,16 @@ void TextureSlotManager::makeDisabled()
     for (auto& slot : m_slotData) slot.isEnabled = false;
 }
 
+std::vector<int> TextureSlotManager::createTextureMapping(int numberOfTextures)
+{
+    std::vector<int> mapping(numberOfTextures, -1); // Use -1 for unassigned
+    for (const auto& [texId, slot] : m_textureIDToSlot)
+    {
+        if (texId < mapping.size())
+            mapping[texId] = slot;
+    }
+    return mapping;
+}
+
+
 } // Engine

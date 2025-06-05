@@ -252,11 +252,14 @@ public:
         auto scene = getSceneManager().createScene("SecondScene");
         scene->setCameraController(cameraController);
 
+        ID texID1 = getAssetsManager().getTexture("ball");
+        ID texID2 = getAssetsManager().getTexture("bee");
+
         ID tilemap = scene->getWorld().createEntity();
 		TilemapComponent tilemapComp;
 		tilemapComp.width = 40;
 		tilemapComp.height = 100;
-		tilemapComp.tileSize = 0.01f;
+		tilemapComp.tileSize = 0.1f;
 		//tilemapComp.tiles.resize(tilemapComp.width * tilemapComp.height);
 		for (size_t y = 0; y < tilemapComp.height; y++)
         {
@@ -264,8 +267,9 @@ public:
             {
                 Tile& tile = tilemapComp.getTile(x, y);
 
+                ID texID = quickRandFloat(0.0f, 1.0f) < 0.5f ? texID1 : texID2;
                 auto rngCol = glm::vec4(quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), 1.0f);
-                tile.sprite = SpriteComponent{ rngCol, 0 };
+                tile.sprite = SpriteComponent{ rngCol, texID };
             }
         }
 		scene->getWorld().addComponents(
@@ -288,6 +292,9 @@ class MyApp : public Engine::EngineApp {
 
     void setup() override
     {
+        getAssetsManager().createTexture("bee", std::string(ResourcePaths::ImagesDir) + "./bee.png");
+        getAssetsManager().createTexture("ball", std::string(ResourcePaths::ImagesDir) + "./ball.png");
+
         pushLayer(std::make_unique<GameLayer>());
     }
 };

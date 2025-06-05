@@ -9,6 +9,8 @@
 
 namespace Engine {
 
+// TODO: Make frag shader have same value by meta programming (?)
+constexpr uint32_t maxTextures = 128; // Should match fragment shader texture array size
 constexpr uint32_t maxQuadsPerBatch = 1024;
 constexpr uint32_t quadsIndicesCount = 6 * maxQuadsPerBatch;
 constexpr uint32_t verticesPerQuad = 4;
