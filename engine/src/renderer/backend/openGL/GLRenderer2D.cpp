@@ -83,7 +83,6 @@ GLRenderer2D::GLRenderer2D(SystemResourceHub& systemResourceHub)
 
 uint8_t GLRenderer2D::numberOfGPUSlots() const
 {
-	return 2;
 	static const uint8_t cachedSlots = []() {
 		GLint slots = 0;
 		GL(glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &slots));
@@ -334,14 +333,18 @@ void GLRenderer2D::render(CameraController& camera)
 				// sice this texture slot is used by the current batch.
 				batchTextureSlotChange = true;
 			}
-			m_textureSlotManager.addSlot(textureSlot, currentTextureID);
 			newSlotAdded = true;
 		}
 
 		bool maxQuadsReached = quadsCount == maxQuadsPerBatch;
 		bool shouldFlush = maxQuadsReached || batchTextureSlotChange;
 		if (shouldFlush) drawBatch(quadsCount, vertexPos, drawCalls);
-		if (newSlotAdded) bindTextureToSlot(currentTextureID, textureSlot);
+		if (newSlotAdded)
+		{
+			// Change slot state after drawing potentional batch so mapping is correct
+			m_textureSlotManager.addSlot(textureSlot, currentTextureID);
+			bindTextureToSlot(currentTextureID, textureSlot);
+		}
 
 		auto& pos = command.spriteQuad.TransformComp->Position;
 		auto& size = command.spriteQuad.TransformComp->Size;

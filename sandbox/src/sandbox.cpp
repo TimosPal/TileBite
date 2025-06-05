@@ -252,8 +252,12 @@ public:
         auto scene = getSceneManager().createScene("SecondScene");
         scene->setCameraController(cameraController);
 
-        ID texID1 = getAssetsManager().getTexture("ball");
-        ID texID2 = getAssetsManager().getTexture("bee");
+        ID texIDs[] = {
+            getAssetsManager().getTexture("ball"),
+            getAssetsManager().getTexture("bee"),
+            0,
+            4
+        };
 
         ID tilemap = scene->getWorld().createEntity();
 		TilemapComponent tilemapComp;
@@ -267,14 +271,14 @@ public:
             {
                 Tile& tile = tilemapComp.getTile(x, y);
 
-                ID texID = quickRandFloat(0.0f, 1.0f) < 0.5f ? texID1 : texID2;
+                ID texID = texIDs[int(quickRandFloat(0.0f, 3.9f))];
                 auto rngCol = glm::vec4(quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), 1.0f);
                 tile.sprite = SpriteComponent{ rngCol, texID };
             }
         }
 		scene->getWorld().addComponents(
 			tilemap,
-			TransformComponent{ glm::vec2(0, 0), glm::vec2(1, 1) },
+			TransformComponent{ glm::vec2(-1, -1), glm::vec2(1, 1) },
 			std::move(tilemapComp)
 		);
     }
