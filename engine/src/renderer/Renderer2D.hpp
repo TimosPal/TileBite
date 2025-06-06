@@ -23,9 +23,7 @@ public:
 
 	void drawQuad(SpriteQuad&& spriteQuad)
 	{
-		m_drawCommands.emplace_back(
-			DrawCommand2D{ DrawCommand2DType::Quad, std::move(spriteQuad) }
-		);
+		m_spriteDrawCommands.emplace_back(std::move(spriteQuad));
 	}
 
 	virtual void setViewportSize(uint32_t width, uint32_t height) {}
@@ -33,7 +31,8 @@ public:
 	static std::unique_ptr<Renderer2D> createRenderer2D(SystemResourceHub& systemResourceHub);
 
 protected:
-	std::vector<DrawCommand2D> m_drawCommands;
+	std::vector<SpriteQuad> m_spriteDrawCommands;
+
 	TextureSlotManager m_textureSlotManager;
 };
 

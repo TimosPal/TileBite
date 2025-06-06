@@ -256,18 +256,6 @@ void GLRenderer2D::drawBatch(uint32_t& quadsCount, uint32_t& bytes, int& drawCal
 	drawCalls++;
 }
 
-void GLRenderer2D::sortDrawCommands()
-{
-	// Sort by Texture ID to optimize drawCalls (less texture swapping)
-	std::sort(m_drawCommands.begin(), m_drawCommands.end(), [](const DrawCommand2D& a, const DrawCommand2D& b) {
-		if (a.type != b.type)
-			return a.type < b.type;
-		if (a.type == DrawCommand2DType::Quad)
-			return a.spriteQuad.SpriteComp->TextureID < b.spriteQuad.SpriteComp->TextureID;
-		return false;
-	});
-}
-
 void GLRenderer2D::bindTextureToSlot(ID textureID, uint8_t slot)
 {
 	GL(glActiveTexture(GL_TEXTURE0 + slot));
@@ -278,6 +266,59 @@ void GLRenderer2D::bindTextureToSlot(ID textureID, uint8_t slot)
 		m_fallbackTexture.getResource()->bind();
 
 	m_textureSlotManager.setDirty(true);
+}
+
+inline std::array<float, 36> makeSpriteQuadVertices(SpriteQuad command, ID textureID)
+{
+	auto& pos = command.TransformComp->Position;
+	auto& size = command.TransformComp->Size;
+	float angle = command.TransformComp->Rotation;
+
+	// Small explanaiton of the following math:
+	// We apply transformations in the following order
+	// (Matrices are too slow for cpu calculations!)
+	// 1) scale (0.5 due to the local quad size)
+	// 2) vertex rotated by angle (in radians)
+	// Using formulas:
+	// [x' = x cos(angle) - y sin(angle)]
+	// [y' = x sin(angle) + y cos(angle)]
+	// 3) vertex moved to position
+
+	float cosA = cos(angle);
+	float sinA = sin(angle);
+	float hw = size.x * 0.5f;
+	float hh = size.y * 0.5f;
+
+	// Quad corners after scale + rotation + translation
+	float topLeftX = pos.x + (-hw * cosA - hh * sinA);
+	float topLeftY = pos.y + (-hw * sinA + hh * cosA);
+
+	float topRightX = pos.x + (hw * cosA - hh * sinA);
+	float topRightY = pos.y + (hw * sinA + hh * cosA);
+
+	float bottomRightX = pos.x + (hw * cosA - (-hh) * sinA);
+	float bottomRightY = pos.y + (hw * sinA + (-hh) * cosA);
+
+	float bottomLeftX = pos.x + (-hw * cosA - (-hh) * sinA);
+	float bottomLeftY = pos.y + (-hw * sinA + (-hh) * cosA);
+
+	float r = command.SpriteComp->Color.r;
+	float g = command.SpriteComp->Color.g;
+	float b = command.SpriteComp->Color.b;
+	float a = command.SpriteComp->Color.a;
+
+	float u0 = command.SpriteComp->UVRect.x;
+	float v0 = command.SpriteComp->UVRect.y;
+	float u1 = command.SpriteComp->UVRect.z;
+	float v1 = command.SpriteComp->UVRect.w;
+
+	return std::array<float, 36>{
+		// pos						  // color      // uv     // texture
+		topLeftX,     topLeftY,       r, g, b, a,   u0, v0,   float(textureID),
+		topRightX,    topRightY,      r, g, b, a,   u1, v0,   float(textureID),
+		bottomRightX, bottomRightY,   r, g, b, a,   u1, v1,   float(textureID),
+		bottomLeftX,  bottomLeftY,    r, g, b, a,   u0, v1,   float(textureID)
+	};
 }
 
 void GLRenderer2D::render(CameraController& camera)
@@ -298,15 +339,15 @@ void GLRenderer2D::render(CameraController& camera)
 	camera.recalculate();
 	program->setUniform("uViewProjection", camera.getViewProjectionMatrix());
 
-	sortDrawCommands();
 	m_textureSlotManager.makeDisabled();
 
-	for (const auto& command : m_drawCommands)
+	// Sort by Texture ID to optimize drawCalls (less texture swapping)
+	std::sort(m_spriteDrawCommands.begin(), m_spriteDrawCommands.end(), [](const SpriteQuad& a, const SpriteQuad& b) {
+		return a.SpriteComp->TextureID < b.SpriteComp->TextureID;
+	});
+	for (const auto& command : m_spriteDrawCommands)
 	{
-		// Currently supporting only 2d quads
-		if (command.type != DrawCommand2DType::Quad) continue;
-
-		ID currentTextureID = command.spriteQuad.SpriteComp->TextureID;
+		ID currentTextureID = command.SpriteComp->TextureID;
 
 		uint8_t textureSlot;
 		bool batchTextureSlotChange = false;
@@ -346,58 +387,10 @@ void GLRenderer2D::render(CameraController& camera)
 			bindTextureToSlot(currentTextureID, textureSlot);
 		}
 
-		auto& pos = command.spriteQuad.TransformComp->Position;
-		auto& size = command.spriteQuad.TransformComp->Size;
-		float angle = command.spriteQuad.TransformComp->Rotation;
-
-		// Small explanaiton of the following math:
-		// We apply transformations in the following order
-		// (Matrices are too slow for cpu calculations!)
-		// 1) scale (0.5 due to the local quad size)
-		// 2) vertex rotated by angle (in radians)
-		// Using formulas:
-		// [x' = x cos(angle) - y sin(angle)]
-		// [y' = x sin(angle) + y cos(angle)]
-		// 3) vertex moved to position
-
-		float cosA = cos(angle);
-		float sinA = sin(angle);
-		float hw = size.x * 0.5f;
-		float hh = size.y * 0.5f;
-
-		// Quad corners after scale + rotation + translation
-		float topLeftX = pos.x + (-hw * cosA - hh * sinA);
-		float topLeftY = pos.y + (-hw * sinA + hh * cosA);
-
-		float topRightX = pos.x + (hw * cosA - hh * sinA);
-		float topRightY = pos.y + (hw * sinA + hh * cosA);
-
-		float bottomRightX = pos.x + (hw * cosA - (-hh) * sinA);
-		float bottomRightY = pos.y + (hw * sinA + (-hh) * cosA);
-
-		float bottomLeftX = pos.x + (-hw * cosA - (-hh) * sinA);
-		float bottomLeftY = pos.y + (-hw * sinA + (-hh) * cosA);
-
-		float r = command.spriteQuad.SpriteComp->Color.r;
-		float g = command.spriteQuad.SpriteComp->Color.g;
-		float b = command.spriteQuad.SpriteComp->Color.b;
-		float a = command.spriteQuad.SpriteComp->Color.a;
-
-		float u0 = command.spriteQuad.SpriteComp->UVRect.x;
-		float v0 = command.spriteQuad.SpriteComp->UVRect.y;
-		float u1 = command.spriteQuad.SpriteComp->UVRect.z;
-		float v1 = command.spriteQuad.SpriteComp->UVRect.w;
-
-		float quadVerts[] = {
-			// pos						  // color      // uv     // texture
-			topLeftX,     topLeftY,       r, g, b, a,   u0, v0,   currentTextureID,
-			topRightX,    topRightY,      r, g, b, a,   u1, v0,   currentTextureID,
-			bottomRightX, bottomRightY,   r, g, b, a,   u1, v1,   currentTextureID,
-			bottomLeftX,  bottomLeftY,    r, g, b, a,   u0, v1,   currentTextureID
-		};
-
-		memcpy(m_spriteBatchVertexData.data() + vertexPos, quadVerts, sizeof(quadVerts));
-		vertexPos += sizeof(quadVerts);
+		auto vertices = makeSpriteQuadVertices(command, currentTextureID);
+		int verticesSizeInBytes = vertices.size() * sizeof(float);
+		memcpy(m_spriteBatchVertexData.data() + vertexPos, vertices.data(), verticesSizeInBytes);
+		vertexPos += verticesSizeInBytes;
 		quadsCount++;
 		m_textureSlotManager.incrementSlotCounter(textureSlot);
 
@@ -410,7 +403,7 @@ void GLRenderer2D::render(CameraController& camera)
 	if(quadsCount) drawBatch(quadsCount, vertexPos, drawCalls);
 
 	//LOG_INFO("DrawCalls: {}", drawCalls);
-	m_drawCommands.clear();
+	m_spriteDrawCommands.clear();
 }
 
 void GLRenderer2D::setViewportSize(uint32_t width, uint32_t height)
