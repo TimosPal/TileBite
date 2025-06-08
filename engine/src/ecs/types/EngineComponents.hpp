@@ -3,6 +3,8 @@
 
 #include <glm/glm.hpp>
 
+#include "utilities/IDGenerator.hpp"
+
 namespace Engine {
 
 struct SpriteComponent

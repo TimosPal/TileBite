@@ -263,7 +263,7 @@ public:
 		TilemapComponent tilemapComp;
 		tilemapComp.width = 40;
 		tilemapComp.height = 100;
-		tilemapComp.tileSize = 0.1f;
+		tilemapComp.tileSize = 0.05f;
 		//tilemapComp.tiles.resize(tilemapComp.width * tilemapComp.height);
 		for (size_t y = 0; y < tilemapComp.height; y++)
         {
