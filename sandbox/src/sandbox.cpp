@@ -247,6 +247,7 @@ class Scene1 : public Scene {
 class Scene2 : public Scene {
     std::unique_ptr<IResourceHandle> m_ballHandle;
 	std::unique_ptr<IResourceHandle> m_beeHandle;
+    ResourceHandle<TilemapResource> m_tilemapHandle;
 
     void onLoad() override
     {
@@ -268,21 +269,15 @@ class Scene2 : public Scene {
             4
         };
 
-        ID tilemap = getWorld().createEntity();
-        TilemapComponent tilemapComp;
-        tilemapComp.width = 255;
-        tilemapComp.height = 255;
-        tilemapComp.atlasTileSize = 1;
-        tilemapComp.worldTileSize = 1;
-        tilemapComp.atlasID = 0;
-        static std::vector<Tile> tiles; // TODO: need custom memory management system for ecs heap
-        tilemapComp.tiles = &tiles;
-        tiles.resize(tilemapComp.width * tilemapComp.height);
-        for (size_t y = 0; y < tilemapComp.height; y++)
+        int tilemapHeight = 255;
+        int tilemapWidth = 255;
+        std::vector<Tile> tiles;
+        tiles.resize(tilemapHeight * tilemapWidth);
+        for (size_t y = 0; y < tilemapHeight; y++)
         {
-            for (size_t x = 0; x < tilemapComp.width; x++)
-            {
-                Tile& tile = tilemapComp.getTile(x, y);
+            for (size_t x = 0; x < tilemapWidth; x++)
+            {  
+                Tile& tile = tiles[y * tilemapWidth + x];
 
                 //ID texID = texIDs[int(quickRandFloat(0.0f, 3.9f))];
                 auto rngCol = glm::vec4(quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), 1.0f);
@@ -291,6 +286,17 @@ class Scene2 : public Scene {
                 tile.Color = glm::u8vec4(rngCol * 255.0f);
             }
         }
+        m_tilemapHandle = getAssetsManager()->createTilemap("tileMapResource", tiles);
+
+        ID tilemap = getWorld().createEntity();
+        TilemapComponent tilemapComp;
+        tilemapComp.width = tilemapWidth;
+        tilemapComp.height = tilemapHeight;
+        tilemapComp.atlasTileSize = 1;
+        tilemapComp.worldTileSize = 1;
+        tilemapComp.atlasID = 0;
+        tilemapComp.tiles = &m_tilemapHandle.getResource()->getData();
+
         getWorld().addComponents(
             tilemap,
             TransformComponent{ glm::vec2(-1, -1), glm::vec2(1, 1) },

@@ -12,17 +12,16 @@
 
 namespace Engine {
 
+// IResourceHandle is used for platform specific implementations.
+// eg: Textures can be GLTextures or any custom graphics API implementation
+// whereas tilemaps use an engine defined type
+
 class AssetsManager {
 public:
 	void init(SystemResourceHub* resourceHub, IGPUAssets* gpuAssets)
 	{
 		m_resourceHub = resourceHub;
 		m_gpuAssets = gpuAssets;
-	}
-
-	std::unique_ptr<IResourceHandle> getTexture(std::string resourceName)
-	{
-		return m_gpuAssets->getTexture(resourceName + "Texture");
 	}
 
 	std::unique_ptr<IResourceHandle> createTexture(std::string resourceName, std::string path)
@@ -35,16 +34,23 @@ public:
 		return m_gpuAssets->createTexture(resourceName + "Texture", std::move(imageHandle));
 	}
 
-	ID createTilemap(std::string resourceName, std::vector<Tile> tiles)
+	std::unique_ptr<IResourceHandle> getTexture(std::string resourceName)
 	{
-		//auto tilemapHandle = m_resourceHub->getManager<TilemapResource>().addResource(
-		//	TilemapResource(resourceName, tiles)
-		//);
+		return m_gpuAssets->getTexture(resourceName + "Texture");
+	}
 
-		//// TODO: Temporary logic, make every texture persistent for entire app.
-		//m_gpuAssets->makeTexturePersistent(resourceName + "Texture");
+	ResourceHandle<TilemapResource> createTilemap(std::string resourceName, std::vector<Tile> tiles)
+	{
+		auto tilemapHandle = m_resourceHub->getManager<TilemapResource>().addResource(
+			TilemapResource(resourceName, tiles)
+		);
 
-		//return resourceID;
+		return tilemapHandle;
+	}
+
+	ResourceHandle<TilemapResource> getTilemap(std::string resourceName)
+	{
+		return m_resourceHub->getManager<TilemapResource>().getResource(resourceName);
 	}
 
 private:
