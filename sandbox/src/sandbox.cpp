@@ -216,7 +216,7 @@ class Scene1 : public Scene {
         setCameraController(cameraController);
 
         int foodC = 2000;
-        int snakeC = 20;
+        int snakeC = 15;
 
         // create food
         for (int i = 0; i < foodC; i++)
@@ -238,7 +238,7 @@ class Scene1 : public Scene {
 
         for (size_t i = 0; i < snakeC; i++)
         {
-            float rS = quickRandFloat(0.5, 3);
+            float rS = quickRandFloat(0.1, 0.4);
             createSnake(rS);
         }
     }
@@ -310,8 +310,8 @@ public:
 
     void onAttach() override
     {
-        //auto scene = getSceneManager().createScene<Scene1>("Scene1");
-        auto scene = getSceneManager().createScene<Scene2>("Scene2");
+        auto scene = getSceneManager().createScene<Scene1>("Scene1");
+        //auto scene = getSceneManager().createScene<Scene2>("Scene2");
         getSceneManager().setActiveScene(scene);
     }
 };
