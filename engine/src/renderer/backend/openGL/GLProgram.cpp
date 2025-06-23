@@ -10,7 +10,7 @@ GLProgram::GLProgram(
 	ResourceHandle<GLShader>&& vertexHandle,
 	ResourceHandle<GLShader>&& fragmentHandle
 ) 
-	: Resource<GLProgram>(resourceName),
+	: Resource<GLProgram>(resourceName, false),
 	m_vertexHandle(std::move(vertexHandle)),
 	m_fragmentHandle(std::move(fragmentHandle))
 {}

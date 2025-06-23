@@ -13,8 +13,8 @@ namespace Engine {
 class IGPUAssets {
 public:
 	virtual void makeTexturePersistent(std::string resourceName) = 0;
-	virtual ID getTexture(std::string resourceName) = 0;
-	virtual ID createTexture(std::string resourceName, ResourceHandle<ImageResource>&& imageHandle) = 0;
+	virtual std::unique_ptr<IResourceHandle> getTexture(std::string resourceName) = 0;
+	virtual std::unique_ptr<IResourceHandle> createTexture(std::string resourceName, ResourceHandle<ImageResource>&& imageHandle) = 0;
 };
 
 } // Engine

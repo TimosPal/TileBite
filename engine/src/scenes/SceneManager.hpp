@@ -11,13 +11,31 @@ public:
 	SceneManager(AssetsManager* assetsManager) :
 		m_assetsManager(assetsManager) {}
 
-	std::shared_ptr<Scene> createScene(const std::string& name);
+	// Create a new scene with the given name.
+	template<typename SceneDerived>
+	std::shared_ptr<Scene> createScene(const std::string& name)
+	{
+		auto scene = std::make_shared<SceneDerived>();
+		scene->setAssetsManager(m_assetsManager);
+		scene->setSceneManager(this);
+		scene->setPushEventCallable(m_pushEventCallable);
+		m_scenes[name] = scene;
+		return scene;
+	}
+
 	bool setActiveScene(const std::string& name);
+	bool setActiveScene(std::shared_ptr<Scene> scene);
 	std::shared_ptr<Scene> getActiveScene() const;
 
 	void setPushEventCallable(std::function<void(std::unique_ptr<Event>)> pushEventCallable)
 	{
 		m_pushEventCallable = std::move(pushEventCallable);
+	}
+
+	void clearScenes() 
+	{ 
+		m_scenes.clear(); 
+		m_activeScene.reset();
 	}
 private:
 	std::shared_ptr<Scene> m_activeScene = nullptr;

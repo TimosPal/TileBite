@@ -3,7 +3,7 @@
 namespace Engine {
 
 GLTexture::GLTexture(const std::string& resourceName, ResourceHandle<ImageResource>&& handle)
-	: Resource<GLTexture>(resourceName),
+	: Resource<GLTexture>(resourceName, false),
 	m_imageHandle(std::move(handle)), m_glTexture(0)
 {
 }

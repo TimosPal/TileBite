@@ -179,15 +179,14 @@ public:
     }
 };
 
-class GameLayer : public Layer {
-public:
-    void createSnake(Scene* scene, float speed)
+class Scene1 : public Scene {
+    void createSnake(float speed)
     {
         int followerCount = 10;
         float size = 0.015;
 
-		float rx = quickRandFloat(-1.0f, 1.0f);
-		float ry = quickRandFloat(-1.0f, 1.0f);
+        float rx = quickRandFloat(-1.0f, 1.0f);
+        float ry = quickRandFloat(-1.0f, 1.0f);
 
         glm::vec4 color = glm::vec4(
             quickRandFloat(0.4f, 1.0f),            // R bright
@@ -197,25 +196,24 @@ public:
         );
 
         // create leader
-        ID leaderEntity = scene->getWorld().createEntity();
-        scene->getWorld().addComponents(
+        ID leaderEntity = getWorld().createEntity();
+        getWorld().addComponents(
             leaderEntity,
             TransformComponent{ glm::vec2(rx, ry), glm::vec2(size, size) },
             SpriteComponent{ glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), 0 },
             VelocityComponent{ speed, speed },
-            Leader{0, false, 0, 0, color }
+            Leader{ 0, false, 0, 0, color }
         );
     }
-
-    void scene1()
+    
+    void onLoad() override
     {
         auto cameraController = std::make_shared<CameraController>(-1.0f, 1.0f, -1.0f, 1.0f);
 
-        auto scene = getSceneManager().createScene("Scene1");
-        scene->addSystem(std::make_unique<FollowerSystem>());
-        scene->addSystem(std::make_unique<LeaderSystem>());
-        scene->addSystem(std::make_unique<FoodSystem>());
-        scene->setCameraController(cameraController);
+        addSystem(std::make_unique<FollowerSystem>());
+        addSystem(std::make_unique<LeaderSystem>());
+        addSystem(std::make_unique<FoodSystem>());
+        setCameraController(cameraController);
 
         int foodC = 2000;
         int snakeC = 20;
@@ -228,8 +226,8 @@ public:
             float r = quickRandFloat(0.01f, 0.05f);
             float foodSpeed = quickRandFloat(-0.04, 0.04);
             float rSize = quickRandFloat(0.003f, 0.01f);
-            ID foodEntity = scene->getWorld().createEntity();
-            scene->getWorld().addComponents(
+            ID foodEntity = getWorld().createEntity();
+            getWorld().addComponents(
                 foodEntity,
                 TransformComponent{ glm::vec2(randx, randy), glm::vec2(rSize, rSize), r },
                 VelocityComponent{ foodSpeed, foodSpeed },
@@ -241,35 +239,46 @@ public:
         for (size_t i = 0; i < snakeC; i++)
         {
             float rS = quickRandFloat(0.5, 3);
-            createSnake(scene.get(), rS);
+            createSnake(rS);
         }
     }
+};
 
-    void scene2()
+class Scene2 : public Scene {
+    std::unique_ptr<IResourceHandle> m_ballHandle;
+	std::unique_ptr<IResourceHandle> m_beeHandle;
+
+    void onLoad() override
     {
         auto cameraController = std::make_shared<CameraController>(-1.0f, 1.0f, -1.0f, 1.0f);
+        setCameraController(cameraController);
 
-        auto scene = getSceneManager().createScene("Scene2");
-        scene->setCameraController(cameraController);
+        m_ballHandle = getAssetsManager()->getTexture("ball");
+        m_beeHandle = getAssetsManager()->getTexture("bee");
+        
+        m_ballHandle->watch();
+        m_ballHandle->load();
+        m_beeHandle->watch();
+        m_beeHandle->load();
 
         ID texIDs[] = {
-            getAssetsManager().getTexture("ball"),
-            getAssetsManager().getTexture("bee"),
+            m_ballHandle->getID(),
+            m_beeHandle->getID(),
             0,
             4
         };
 
-        ID tilemap = scene->getWorld().createEntity();
-		TilemapComponent tilemapComp;
-		tilemapComp.width = 255;
-		tilemapComp.height = 255;
-		tilemapComp.atlasTileSize = 1;
+        ID tilemap = getWorld().createEntity();
+        TilemapComponent tilemapComp;
+        tilemapComp.width = 255;
+        tilemapComp.height = 255;
+        tilemapComp.atlasTileSize = 1;
         tilemapComp.worldTileSize = 1;
         tilemapComp.atlasID = 0;
         static std::vector<Tile> tiles; // TODO: need custom memory management system for ecs heap
         tilemapComp.tiles = &tiles;
-		tiles.resize(tilemapComp.width * tilemapComp.height);
-		for (size_t y = 0; y < tilemapComp.height; y++)
+        tiles.resize(tilemapComp.width * tilemapComp.height);
+        for (size_t y = 0; y < tilemapComp.height; y++)
         {
             for (size_t x = 0; x < tilemapComp.width; x++)
             {
@@ -282,18 +291,22 @@ public:
                 tile.Color = glm::u8vec4(rngCol * 255.0f);
             }
         }
-		scene->getWorld().addComponents(
-			tilemap,
-			TransformComponent{ glm::vec2(-1, -1), glm::vec2(1, 1) },
-			std::move(tilemapComp)
-		);
+        getWorld().addComponents(
+            tilemap,
+            TransformComponent{ glm::vec2(-1, -1), glm::vec2(1, 1) },
+            std::move(tilemapComp)
+        );
     }
+};
+
+class GameLayer : public Layer {
+public:
 
     void onAttach() override
     {
-        //scene1();
-        scene2();
-        getSceneManager().setActiveScene("Scene2");
+        //auto scene = getSceneManager().createScene<Scene1>("Scene1");
+        auto scene = getSceneManager().createScene<Scene2>("Scene2");
+        getSceneManager().setActiveScene(scene);
     }
 };
 

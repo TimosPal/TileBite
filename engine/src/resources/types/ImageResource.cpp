@@ -6,7 +6,7 @@
 namespace Engine {
 
 ImageResource::ImageResource(const std::string& resourceName, const std::string& filePath)
-	: Resource<ImageResource>(resourceName)
+	: Resource<ImageResource>(resourceName, false)
 	, m_filePath(filePath)
 {
 	m_fileExists = std::filesystem::exists(m_filePath);

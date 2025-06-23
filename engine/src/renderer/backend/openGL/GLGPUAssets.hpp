@@ -12,15 +12,15 @@ public:
 
 	void makeTexturePersistent(std::string resourceName) override;
 
-	ID getTexture(std::string resourceName) override;
-	ID createTexture(std::string resourceName, ResourceHandle<ImageResource>&& imageHandle) override;
+	std::unique_ptr<IResourceHandle> getTexture(std::string resourceName) override;
+	std::unique_ptr<IResourceHandle> createTexture(std::string resourceName, ResourceHandle<ImageResource>&& imageHandle) override;
 	
 	void clear();
 
 private:
 	GLResourceHub& m_resourceHub;
 
-	// TODO: Temporary sollution for persistent renderer texture assets
+	// Persistent renderer texture assets, used for engine resources only!
 	// (Avoids constant reloading)
 	std::vector<ResourceHandle<GLTexture>> m_persistentTextureHandles;
 };

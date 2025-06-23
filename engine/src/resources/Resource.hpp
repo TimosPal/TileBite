@@ -41,8 +41,8 @@ protected:
 	virtual bool createImplementation() { return false; };
 	virtual bool destroyImplementation() { return false; };
 
-	Resource(std::string name) : m_name(name) {}
-	Resource() : Resource("emptyResource") {}
+	Resource(std::string name, bool isCreated) : m_name(name), m_isCreated(isCreated) {}
+	Resource() : Resource("emptyResource"), m_isCreated(false) {}
 	~Resource()
 	{
         if (!m_isCreated) return;
@@ -63,7 +63,7 @@ protected:
     Resource& operator=(Resource&&) noexcept = delete;
 private:
 	std::string m_name;
-	bool m_isCreated = false;
+	bool m_isCreated;
 };
 
 } // Engine

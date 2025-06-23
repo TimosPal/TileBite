@@ -49,6 +49,7 @@ bool SystemResourceHub::destroy()
 
 	m_textFilesResourceManager.clear();
 	m_imagesResourceManager.clear();
+	m_tilemapResourceManager.clear();
 
 	LOG_INFO("==============================");
 	LOG_INFO("");

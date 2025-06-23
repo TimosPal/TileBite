@@ -8,6 +8,7 @@
 #include "resources/SystemResourceHub.hpp"
 #include "renderer/Renderer2D.hpp"
 #include "renderer/IGPUAssets.hpp"
+#include "ecs/types/EngineComponents.hpp"
 
 namespace Engine {
 
@@ -19,23 +20,31 @@ public:
 		m_gpuAssets = gpuAssets;
 	}
 
-	ID getTexture(std::string resourceName)
+	std::unique_ptr<IResourceHandle> getTexture(std::string resourceName)
 	{
 		return m_gpuAssets->getTexture(resourceName + "Texture");
 	}
 
-	ID createTexture(std::string resourceName, std::string path)
+	std::unique_ptr<IResourceHandle> createTexture(std::string resourceName, std::string path)
 	{
 		// TODO: Split into createImage if needed. (Avoids custom internal Texture sub string)
 		auto imageHandle = m_resourceHub->getManager<ImageResource>().addResource(
 			ImageResource(resourceName, path)
 		);
-		ID resourceID = m_gpuAssets->createTexture(resourceName + "Texture", std::move(imageHandle));
+		
+		return m_gpuAssets->createTexture(resourceName + "Texture", std::move(imageHandle));
+	}
 
-		// TODO: Temporary logic, make every texture persistent for entire app.
-		m_gpuAssets->makeTexturePersistent(resourceName + "Texture");
+	ID createTilemap(std::string resourceName, std::vector<Tile> tiles)
+	{
+		//auto tilemapHandle = m_resourceHub->getManager<TilemapResource>().addResource(
+		//	TilemapResource(resourceName, tiles)
+		//);
 
-		return resourceID;
+		//// TODO: Temporary logic, make every texture persistent for entire app.
+		//m_gpuAssets->makeTexturePersistent(resourceName + "Texture");
+
+		//return resourceID;
 	}
 
 private:

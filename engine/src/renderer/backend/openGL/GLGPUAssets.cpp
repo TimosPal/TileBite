@@ -11,22 +11,24 @@ void GLGPUAssets::makeTexturePersistent(std::string resourceName)
 	handle.watch();
 	handle.load();
 
-	// Storing an active handle will keep them persistent durring time.
+	// Only to be used by internal textures
+	// Storing an active handle will keep them persistent durring run time.
 	// (Also prevents runtime stalls after initial loads)
 	m_persistentTextureHandles.emplace_back(std::move(handle));
 }
 
-ID GLGPUAssets::getTexture(std::string resourceName)
+std::unique_ptr<IResourceHandle> GLGPUAssets::getTexture(std::string resourceName)
 {
-	return m_resourceHub.getManager<GLTexture>().getResourceID(resourceName);
+	return std::make_unique<ResourceHandle<GLTexture>>(m_resourceHub.getManager<GLTexture>().getResource(resourceName));
 }
 
-ID GLGPUAssets::createTexture(std::string resourceName, ResourceHandle<ImageResource>&& imageHandle)
+std::unique_ptr<IResourceHandle> GLGPUAssets::createTexture(std::string resourceName, ResourceHandle<ImageResource>&& imageHandle)
 {
 	auto glTextureHandle = m_resourceHub.getManager<GLTexture>().addResource(
 		GLTexture(resourceName, std::move(imageHandle))
 	);
-	return glTextureHandle.getResource()->getInstanceID();
+
+	return std::make_unique<ResourceHandle<GLTexture>>(std::move(glTextureHandle));
 }
 
 void GLGPUAssets::clear()

@@ -4,7 +4,7 @@ namespace Engine {
 
 TextFileResource::TextFileResource(const std::string& resourceName, const std::string& filePath)
 	: 
-    Resource(resourceName),
+    Resource(resourceName, false),
     m_filePath(filePath), m_fileContent("")
 {}
 

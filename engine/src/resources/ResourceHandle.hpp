@@ -5,14 +5,27 @@
 #include "utilities/misc.hpp"
 #include "resources/Resource.hpp"
 #include "resources/ControlBlock.hpp"
+#include "core/Types.hpp"
 
 namespace Engine {
+
+class IResourceHandle {
+	public:
+	virtual ~IResourceHandle() = default;
+	virtual bool load() = 0;
+	virtual bool unload() = 0;
+	virtual bool isValid() = 0;
+	virtual bool isLoaded() const = 0;
+	virtual void watch() = 0;
+	virtual void unwatch() = 0;
+	virtual ID getID() const = 0;
+};
 
 // Resources should outlast lifetime of ResourceHandles
 // Otherwise this can lead to UB from dangling references.
 template<typename ResourceType>
 requires DerivedFrom<ResourceType, Resource<ResourceType>>
-class ResourceHandle {
+class ResourceHandle : public IResourceHandle {
 public:
 	ResourceHandle(ControlBlock<ResourceType> * controlBlock = nullptr)
 		: m_controlBlock(controlBlock)
@@ -133,6 +146,12 @@ public:
 	{ 
 		if (!m_controlBlock) return nullptr;
 		return m_controlBlock->getResource(); 
+	}
+
+	ID getID() const 
+	{ 
+		if (!m_controlBlock) return INVALID_ID;
+		return m_controlBlock->getResource()->getInstanceID(); 
 	}
 private:
 	ControlBlock<ResourceType> * m_controlBlock = nullptr;

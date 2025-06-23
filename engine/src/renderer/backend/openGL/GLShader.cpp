@@ -5,7 +5,7 @@
 namespace Engine {
 
 GLShader::GLShader(const std::string& resourceName, ResourceHandle<TextFileResource>&& handle, ShaderType type)
-	: Resource<GLShader>(resourceName),
+	: Resource<GLShader>(resourceName, false),
 	m_handle(std::move(handle)),
 	m_type(type),
 	m_glShader(0)

@@ -110,6 +110,9 @@ void EngineApp::terminate()
 	LOG_INFO("########################");
 	LOG_INFO("");
 
+	// Terminate scenes so resources are freed
+	m_sceneManager.clearScenes();
+
 	// Renderer2D cleanup
 	// Internaly destroys the resource of the renderer.
 	bool resTerminateRenderer2D = m_renderer2D->terminate();

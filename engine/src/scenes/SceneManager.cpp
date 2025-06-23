@@ -2,17 +2,6 @@
 
 namespace Engine {
 
-// Create a new scene with the given name.
-std::shared_ptr<Scene> SceneManager::createScene(const std::string& name)
-{
-	auto scene = std::make_shared<Scene>();
-	scene->setAssetsManager(m_assetsManager);
-	scene->setSceneManager(this);
-	scene->setPushEventCallable(m_pushEventCallable);
-	m_scenes[name] = scene;
-	return scene;
-}
-
 // Set the active scene by name.
 bool SceneManager::setActiveScene(const std::string& name)
 {
@@ -26,6 +15,13 @@ bool SceneManager::setActiveScene(const std::string& name)
 	{
 		return false;
 	}
+}
+
+bool SceneManager::setActiveScene(std::shared_ptr<Scene> scene)
+{
+	m_activeScene = scene;
+	m_activeScene->onLoad();
+	return true;
 }
 
 // Get the active scene.
