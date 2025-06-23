@@ -2,7 +2,7 @@
 
 A modular 2D game engine written in C++ using an archetype-based ECS (Entity Component System) architecture.
 
-![Demo2](./demoImages/demo.png)
+![Demo1](./demoImages/snakesDemo.gif)
 
 ## Features
 
