@@ -97,6 +97,39 @@ inline std::array<float, 36> makeSpriteQuadVertices(TransformComponent* t, Sprit
 	};
 }
 
+inline uint32_t packXYIndexUV(uint8_t x, uint8_t y, uint8_t uvx, uint8_t uvy) {
+	return (uint32_t(x)) |
+		(uint32_t(y) << 8) |
+		(uint32_t(uvx) << 16) |
+		(uint32_t(uvy) << 24);
+}
+
+inline uint32_t packRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+	return (uint32_t(r)) |
+		(uint32_t(g) << 8) |
+		(uint32_t(b) << 16) |
+		(uint32_t(a) << 24);
+}
+
+inline std::array<uint32_t, 8> makePackedTilemapQuad(
+	uint8_t xIndex, uint8_t yIndex,
+	uint8_t uIndex, uint8_t vIndex,
+	const glm::u8vec4& color)
+{
+	uint32_t packedColor = packRGBA(color.r, color.g, color.b, color.a);
+
+	return std::array<uint32_t, 8>{
+			packXYIndexUV(xIndex, yIndex, uIndex, vIndex),     // top-left
+			packedColor,
+			packXYIndexUV(xIndex + 1, yIndex, uIndex + 1, vIndex),     // top-right
+			packedColor,
+			packXYIndexUV(xIndex + 1, yIndex + 1, uIndex + 1, vIndex + 1), // bottom-right
+			packedColor,
+			packXYIndexUV(xIndex, yIndex + 1, uIndex, vIndex + 1), // bottom-left
+			packedColor
+	};
+}
+
 } // Engine
 
 #endif // !MISC_HPP

@@ -24,6 +24,7 @@ public:
 
 	void set(size_t index);
 	void clear(size_t index);
+	void clear();
 	std::vector<size_t> getSetBits() const;
 	size_t findLsbIndex() const;
 	size_t popCount() const;

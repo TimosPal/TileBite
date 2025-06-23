@@ -18,6 +18,12 @@ GLenum GLMesh::getOpenGLBaseType(ShaderAttributeType type) {
 	case ShaderAttributeType::Int4:
 		return GL_INT;
 
+	case ShaderAttributeType::UInt:
+	case ShaderAttributeType::UInt2:
+	case ShaderAttributeType::UInt3:
+	case ShaderAttributeType::UInt4:
+		return GL_UNSIGNED_INT;
+
 	case ShaderAttributeType::Bool:
 		return GL_BOOL;
 
@@ -72,14 +78,32 @@ void GLMesh::setupAttributes(const VertexLayout& layout, GLuint shaderProgram)
 		GL_RET(glGetAttribLocation(shaderProgram, attribute.Name.c_str()), location);
 		ASSERT(location >= 0, "Invalid location of shader attribute");
 		GL(glEnableVertexAttribArray(location));
-		GL(glVertexAttribPointer(
-			location, // Location
-			attribute.ElementsCount, // Element count (eg vec2 = 2)
-			getOpenGLBaseType(attribute.Type), // GLSL attribute type converted to glad GL type 
-			GL_FALSE, // Normalised values (default to false)
-			layout.getStride(), // Size of whole vertex stride
-			(const void*)(uintptr_t)attribute.Offset // Offset between elements
-		));
+
+		bool isInteger =
+			attribute.Type == ShaderAttributeType::Int || attribute.Type == ShaderAttributeType::Int2 ||
+			attribute.Type == ShaderAttributeType::Int3 || attribute.Type == ShaderAttributeType::Int4 ||
+			attribute.Type == ShaderAttributeType::UInt || attribute.Type == ShaderAttributeType::UInt2 ||
+			attribute.Type == ShaderAttributeType::UInt3 || attribute.Type == ShaderAttributeType::UInt4;
+
+		if (isInteger) {
+			GL(glVertexAttribIPointer(
+				location,
+				attribute.ElementsCount,
+				getOpenGLBaseType(attribute.Type),
+				layout.getStride(),
+				(const void*)(uintptr_t)attribute.Offset
+			));
+		}
+		else {
+			GL(glVertexAttribPointer(
+				location,
+				attribute.ElementsCount,
+				getOpenGLBaseType(attribute.Type),
+				GL_FALSE,
+				layout.getStride(),
+				(const void*)(uintptr_t)attribute.Offset
+			));
+		}
 	}
 }
 

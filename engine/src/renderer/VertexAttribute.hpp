@@ -11,6 +11,7 @@ enum class ShaderAttributeType {
     Float, Float2, Float3, Float4,
     Mat3, Mat4,
     Int, Int2, Int3, Int4,
+    UInt, UInt2, UInt3, UInt4,
     Bool
 };
 
@@ -46,6 +47,10 @@ inline uint32_t VertexAttribute::getShaderTypeSize(ShaderAttributeType type) {
     case ShaderAttributeType::Int2:   return sizeof(int) * 2;
     case ShaderAttributeType::Int3:   return sizeof(int) * 3;
     case ShaderAttributeType::Int4:   return sizeof(int) * 4;
+	case ShaderAttributeType::UInt:   return sizeof(uint32_t);
+	case ShaderAttributeType::UInt2:  return sizeof(uint32_t) * 2;
+	case ShaderAttributeType::UInt3:  return sizeof(uint32_t) * 3;
+	case ShaderAttributeType::UInt4:  return sizeof(uint32_t) * 4;
     case ShaderAttributeType::Bool:   return sizeof(bool);
     default:
         ASSERT_FALSE("Unsupported shader attribute type");
@@ -65,6 +70,10 @@ inline uint32_t VertexAttribute::getComponentCount(ShaderAttributeType type) {
     case ShaderAttributeType::Int2:   return 2;
     case ShaderAttributeType::Int3:   return 3;
     case ShaderAttributeType::Int4:   return 4;
+	case ShaderAttributeType::UInt:   return 1;
+	case ShaderAttributeType::UInt2:  return 2;
+	case ShaderAttributeType::UInt3:  return 3;
+	case ShaderAttributeType::UInt4:  return 4;
     case ShaderAttributeType::Bool:   return 1;
     default:
         ASSERT_FALSE("Unsupported shader attribute type");

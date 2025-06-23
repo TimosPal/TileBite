@@ -19,6 +19,11 @@ void Bitset::clear(size_t index)
 	m_words[index / BITS_PER_WORD] &= ~(WordType(1) << (index % BITS_PER_WORD));
 }
 
+void Bitset::clear()
+{
+	std::fill(m_words.begin(), m_words.end(), 0);
+}
+
 std::vector<size_t> Bitset::getSetBits() const
 {
 	std::vector<size_t> setBits;

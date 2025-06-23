@@ -25,19 +25,22 @@ struct TransformComponent
 };
 
 struct Tile {
-	SpriteComponent sprite;
-	TransformComponent transform;
+	glm::vec4 Color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	uint8_t uIndex = 0;
+	uint8_t vIndex = 0;
 };
 
 struct TilemapComponent {
     int width;
     int height;
-	float tileSize;
-    Tile tiles[4000]; // Flattened 1D array: tiles[y * width + x]
+	float worldTileSize;
+	float atlasTileSize;
+    std::vector<Tile>* tiles; // Flattened 1D array: tiles[y * width + x]
+	ID atlasID = 0;
 
     // Helper to get tile at (x, y)
     inline Tile& getTile(int x, int y) {
-        return tiles[y * width + x];
+        return tiles->at(y * width + x);
     }
 };
 

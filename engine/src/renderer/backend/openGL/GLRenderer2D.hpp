@@ -35,18 +35,24 @@ private:
 	GLGPUAssets m_gpuAssets;
 
 	std::unique_ptr<GLMesh> m_spritesBatch;
-	std::vector<uint8_t> m_spriteBatchVertexData;
+	std::unique_ptr<GLMesh> m_quadMeshesBatch;
+	std::vector<uint8_t> m_spriteVertexData;
+	std::vector<uint8_t> m_quadMeshesVertexData;
 
 	ResourceHandle<GLProgram> m_spriteProgramHandle;
+	ResourceHandle<GLProgram> m_tilemapProgramHandle;
 	ResourceHandle<GLTexture> m_fallbackTexture;
 
 	void setupShaders();
 	void setupBuffers();
 	void setupTextures();
-	void drawBatch(uint32_t& quadsCount, uint32_t& bytes, int& drawCalls);
+	void drawSpritesBatch(uint32_t& quadsCount, uint32_t& bytes, int& drawCalls);
 	void bindTextureToSlot(ID textureID, uint8_t slot);
 
 	uint8_t numberOfGPUSlots() const;
+
+	void renderSpriteQuads(CameraController& camera);
+	void renderQuadMeshes(CameraController& camera);
 };
 
 } // Engine

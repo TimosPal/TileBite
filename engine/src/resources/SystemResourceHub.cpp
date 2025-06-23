@@ -21,6 +21,11 @@ bool SystemResourceHub::init()
 	);
 	validAssets = logResourceValidity(spriteFrag, ResourceNames::SpriteFragFile) && validAssets;
 
+	auto tilemapVert = m_textFilesResourceManager.addResource(
+		TextFileResource(ResourceNames::TilemapVertFile, ResourcePaths::TilemapVertFile())
+	);
+	validAssets = logResourceValidity(tilemapVert, ResourceNames::TilemapVertFile) && validAssets;
+
 	auto missingImage = m_imagesResourceManager.addResource(
 		ImageResource(ResourceNames::MissingImageFile, ResourcePaths::MissingImageFile())
 	);

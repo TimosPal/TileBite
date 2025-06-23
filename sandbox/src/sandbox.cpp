@@ -211,7 +211,7 @@ public:
     {
         auto cameraController = std::make_shared<CameraController>(-1.0f, 1.0f, -1.0f, 1.0f);
 
-        auto scene = getSceneManager().createScene("MainScene");
+        auto scene = getSceneManager().createScene("Scene1");
         scene->addSystem(std::make_unique<FollowerSystem>());
         scene->addSystem(std::make_unique<LeaderSystem>());
         scene->addSystem(std::make_unique<FoodSystem>());
@@ -249,7 +249,7 @@ public:
     {
         auto cameraController = std::make_shared<CameraController>(-1.0f, 1.0f, -1.0f, 1.0f);
 
-        auto scene = getSceneManager().createScene("SecondScene");
+        auto scene = getSceneManager().createScene("Scene2");
         scene->setCameraController(cameraController);
 
         ID texIDs[] = {
@@ -261,19 +261,25 @@ public:
 
         ID tilemap = scene->getWorld().createEntity();
 		TilemapComponent tilemapComp;
-		tilemapComp.width = 40;
-		tilemapComp.height = 100;
-		tilemapComp.tileSize = 0.05f;
-		//tilemapComp.tiles.resize(tilemapComp.width * tilemapComp.height);
+		tilemapComp.width = 255;
+		tilemapComp.height = 255;
+		tilemapComp.atlasTileSize = 1;
+        tilemapComp.worldTileSize = 1;
+        tilemapComp.atlasID = 0;
+        static std::vector<Tile> tiles; // TODO: need custom memory management system for ecs heap
+        tilemapComp.tiles = &tiles;
+		tiles.resize(tilemapComp.width * tilemapComp.height);
 		for (size_t y = 0; y < tilemapComp.height; y++)
         {
             for (size_t x = 0; x < tilemapComp.width; x++)
             {
                 Tile& tile = tilemapComp.getTile(x, y);
 
-                ID texID = texIDs[int(quickRandFloat(0.0f, 3.9f))];
+                //ID texID = texIDs[int(quickRandFloat(0.0f, 3.9f))];
                 auto rngCol = glm::vec4(quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), 1.0f);
-                tile.sprite = SpriteComponent{ rngCol, texID };
+                tile.uIndex = 0;
+                tile.vIndex = 0;
+                tile.Color = glm::u8vec4(rngCol * 255.0f);
             }
         }
 		scene->getWorld().addComponents(
@@ -287,7 +293,7 @@ public:
     {
         //scene1();
         scene2();
-        getSceneManager().setActiveScene("SecondScene");
+        getSceneManager().setActiveScene("Scene2");
     }
 };
 

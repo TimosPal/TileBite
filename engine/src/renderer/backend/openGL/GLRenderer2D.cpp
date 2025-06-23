@@ -154,6 +154,10 @@ void GLRenderer2D::setupShaders()
 	m_spriteProgramHandle.watch();
 	m_spriteProgramHandle.load();
 
+	m_tilemapProgramHandle = m_resourceHub.getManager<GLProgram>().getResource(ResourceNames::TilemapShader);
+	m_tilemapProgramHandle.watch();
+	m_tilemapProgramHandle.load();
+
 	// Setup a uniform texture sampler array in the fragment shader
 	// Each slot corresponds to an array index
 	// eg: slot 0 -> uTextures[0]
@@ -167,19 +171,6 @@ void GLRenderer2D::setupShaders()
 void GLRenderer2D::setupBuffers()
 {
 	LOG_INFO("[Setting up buffers]");
-
-	VertexLayout spriteLayout;
-	spriteLayout.add(VertexAttribute("aPos", ShaderAttributeType::Float2));
-	spriteLayout.add(VertexAttribute("aColor", ShaderAttributeType::Float4));
-	spriteLayout.add(VertexAttribute("aUV", ShaderAttributeType::Float2));
-	spriteLayout.add(VertexAttribute("aTextureIndex", ShaderAttributeType::Float));
-	m_spritesBatch = std::make_unique<GLMesh>(
-		spriteLayout.getStride() * verticesPerQuad * maxQuadsPerBatch,
-		quadsIndicesCount
-	);
-
-	auto* spriteProgram = m_spriteProgramHandle.getResource();
-	m_spritesBatch->setupAttributes(spriteLayout, spriteProgram->getGLID());
 
 	// When dealing with the quad batch, index data are always the same so we can precompute them and
 	// upload them once.
@@ -196,9 +187,38 @@ void GLRenderer2D::setupBuffers()
 		indexData[idx + 4] = offset + 3;
 		indexData[idx + 5] = offset + 0;
 	}
-	m_spritesBatch->setIndexData(indexData.data(), indexData.size());
 
-	m_spriteBatchVertexData.resize(maxQuadsPerBatch * verticesPerQuad * spriteLayout.getStride());
+	// Sprite
+
+	VertexLayout spriteLayout;
+	spriteLayout.add(VertexAttribute("aPos", ShaderAttributeType::Float2));
+	spriteLayout.add(VertexAttribute("aColor", ShaderAttributeType::Float4));
+	spriteLayout.add(VertexAttribute("aUV", ShaderAttributeType::Float2));
+	spriteLayout.add(VertexAttribute("aTextureIndex", ShaderAttributeType::Float));
+	m_spritesBatch = std::make_unique<GLMesh>(
+		spriteLayout.getStride() * verticesPerQuad * maxQuadsPerBatch,
+		quadsIndicesCount
+	);
+
+	auto* spriteProgram = m_spriteProgramHandle.getResource();
+	m_spritesBatch->setupAttributes(spriteLayout, spriteProgram->getGLID());
+	m_spritesBatch->setIndexData(indexData.data(), indexData.size());
+	m_spriteVertexData.resize(maxQuadsPerBatch * verticesPerQuad * spriteLayout.getStride());
+
+	// Tilemap
+
+	VertexLayout tilemapLayout;
+	tilemapLayout.add(VertexAttribute("aPackedXYIndexUV", ShaderAttributeType::UInt));
+	tilemapLayout.add(VertexAttribute("aPackedRGBA", ShaderAttributeType::UInt));
+	m_quadMeshesBatch = std::make_unique<GLMesh>(
+		tilemapLayout.getStride() * verticesPerQuad * maxQuadsPerBatch,
+		quadsIndicesCount
+	);
+
+	auto* tilemapProgram = m_tilemapProgramHandle.getResource();
+	m_quadMeshesBatch->setupAttributes(tilemapLayout, tilemapProgram->getGLID());
+	m_quadMeshesBatch->setIndexData(indexData.data(), indexData.size());
+	m_quadMeshesVertexData.resize(maxQuadsPerBatch * verticesPerQuad * tilemapLayout.getStride());
 }
 
 void GLRenderer2D::setupTextures()
@@ -221,6 +241,9 @@ bool GLRenderer2D::terminate()
 	m_spriteProgramHandle.unwatch();
 	m_spriteProgramHandle.unload();
 
+	m_tilemapProgramHandle.unwatch();
+	m_tilemapProgramHandle.unload();
+
 	m_fallbackTexture.unwatch();
 	m_fallbackTexture.unload();
 
@@ -235,10 +258,10 @@ void GLRenderer2D::clearScreen()
 	GL(glClear(GL_COLOR_BUFFER_BIT));
 }
 
-void GLRenderer2D::drawBatch(uint32_t& quadsCount, uint32_t& bytes, int& drawCalls)
+void GLRenderer2D::drawSpritesBatch(uint32_t& quadsCount, uint32_t& bytes, int& drawCalls)
 {
 	m_spritesBatch->bind();
-	m_spritesBatch->setVertexData(m_spriteBatchVertexData.data(), bytes);
+	m_spritesBatch->setVertexData(m_spriteVertexData.data(), bytes);
 
 	if (m_textureSlotManager.isDirty())
 	{
@@ -271,6 +294,95 @@ void GLRenderer2D::bindTextureToSlot(ID textureID, uint8_t slot)
 
 void GLRenderer2D::render(CameraController& camera)
 {
+	renderSpriteQuads(camera);
+	renderQuadMeshes(camera);
+}
+
+void GLRenderer2D::renderQuadMeshes(CameraController& camera)
+{
+	GLProgram* program = m_tilemapProgramHandle.getResource();
+	program->use();
+	camera.recalculate();
+	program->setUniform("uViewProjection", camera.getViewProjectionMatrix());
+
+	program->setUniform("uWorldTileSize", 0.0045);
+	program->setUniform("uTextureTileSize", 1);
+
+	// TODO: placeholder since textures are currently not supported, setting white tex
+	for (size_t i = 0; i < 32; i++)
+	{
+		m_textureSlotManager.addSlot(i, 0);
+	}
+	auto* tilemapProgram = m_tilemapProgramHandle.getResource();
+	auto mapping = m_textureSlotManager.createTextureMapping(maxTextures);
+	tilemapProgram->setUniform("uTexSlotMap", mapping.data(), maxTextures);
+
+	int drawCalls = 0;
+	int quadBytes = 2 * sizeof(uint32_t); // TODO: refactor in constant
+
+	uint32_t bufferOffset = 0;
+	uint32_t currentMeshVerticesOffset = 0;
+	for (int commandIndex = 0; commandIndex < m_quadMeshesDrawCommands.size();)
+	{
+		int bytesRemainingInBuffer = m_quadMeshesVertexData.size() - bufferOffset;
+		if (bytesRemainingInBuffer == 0)
+		{
+			// Need to flush buffer
+			m_quadMeshesBatch->bind();
+			m_quadMeshesBatch->setVertexData(m_quadMeshesVertexData.data(), bufferOffset);
+			int quadsCount = bufferOffset / quadBytes;
+			m_quadMeshesBatch->draw(quadsCount * 6);
+
+			bufferOffset = 0;
+			bytesRemainingInBuffer = m_quadMeshesVertexData.size();
+		}
+
+		QuadMesh& command = m_quadMeshesDrawCommands[commandIndex];
+		int bytesRemainingInCommand = command.Vertices.size() * sizeof(float) - currentMeshVerticesOffset;
+
+		bool fitIntoBuffer = bytesRemainingInBuffer >= bytesRemainingInCommand;
+		int bytesNeedCopying = bytesRemainingInCommand;
+		if (!fitIntoBuffer)
+		{
+			// Overflowing buffer, command is processed in multiple batches
+			// Need to round down to nearest quad, we only split into multiple of quads!
+			// This limitation exists because indices are static per batch, no point in spliting per triangle.
+			// Spliting into less vertices than a triangle creates artifacts!
+			bytesNeedCopying = (bytesRemainingInBuffer / quadBytes) * quadBytes;
+		}
+
+		memcpy(m_quadMeshesVertexData.data() + bufferOffset, command.Vertices.data() + currentMeshVerticesOffset / sizeof(float), bytesNeedCopying);
+		bufferOffset += bytesNeedCopying;
+		if (fitIntoBuffer)
+		{
+			currentMeshVerticesOffset = 0;
+			commandIndex++;
+		}
+		else
+		{
+			currentMeshVerticesOffset += bytesNeedCopying;
+		}
+	}
+
+	if (bufferOffset > 0)
+	{
+		// Need to flush buffer
+		m_quadMeshesBatch->bind();
+		m_quadMeshesBatch->setVertexData(m_quadMeshesVertexData.data(), bufferOffset);
+		int quadsCount = bufferOffset / quadBytes;
+		m_quadMeshesBatch->draw(quadsCount * 6);
+	}
+
+	m_quadMeshesDrawCommands.clear();
+}
+
+void GLRenderer2D::renderSpriteQuads(CameraController& camera)
+{
+	GLProgram* program = m_spriteProgramHandle.getResource();
+	program->use();
+	camera.recalculate();
+	program->setUniform("uViewProjection", camera.getViewProjectionMatrix());
+
 	int drawCalls = 0;
 
 	uint32_t vertexPos = 0;
@@ -279,13 +391,6 @@ void GLRenderer2D::render(CameraController& camera)
 	uint8_t previousTextureSlot = 0;
 	ID previousTextureID = 0;
 	bool firstFrame = true;
-
-	// TODO: supoprt draw commands that dont use this program.
-	// In the future, we may need to bind a shader based on the batched draw commands.
-	GLProgram* program =  m_spriteProgramHandle.getResource();
-	program->use();
-	camera.recalculate();
-	program->setUniform("uViewProjection", camera.getViewProjectionMatrix());
 
 	m_textureSlotManager.makeDisabled();
 
@@ -327,7 +432,7 @@ void GLRenderer2D::render(CameraController& camera)
 
 		bool maxQuadsReached = quadsCount == maxQuadsPerBatch;
 		bool shouldFlush = maxQuadsReached || batchTextureSlotChange;
-		if (shouldFlush) drawBatch(quadsCount, vertexPos, drawCalls);
+		if (shouldFlush) drawSpritesBatch(quadsCount, vertexPos, drawCalls);
 		if (newSlotAdded)
 		{
 			// Change slot state after drawing potentional batch so mapping is correct
@@ -337,7 +442,7 @@ void GLRenderer2D::render(CameraController& camera)
 
 		auto vertices = makeSpriteQuadVertices(command.TransformComp, command.SpriteComp);
 		int verticesSizeInBytes = vertices.size() * sizeof(float);
-		memcpy(m_spriteBatchVertexData.data() + vertexPos, vertices.data(), verticesSizeInBytes);
+		memcpy(m_spriteVertexData.data() + vertexPos, vertices.data(), verticesSizeInBytes);
 		vertexPos += verticesSizeInBytes;
 		quadsCount++;
 		m_textureSlotManager.incrementSlotCounter(textureSlot);
@@ -348,7 +453,7 @@ void GLRenderer2D::render(CameraController& camera)
 	}
 
 	// Render last remaining batch if it contains data
-	if(quadsCount) drawBatch(quadsCount, vertexPos, drawCalls);
+	if (quadsCount) drawSpritesBatch(quadsCount, vertexPos, drawCalls);
 
 	//LOG_INFO("DrawCalls: {}", drawCalls);
 	m_spriteDrawCommands.clear();

@@ -10,7 +10,8 @@ namespace Engine {
 
 struct TilemapMesh
 {
-	std::vector<float> vertices;
+	std::vector<uint32_t> vertices;
+	ID textureID;
 	bool isDirty = true;
 };
 
@@ -18,39 +19,46 @@ class TilemapRenderSystem : public ISystem {
 public:
 	TilemapRenderSystem(std::shared_ptr<Renderer2D> renderer2D) : m_renderer2D(renderer2D) {}
 
-	std::vector<float> makeMesh(TilemapComponent* tilemapComp, TransformComponent* transformComp)
+	void makeMesh(TilemapMesh& mesh, TilemapComponent* tilemapComp, TransformComponent* transformComp)
 	{
-		std::vector<float> vertices;
+		mesh.vertices.clear();
+		mesh.textureID = tilemapComp->atlasID;
 		for (size_t y = 0; y < tilemapComp->height; y++)
 		{
 			for (size_t x = 0; x < tilemapComp->width; x++)
 			{
 				Tile& tile = tilemapComp->getTile(x, y);
-				tile.transform.Position = glm::vec2(
-					transformComp->Position.x + x * tilemapComp->tileSize,
-					transformComp->Position.y + y * tilemapComp->tileSize
-				);
-				tile.transform.Size = glm::vec2(tilemapComp->tileSize, tilemapComp->tileSize);
 
-				auto quadVerts = makeSpriteQuadVertices(&tile.transform, &tile.sprite);
-				vertices.insert(vertices.end(), quadVerts.begin(), quadVerts.end());
+				auto quadVerts = makePackedTilemapQuad(
+					x,
+					y,
+					tile.uIndex,
+					tile.vIndex,
+					tile.Color
+				);
+				mesh.vertices.insert(mesh.vertices.end(), quadVerts.begin(), quadVerts.end());
 			}
 		}
 
-		return vertices;
+		mesh.isDirty = false;
 	}
 
 	virtual void update(float deltaTime) override
 	{
 		auto& activeWorld = getSceneManager()->getActiveScene()->getWorld();
 		activeWorld.query<TilemapComponent, TransformComponent>().each([this](ID entityID, TilemapComponent* tilemapComp, TransformComponent* transformComp) {
-			// If the tilemap mesh is dirty or not found, create or update it
-			TilemapMesh& tilemapMesh = m_tilemapMeshes[entityID];
+			auto it = m_tilemapMeshes.find(entityID);
+			if (it == m_tilemapMeshes.end()) {
+				it = m_tilemapMeshes.emplace(entityID, TilemapMesh{ {}, 0, true}).first;
+			}
+			TilemapMesh& tilemapMesh = it->second;
 			if(tilemapMesh.isDirty)
 			{
-				tilemapMesh.vertices = makeMesh(tilemapComp, transformComp);
-				tilemapMesh.isDirty = false;
-			}		
+				makeMesh(tilemapMesh, tilemapComp, transformComp);
+			}
+
+			uint8_t quadsCount = tilemapComp->height * tilemapComp->width;
+			m_renderer2D->drawQuadMesh(QuadMesh{ tilemapMesh.vertices, tilemapMesh.textureID });
 		});
 	}
 

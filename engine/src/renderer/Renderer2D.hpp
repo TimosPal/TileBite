@@ -26,12 +26,18 @@ public:
 		m_spriteDrawCommands.emplace_back(std::move(spriteQuad));
 	}
 
+	void drawQuadMesh(QuadMesh&& quadMesh)
+	{
+		m_quadMeshesDrawCommands.emplace_back(std::move(quadMesh));
+	}
+
 	virtual void setViewportSize(uint32_t width, uint32_t height) {}
 
 	static std::unique_ptr<Renderer2D> createRenderer2D(SystemResourceHub& systemResourceHub);
 
 protected:
 	std::vector<SpriteQuad> m_spriteDrawCommands;
+	std::vector<QuadMesh> m_quadMeshesDrawCommands;
 
 	TextureSlotManager m_textureSlotManager;
 };
