@@ -31,17 +31,14 @@ struct Tile {
 };
 
 struct TilemapComponent {
-    int width;
-    int height;
-	float worldTileSize;
-	float atlasTileSize;
-    std::vector<Tile>* tiles; // Flattened 1D array: tiles[y * width + x]
-	ID atlasID = 0;
+    int Width;
+    int Height;
+	float WorldTileSize;
+	float AtlasTileSize;
 
-    // Helper to get tile at (x, y)
-    inline Tile& getTile(int x, int y) {
-        return tiles->at(y * width + x);
-    }
+	// TODO: use handler ID to avoid pointers, probably safer (?)
+    std::vector<uint32_t>* Vertices;
+	ID AtlasID = 0;
 };
 
 } // Engine

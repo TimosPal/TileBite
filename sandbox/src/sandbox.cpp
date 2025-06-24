@@ -286,16 +286,16 @@ class Scene2 : public Scene {
                 tile.Color = glm::u8vec4(rngCol * 255.0f);
             }
         }
-        m_tilemapHandle = getAssetsManager()->createTilemap("tileMapResource", tiles);
+        m_tilemapHandle = getAssetsManager()->createTilemap("tileMapResource", tiles, {tilemapWidth, tilemapHeight});
 
         ID tilemap = getWorld().createEntity();
         TilemapComponent tilemapComp;
-        tilemapComp.width = tilemapWidth;
-        tilemapComp.height = tilemapHeight;
-        tilemapComp.atlasTileSize = 1;
-        tilemapComp.worldTileSize = 1;
-        tilemapComp.atlasID = 0;
-        tilemapComp.tiles = &m_tilemapHandle.getResource()->getData();
+        tilemapComp.Width = tilemapWidth;
+        tilemapComp.Height = tilemapHeight;
+        tilemapComp.AtlasTileSize = 1;
+        tilemapComp.WorldTileSize = 1;
+        tilemapComp.AtlasID = 0;
+        tilemapComp.Vertices = &m_tilemapHandle.getResource()->getData();
 
         getWorld().addComponents(
             tilemap,
@@ -310,8 +310,8 @@ public:
 
     void onAttach() override
     {
-        auto scene = getSceneManager().createScene<Scene1>("Scene1");
-        //auto scene = getSceneManager().createScene<Scene2>("Scene2");
+        //auto scene = getSceneManager().createScene<Scene1>("Scene1");
+        auto scene = getSceneManager().createScene<Scene2>("Scene2");
         getSceneManager().setActiveScene(scene);
     }
 };

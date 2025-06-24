@@ -338,7 +338,7 @@ void GLRenderer2D::renderQuadMeshes(CameraController& camera)
 		}
 
 		QuadMesh& command = m_quadMeshesDrawCommands[commandIndex];
-		int bytesRemainingInCommand = command.Vertices.size() * sizeof(float) - currentMeshVerticesOffset;
+		int bytesRemainingInCommand = command.Vertices->size() * sizeof(float) - currentMeshVerticesOffset;
 
 		bool fitIntoBuffer = bytesRemainingInBuffer >= bytesRemainingInCommand;
 		int bytesNeedCopying = bytesRemainingInCommand;
@@ -351,7 +351,7 @@ void GLRenderer2D::renderQuadMeshes(CameraController& camera)
 			bytesNeedCopying = (bytesRemainingInBuffer / quadBytes) * quadBytes;
 		}
 
-		memcpy(m_quadMeshesVertexData.data() + bufferOffset, command.Vertices.data() + currentMeshVerticesOffset / sizeof(float), bytesNeedCopying);
+		memcpy(m_quadMeshesVertexData.data() + bufferOffset, command.Vertices->data() + currentMeshVerticesOffset / sizeof(float), bytesNeedCopying);
 		bufferOffset += bytesNeedCopying;
 		if (fitIntoBuffer)
 		{

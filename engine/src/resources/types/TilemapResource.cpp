@@ -1,12 +1,32 @@
 #include "resources/types/TilemapResource.hpp"
 
+#include "utilities/misc.hpp"
+
 namespace Engine {
 
-TilemapResource::TilemapResource(const std::string& resourceName, std::vector<Tile>& tiles)
+TilemapResource::TilemapResource(const std::string& resourceName, std::vector<Tile>& tiles, glm::vec2 dimensions)
 	: 
-    Resource(resourceName, true),
-    m_tiles(tiles)
-{}
+    Resource(resourceName, true)
+{
+	for (size_t y = 0; y < dimensions.y; y++)
+	{
+		for (size_t x = 0; x < dimensions.x; x++)
+		{
+			Tile& tile = tiles[y * dimensions.y + x];
+
+			auto quadVerts = makePackedTilemapQuad(
+				x,
+				y,
+				tile.uIndex,
+				tile.vIndex,
+				tile.Color
+			);
+			m_vertices.insert(m_vertices.end(), quadVerts.begin(), quadVerts.end());
+		}
+	}
+
+	m_isDirty = false;
+}
 
 bool TilemapResource::createImplementation()
 {

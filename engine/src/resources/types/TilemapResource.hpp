@@ -9,9 +9,9 @@ namespace Engine {
 class TilemapResource : public Resource<TilemapResource> {
 	SETUP_ID(Resource, TilemapResource)
 public:
-	TilemapResource(const std::string& resourceName, std::vector<Tile>& tiles);
+	TilemapResource(const std::string& resourceName, std::vector<Tile>& tiles, glm::vec2 dimensions);
 
-	std::vector<Tile>& getData() { return m_tiles; }
+	std::vector<uint32_t>& getData() { return m_vertices; }
 	virtual bool isValid() override;
 
 	TilemapResource(TilemapResource&&) noexcept = default;
@@ -22,7 +22,8 @@ private:
 	virtual bool createImplementation() override;
 	virtual bool destroyImplementation() override;
 
-	std::vector<Tile> m_tiles;
+	std::vector<uint32_t> m_vertices;
+	bool m_isDirty;
 };
 
 } // Engine

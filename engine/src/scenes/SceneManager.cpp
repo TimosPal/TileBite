@@ -8,8 +8,7 @@ bool SceneManager::setActiveScene(const std::string& name)
 	auto it = m_scenes.find(name);
 	if (it != m_scenes.end())
 	{
-		m_activeScene = it->second;
-		return true;
+		return setActiveScene(it->second);
 	}
 	else
 	{

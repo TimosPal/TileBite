@@ -14,7 +14,7 @@ struct SpriteQuad {
 };
 
 struct QuadMesh {
-	std::vector<uint32_t>& Vertices;
+	std::vector<uint32_t>* Vertices;
 	ID AtlasID;
 };
 
