@@ -7,6 +7,8 @@
 
 namespace Engine {
 
+class TilemapResource;
+
 struct SpriteComponent
 {
 	glm::vec4 Color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -31,14 +33,7 @@ struct Tile {
 };
 
 struct TilemapComponent {
-    int Width;
-    int Height;
-	float WorldTileSize;
-	float AtlasTileSize;
-
-	// TODO: use handler ID to avoid pointers, probably safer (?)
-    std::vector<uint32_t>* Vertices;
-	ID AtlasID = 0;
+	TilemapResource* TilemapResource = nullptr;
 };
 
 } // Engine

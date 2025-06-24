@@ -286,16 +286,11 @@ class Scene2 : public Scene {
                 tile.Color = glm::u8vec4(rngCol * 255.0f);
             }
         }
-        m_tilemapHandle = getAssetsManager()->createTilemapResource("tileMapResource", tiles, {tilemapWidth, tilemapHeight});
+        m_tilemapHandle = getAssetsManager()->createTilemapResource("tileMapResource", tiles, {tilemapWidth, tilemapHeight}, 1, 1, 0);
 
         ID tilemap = getWorld().createEntity();
         TilemapComponent tilemapComp;
-        tilemapComp.Width = tilemapWidth;
-        tilemapComp.Height = tilemapHeight;
-        tilemapComp.AtlasTileSize = 1;
-        tilemapComp.WorldTileSize = 1;
-        tilemapComp.AtlasID = 0;
-        tilemapComp.Vertices = &m_tilemapHandle.getResource()->getData();
+        tilemapComp.TilemapResource = m_tilemapHandle.getResource();
 
         getWorld().addComponents(
             tilemap,

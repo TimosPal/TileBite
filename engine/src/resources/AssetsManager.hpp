@@ -39,10 +39,10 @@ public:
 		return m_gpuAssets->getTextureResource(resourceName + "Texture");
 	}
 
-	ResourceHandle<TilemapResource> createTilemapResource(std::string resourceName, std::vector<Tile> tiles, glm::vec2 dimensions)
+	ResourceHandle<TilemapResource> createTilemapResource(std::string resourceName, std::vector<Tile> tiles, glm::vec2 dimensions, float tileSize, float atlasSize, ID atladID)
 	{
 		auto tilemapHandle = m_resourceHub->getManager<TilemapResource>().addResource(
-			TilemapResource(resourceName, tiles, dimensions)
+			TilemapResource(resourceName, tiles, dimensions, tileSize, atlasSize, atladID)
 		);
 
 		return tilemapHandle;
@@ -51,6 +51,11 @@ public:
 	ResourceHandle<TilemapResource> getTilemapResource(std::string resourceName)
 	{
 		return m_resourceHub->getManager<TilemapResource>().getResource(resourceName);
+	}
+
+	ResourceHandle<TilemapResource> getTilemapResource(ID resourceID)
+	{
+		return m_resourceHub->getManager<TilemapResource>().getResource(resourceID);
 	}
 
 private:
