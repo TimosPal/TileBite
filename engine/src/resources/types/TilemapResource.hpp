@@ -22,7 +22,7 @@ public:
 	float getWorldTileSize() const { return m_worldTileSize; }
 	float getAtlasTileSize() const { return m_atlasTileSize; }
 	ID getAtlasID() const { return m_atlasID; }
-	bool isDirty() const { return m_isDirty; }
+	bool& GetIsDirty() { return m_isDirty; }
 
 	TilemapResource(TilemapResource&&) noexcept = default;
 	TilemapResource& operator=(TilemapResource&&) noexcept = default;

@@ -25,7 +25,7 @@ TilemapResource::TilemapResource(const std::string& resourceName, std::vector<Ti
 		}
 	}
 
-	m_isDirty = false;
+	m_isDirty = true;
 }
 
 bool TilemapResource::createImplementation()

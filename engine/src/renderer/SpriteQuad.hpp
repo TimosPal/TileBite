@@ -16,6 +16,7 @@ struct SpriteQuad {
 struct QuadMesh {
 	std::vector<uint32_t>* Vertices;
 	ID AtlasID;
+	bool& IsDirty;
 };
 
 } // Engine

@@ -362,6 +362,8 @@ void GLRenderer2D::renderQuadMeshes(CameraController& camera)
 		{
 			currentMeshVerticesOffset += bytesNeedCopying;
 		}
+
+		command.IsDirty = false; // If tilemap is processed then mark as not dirty.
 	}
 
 	if (bufferOffset > 0)
