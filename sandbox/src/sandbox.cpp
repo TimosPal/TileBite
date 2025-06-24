@@ -254,8 +254,8 @@ class Scene2 : public Scene {
         auto cameraController = std::make_shared<CameraController>(-1.0f, 1.0f, -1.0f, 1.0f);
         setCameraController(cameraController);
 
-        m_ballHandle = getAssetsManager()->getTexture("ball");
-        m_beeHandle = getAssetsManager()->getTexture("bee");
+        m_ballHandle = getAssetsManager()->getTextureResource("ball");
+        m_beeHandle = getAssetsManager()->getTextureResource("bee");
         
         m_ballHandle->watch();
         m_ballHandle->load();
@@ -286,7 +286,7 @@ class Scene2 : public Scene {
                 tile.Color = glm::u8vec4(rngCol * 255.0f);
             }
         }
-        m_tilemapHandle = getAssetsManager()->createTilemap("tileMapResource", tiles, {tilemapWidth, tilemapHeight});
+        m_tilemapHandle = getAssetsManager()->createTilemapResource("tileMapResource", tiles, {tilemapWidth, tilemapHeight});
 
         ID tilemap = getWorld().createEntity();
         TilemapComponent tilemapComp;
@@ -321,8 +321,8 @@ class MyApp : public Engine::EngineApp {
 
     void setup() override
     {
-        getAssetsManager().createTexture("bee", std::string(ResourcePaths::ImagesDir) + "./bee.png");
-        getAssetsManager().createTexture("ball", std::string(ResourcePaths::ImagesDir) + "./ball.png");
+        getAssetsManager().createTextureResource("bee", std::string(ResourcePaths::ImagesDir) + "./bee.png");
+        getAssetsManager().createTextureResource("ball", std::string(ResourcePaths::ImagesDir) + "./ball.png");
 
         pushLayer(std::make_unique<GameLayer>());
     }

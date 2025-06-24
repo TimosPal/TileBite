@@ -12,8 +12,8 @@ public:
 
 	void makeTexturePersistent(std::string resourceName) override;
 
-	std::unique_ptr<IResourceHandle> getTexture(std::string resourceName) override;
-	std::unique_ptr<IResourceHandle> createTexture(std::string resourceName, ResourceHandle<ImageResource>&& imageHandle) override;
+	std::unique_ptr<IResourceHandle> getTextureResource(std::string resourceName) override;
+	std::unique_ptr<IResourceHandle> createTextureResource(std::string resourceName, ResourceHandle<ImageResource>&& imageHandle) override;
 	
 	void clear();
 

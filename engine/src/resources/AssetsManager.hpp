@@ -24,22 +24,22 @@ public:
 		m_gpuAssets = gpuAssets;
 	}
 
-	std::unique_ptr<IResourceHandle> createTexture(std::string resourceName, std::string path)
+	std::unique_ptr<IResourceHandle> createTextureResource(std::string resourceName, std::string path)
 	{
 		// TODO: Split into createImage if needed. (Avoids custom internal Texture sub string)
 		auto imageHandle = m_resourceHub->getManager<ImageResource>().addResource(
 			ImageResource(resourceName, path)
 		);
 		
-		return m_gpuAssets->createTexture(resourceName + "Texture", std::move(imageHandle));
+		return m_gpuAssets->createTextureResource(resourceName + "Texture", std::move(imageHandle));
 	}
 
-	std::unique_ptr<IResourceHandle> getTexture(std::string resourceName)
+	std::unique_ptr<IResourceHandle> getTextureResource(std::string resourceName)
 	{
-		return m_gpuAssets->getTexture(resourceName + "Texture");
+		return m_gpuAssets->getTextureResource(resourceName + "Texture");
 	}
 
-	ResourceHandle<TilemapResource> createTilemap(std::string resourceName, std::vector<Tile> tiles, glm::vec2 dimensions)
+	ResourceHandle<TilemapResource> createTilemapResource(std::string resourceName, std::vector<Tile> tiles, glm::vec2 dimensions)
 	{
 		auto tilemapHandle = m_resourceHub->getManager<TilemapResource>().addResource(
 			TilemapResource(resourceName, tiles, dimensions)
@@ -48,7 +48,7 @@ public:
 		return tilemapHandle;
 	}
 
-	ResourceHandle<TilemapResource> getTilemap(std::string resourceName)
+	ResourceHandle<TilemapResource> getTilemapResource(std::string resourceName)
 	{
 		return m_resourceHub->getManager<TilemapResource>().getResource(resourceName);
 	}

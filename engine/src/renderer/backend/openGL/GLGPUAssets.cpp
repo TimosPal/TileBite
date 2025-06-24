@@ -17,12 +17,12 @@ void GLGPUAssets::makeTexturePersistent(std::string resourceName)
 	m_persistentTextureHandles.emplace_back(std::move(handle));
 }
 
-std::unique_ptr<IResourceHandle> GLGPUAssets::getTexture(std::string resourceName)
+std::unique_ptr<IResourceHandle> GLGPUAssets::getTextureResource(std::string resourceName)
 {
 	return std::make_unique<ResourceHandle<GLTexture>>(m_resourceHub.getManager<GLTexture>().getResource(resourceName));
 }
 
-std::unique_ptr<IResourceHandle> GLGPUAssets::createTexture(std::string resourceName, ResourceHandle<ImageResource>&& imageHandle)
+std::unique_ptr<IResourceHandle> GLGPUAssets::createTextureResource(std::string resourceName, ResourceHandle<ImageResource>&& imageHandle)
 {
 	auto glTextureHandle = m_resourceHub.getManager<GLTexture>().addResource(
 		GLTexture(resourceName, std::move(imageHandle))
