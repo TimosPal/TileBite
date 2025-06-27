@@ -130,6 +130,10 @@ inline std::array<uint32_t, 8> makePackedTilemapQuad(
 	};
 }
 
+inline float quickRandFloat(float min = -1.0f, float max = 1.0f) {
+	return min + (max - min) * (rand() / float(RAND_MAX));
+}
+
 } // Engine
 
 #endif // !MISC_HPP

@@ -1,14 +1,9 @@
-﻿# Recursively find all .cpp and .hpp files in src directory
-file(GLOB_RECURSE SANDBOX_SOURCES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
-file(GLOB_RECURSE SANDBOX_HEADERS CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp)
+﻿function(add_game_demo DEMO_NAME DEMO_SRC)
+    add_executable(${DEMO_NAME} ${DEMO_SRC})
+    target_link_libraries(${DEMO_NAME} GameEngine)
+    target_include_directories(${DEMO_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/engine/include)
+endfunction()
 
-# Make sure the engine is added before building the app
-add_executable(Sandbox ${SANDBOX_SOURCES} ${SANDBOX_HEADERS})
-
-# Link the app with the GameEngine library
-target_link_libraries(Sandbox GameEngine)
-
-# Include the engine headers
-target_include_directories(Sandbox PRIVATE
-    ${CMAKE_SOURCE_DIR}/engine/include
-)
+add_game_demo(Sandbox       ${CMAKE_CURRENT_SOURCE_DIR}/src/sandbox.cpp)
+add_game_demo(SnakeDemo     ${CMAKE_CURRENT_SOURCE_DIR}/src/snakeDemo.cpp)
+add_game_demo(TilemapDemo   ${CMAKE_CURRENT_SOURCE_DIR}/src/tilemapDemo.cpp)

@@ -302,6 +302,7 @@ void GLRenderer2D::renderQuadMeshes(CameraController& camera)
 	program->setUniform("uTexSlotMap", mapping.data(), maxTextures);
 
 	int drawCalls = 0;
+	int quadsCount = 255 * 255;
 	for (const auto& command : m_quadMeshesDrawCommands)
 	{
 		ID meshID = command.MeshID;
@@ -311,12 +312,12 @@ void GLRenderer2D::renderQuadMeshes(CameraController& camera)
 			tilemapLayout.add(VertexAttribute("aPackedXYIndexUV", ShaderAttributeType::UInt));
 			tilemapLayout.add(VertexAttribute("aPackedRGBA", ShaderAttributeType::UInt));
 			it->second = std::make_unique<GLMesh>(
-				tilemapLayout.getStride() * verticesPerQuad * 255 * 255,
-				6 * 255 * 255 // max quads per batch * indices per quad
+				tilemapLayout.getStride() * verticesPerQuad * quadsCount,
+				6 * quadsCount // max quads per batch * indices per quad
 			);
 
-			std::vector<uint32_t> indexData(255 * 255 * 6);
-			for (size_t i = 0; i < 255 * 255; ++i)
+			std::vector<uint32_t> indexData(quadsCount * 6);
+			for (size_t i = 0; i < quadsCount; ++i)
 			{
 				uint32_t offset = i * verticesPerQuad;
 				size_t idx = i * indicesPerQuad;
