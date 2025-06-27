@@ -204,21 +204,6 @@ void GLRenderer2D::setupBuffers()
 	m_spritesBatch->setupAttributes(spriteLayout, spriteProgram->getGLID());
 	m_spritesBatch->setIndexData(indexData.data(), indexData.size());
 	m_spriteVertexData.resize(maxQuadsPerBatch * verticesPerQuad * spriteLayout.getStride());
-
-	// Tilemap
-
-	VertexLayout tilemapLayout;
-	tilemapLayout.add(VertexAttribute("aPackedXYIndexUV", ShaderAttributeType::UInt));
-	tilemapLayout.add(VertexAttribute("aPackedRGBA", ShaderAttributeType::UInt));
-	m_quadMeshesBatch = std::make_unique<GLMesh>(
-		tilemapLayout.getStride() * verticesPerQuad * maxQuadsPerBatch,
-		quadsIndicesCount
-	);
-
-	auto* tilemapProgram = m_tilemapProgramHandle.getResource();
-	m_quadMeshesBatch->setupAttributes(tilemapLayout, tilemapProgram->getGLID());
-	m_quadMeshesBatch->setIndexData(indexData.data(), indexData.size());
-	m_quadMeshesVertexData.resize(maxQuadsPerBatch * verticesPerQuad * tilemapLayout.getStride());
 }
 
 void GLRenderer2D::setupTextures()
@@ -305,7 +290,7 @@ void GLRenderer2D::renderQuadMeshes(CameraController& camera)
 	camera.recalculate();
 	program->setUniform("uViewProjection", camera.getViewProjectionMatrix());
 
-	program->setUniform("uWorldTileSize", 0.0045);
+	program->setUniform("uWorldTileSize", 0.00045);
 	program->setUniform("uTextureTileSize", 1);
 
 	// TODO: placeholder since textures are currently not supported, setting white tex
@@ -313,66 +298,54 @@ void GLRenderer2D::renderQuadMeshes(CameraController& camera)
 	{
 		m_textureSlotManager.addSlot(i, 0);
 	}
-	auto* tilemapProgram = m_tilemapProgramHandle.getResource();
 	auto mapping = m_textureSlotManager.createTextureMapping(maxTextures);
-	tilemapProgram->setUniform("uTexSlotMap", mapping.data(), maxTextures);
+	program->setUniform("uTexSlotMap", mapping.data(), maxTextures);
 
 	int drawCalls = 0;
-	int quadBytes = 2 * sizeof(uint32_t); // TODO: refactor in constant
-
-	uint32_t bufferOffset = 0;
-	uint32_t currentMeshVerticesOffset = 0;
-	for (int commandIndex = 0; commandIndex < m_quadMeshesDrawCommands.size();)
+	for (const auto& command : m_quadMeshesDrawCommands)
 	{
-		int bytesRemainingInBuffer = m_quadMeshesVertexData.size() - bufferOffset;
-		if (bytesRemainingInBuffer == 0)
-		{
-			// Need to flush buffer
-			m_quadMeshesBatch->bind();
-			m_quadMeshesBatch->setVertexData(m_quadMeshesVertexData.data(), bufferOffset);
-			int quadsCount = bufferOffset / quadBytes;
-			m_quadMeshesBatch->draw(quadsCount * 6);
+		ID meshID = command.MeshID;
+		auto [it, inserted] = m_tilemapBuffers.try_emplace(meshID, nullptr);
+		if (inserted) {
+			VertexLayout tilemapLayout;
+			tilemapLayout.add(VertexAttribute("aPackedXYIndexUV", ShaderAttributeType::UInt));
+			tilemapLayout.add(VertexAttribute("aPackedRGBA", ShaderAttributeType::UInt));
+			it->second = std::make_unique<GLMesh>(
+				tilemapLayout.getStride() * verticesPerQuad * 255 * 255,
+				6 * 255 * 255 // max quads per batch * indices per quad
+			);
 
-			bufferOffset = 0;
-			bytesRemainingInBuffer = m_quadMeshesVertexData.size();
+			std::vector<uint32_t> indexData(255 * 255 * 6);
+			for (size_t i = 0; i < 255 * 255; ++i)
+			{
+				uint32_t offset = i * verticesPerQuad;
+				size_t idx = i * indicesPerQuad;
+
+				indexData[idx + 0] = offset + 0;
+				indexData[idx + 1] = offset + 1;
+				indexData[idx + 2] = offset + 2;
+				indexData[idx + 3] = offset + 2;
+				indexData[idx + 4] = offset + 3;
+				indexData[idx + 5] = offset + 0;
+			}
+
+			auto* tilemapProgram = m_tilemapProgramHandle.getResource();
+			it->second->setupAttributes(tilemapLayout, tilemapProgram->getGLID());
+			it->second->setIndexData(indexData.data(), indexData.size());
 		}
 
-		QuadMesh& command = m_quadMeshesDrawCommands[commandIndex];
-		int bytesRemainingInCommand = command.Vertices->size() * sizeof(float) - currentMeshVerticesOffset;
-
-		bool fitIntoBuffer = bytesRemainingInBuffer >= bytesRemainingInCommand;
-		int bytesNeedCopying = bytesRemainingInCommand;
-		if (!fitIntoBuffer)
+		auto& mesh = it->second;
+		if (command.IsDirty)
 		{
-			// Overflowing buffer, command is processed in multiple batches
-			// Need to round down to nearest quad, we only split into multiple of quads!
-			// This limitation exists because indices are static per batch, no point in spliting per triangle.
-			// Spliting into less vertices than a triangle creates artifacts!
-			bytesNeedCopying = (bytesRemainingInBuffer / quadBytes) * quadBytes;
+			mesh->setVertexData(command.Vertices->data(), command.Vertices->size() * sizeof(uint32_t));
+			command.IsDirty = false;
 		}
 
-		memcpy(m_quadMeshesVertexData.data() + bufferOffset, command.Vertices->data() + currentMeshVerticesOffset / sizeof(float), bytesNeedCopying);
-		bufferOffset += bytesNeedCopying;
-		if (fitIntoBuffer)
-		{
-			currentMeshVerticesOffset = 0;
-			commandIndex++;
-		}
-		else
-		{
-			currentMeshVerticesOffset += bytesNeedCopying;
-		}
-
-		command.IsDirty = false; // If tilemap is processed then mark as not dirty.
-	}
-
-	if (bufferOffset > 0)
-	{
-		// Need to flush buffer
-		m_quadMeshesBatch->bind();
-		m_quadMeshesBatch->setVertexData(m_quadMeshesVertexData.data(), bufferOffset);
-		int quadsCount = bufferOffset / quadBytes;
-		m_quadMeshesBatch->draw(quadsCount * 6);
+		mesh->bind();
+		program->setUniform("offset", command.Offset);
+		mesh->draw(255 * 255 * 6);
+		
+		drawCalls++;
 	}
 
 	m_quadMeshesDrawCommands.clear();

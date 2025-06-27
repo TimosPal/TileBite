@@ -269,34 +269,47 @@ class Scene2 : public Scene {
             4
         };
 
-        int tilemapHeight = 255;
-        int tilemapWidth = 255;
-        std::vector<Tile> tiles;
-        tiles.resize(tilemapHeight * tilemapWidth);
-        for (size_t y = 0; y < tilemapHeight; y++)
+        float posX = -1;
+		float posY = -1;
+        for (size_t i = 0; i < 10; i++)
         {
-            for (size_t x = 0; x < tilemapWidth; x++)
-            {  
-                Tile& tile = tiles[y * tilemapWidth + x];
+            for (size_t j = 0; j < 10; j++)
+            {
+                int tilemapHeight = 255;
+                int tilemapWidth = 255;
+                std::vector<Tile> tiles;
+                tiles.resize(tilemapHeight * tilemapWidth);
+                for (size_t y = 0; y < tilemapHeight; y++)
+                {
+                    for (size_t x = 0; x < tilemapWidth; x++)
+                    {
+                        Tile& tile = tiles[y * tilemapWidth + x];
 
-                //ID texID = texIDs[int(quickRandFloat(0.0f, 3.9f))];
-                auto rngCol = glm::vec4(quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), 1.0f);
-                tile.uIndex = 0;
-                tile.vIndex = 0;
-                tile.Color = glm::u8vec4(rngCol * 255.0f);
+                        //ID texID = texIDs[int(quickRandFloat(0.0f, 3.9f))];
+                        auto rngCol = glm::vec4(quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), 1.0f);
+                        tile.uIndex = 0;
+                        tile.vIndex = 0;
+                        tile.Color = glm::u8vec4(rngCol * 255.0f);
+                    }
+                }
+				std::string resourceName = "tileMapResource_" + std::to_string(i) + "_" + std::to_string(j);
+                m_tilemapHandle = getAssetsManager()->createTilemapResource(resourceName, tiles, { tilemapWidth, tilemapHeight }, 1, 1, 0);
+
+                ID tilemap = getWorld().createEntity();
+                TilemapComponent tilemapComp;
+                tilemapComp.TilemapResource = m_tilemapHandle.getResource();
+
+                getWorld().addComponents(
+                    tilemap,
+                    TransformComponent{ glm::vec2(posX, posY), glm::vec2(1, 1) },
+                    std::move(tilemapComp)
+                );
+
+                posX += 0.15f;
             }
+			posX = -1;
+			posY += 0.15f;
         }
-        m_tilemapHandle = getAssetsManager()->createTilemapResource("tileMapResource", tiles, {tilemapWidth, tilemapHeight}, 1, 1, 0);
-
-        ID tilemap = getWorld().createEntity();
-        TilemapComponent tilemapComp;
-        tilemapComp.TilemapResource = m_tilemapHandle.getResource();
-
-        getWorld().addComponents(
-            tilemap,
-            TransformComponent{ glm::vec2(-1, -1), glm::vec2(1, 1) },
-            std::move(tilemapComp)
-        );
     }
 };
 

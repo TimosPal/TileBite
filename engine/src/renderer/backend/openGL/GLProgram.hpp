@@ -27,6 +27,7 @@ public:
 	void setUniform(const std::string& name, int* values, size_t count);
 	void setUniform(const std::string& name, const glm::mat4& matrix);
 	void setUniform(const std::string& name, float value);
+	void setUniform(const std::string& name, const glm::vec2& vec);
 
 	GLProgram(GLProgram&&) noexcept = default;
 	GLProgram& operator=(GLProgram&&) noexcept = default;

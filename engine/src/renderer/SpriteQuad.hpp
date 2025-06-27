@@ -17,6 +17,8 @@ struct QuadMesh {
 	std::vector<uint32_t>* Vertices;
 	ID AtlasID;
 	bool& IsDirty;
+	ID MeshID;
+	glm::vec2 Offset;
 };
 
 } // Engine

@@ -8,6 +8,8 @@ uniform mat4 uViewProjection;
 uniform float uWorldTileSize;
 uniform float uTextureTileSize;
 
+uniform vec2 offset;
+
 out vec4 vColor;
 out vec2 vUV;
 out float vTextureIndex;
@@ -44,7 +46,7 @@ void main()
     vec2 uvIndex = unpackUV(aPackedXYIndexUV);        // Tile UV index in atlas
 
     // World position in tilemap
-    vec2 worldPosXY = tileIndex * float(uWorldTileSize);
+    vec2 worldPosXY = tileIndex * float(uWorldTileSize) + offset;
     vec4 worldPos = vec4(worldPosXY, 0.0, 1.0);
     gl_Position = uViewProjection * worldPos;
 

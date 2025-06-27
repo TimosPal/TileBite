@@ -34,10 +34,10 @@ private:
 	GLResourceHub m_resourceHub;
 	GLGPUAssets m_gpuAssets;
 
+	std::unordered_map<ID, std::unique_ptr<GLMesh>> m_tilemapBuffers;
+
 	std::unique_ptr<GLMesh> m_spritesBatch;
-	std::unique_ptr<GLMesh> m_quadMeshesBatch;
 	std::vector<uint8_t> m_spriteVertexData;
-	std::vector<uint8_t> m_quadMeshesVertexData;
 
 	ResourceHandle<GLProgram> m_spriteProgramHandle;
 	ResourceHandle<GLProgram> m_tilemapProgramHandle;

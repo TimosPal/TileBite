@@ -20,7 +20,12 @@ public:
 			auto resource = tilemapComp->TilemapResource;
 			auto& vertices = resource->getData();
 			uint8_t quadsCount = resource->getWidth() * resource->getHeight();
-			m_renderer2D->drawQuadMesh(QuadMesh{ &vertices, resource->getAtlasID(), resource->GetIsDirty() });
+			m_renderer2D->drawQuadMesh(QuadMesh{
+				&vertices, resource->getAtlasID(),
+				resource->GetIsDirty(),
+				resource->getInstanceID(),
+				transformComp->Position
+			});
 		});
 	}
 

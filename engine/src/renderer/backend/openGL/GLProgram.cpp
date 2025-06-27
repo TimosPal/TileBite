@@ -124,6 +124,13 @@ void GLProgram::setUniform(const std::string& name, float value)
 	GL(glUniform1f(loc, value));
 }
 
+void GLProgram::setUniform(const std::string& name, const glm::vec2& vec)
+{
+	GL(glUseProgram(m_glProgram));
+	GLint loc = getUniformLocation(name);
+	GL(glUniform2fv(loc, 1, &vec[0]));
+}
+
 void GLProgram::use()
 {
 	GL(glUseProgram(m_glProgram));
