@@ -290,7 +290,7 @@ void GLRenderer2D::renderQuadMeshes(CameraController& camera)
 	camera.recalculate();
 	program->setUniform("uViewProjection", camera.getViewProjectionMatrix());
 
-	program->setUniform("uWorldTileSize", 0.00045);
+	program->setUniform("uWorldTileSize", 1);
 	program->setUniform("uTextureTileSize", 1);
 
 	// TODO: placeholder since textures are currently not supported, setting white tex

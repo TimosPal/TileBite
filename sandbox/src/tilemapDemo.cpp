@@ -13,6 +13,17 @@
 
 using namespace Engine;
 
+class CameraSystem : public ISystem {
+public:
+    void update(float deltaTime) override
+    {
+        auto cam = getSceneManager()->getActiveScene()->getCameraController();
+        float zoomSpeed = 1.1f;
+        cam->setZoom(cam->getZoom() / std::pow(zoomSpeed, deltaTime));
+
+    }
+};
+
 class MainScene : public Scene {
     std::unique_ptr<IResourceHandle> m_ballHandle;
     std::unique_ptr<IResourceHandle> m_beeHandle;
@@ -31,6 +42,8 @@ class MainScene : public Scene {
         m_beeHandle->watch();
         m_beeHandle->load();
 
+		addSystem(std::make_unique<CameraSystem>());
+
         ID texIDs[] = {
             m_ballHandle->getID(),
             m_beeHandle->getID(),
@@ -38,11 +51,11 @@ class MainScene : public Scene {
             4
         };
 
-        float posX = -1;
-        float posY = -1;
-        for (size_t i = 0; i < 10; i++)
+        float posX = 0;
+        float posY = 0;
+        for (size_t i = 0; i < 1; i++)
         {
-            for (size_t j = 0; j < 10; j++)
+            for (size_t j = 0; j < 1; j++)
             {
                 int tilemapHeight = 255;
                 int tilemapWidth = 255;

@@ -38,15 +38,15 @@ public:
 	}
 
 	void setZoom(float zoom) {
-		if (zoomLevel != zoom)
-		{
+		if (zoomLevel != zoom) {
 			zoomLevel = zoom;
 			m_isDirty = true;
 
-			float scaledLeft = m_left * zoomLevel;
-			float scaledRight = m_right * zoomLevel;
-			float scaledBottom = m_bottom * zoomLevel;
-			float scaledTop = m_top * zoomLevel;
+			float invZoom = 1.0f / zoomLevel;
+			float scaledLeft = m_left * invZoom;
+			float scaledRight = m_right * invZoom;
+			float scaledBottom = m_bottom * invZoom;
+			float scaledTop = m_top * invZoom;
 
 			m_camera.setProjection(scaledLeft, scaledRight, scaledBottom, scaledTop);
 		}
