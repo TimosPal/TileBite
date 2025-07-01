@@ -5,10 +5,13 @@ layout (location = 0) in uint aPackedXYIndexUV;
 layout (location = 1) in uint aPackedRGBA;
 
 uniform mat4 uViewProjection;
-uniform float uWorldTileSize;
-uniform float uTextureTileSize;
-
 uniform vec2 offset;
+
+uniform vec2 uWorldTileSize;
+
+uniform float uTilemapID;
+uniform vec2 uTextureTileSize;
+uniform vec2 uTilemapDim;
 
 out vec4 vColor;
 out vec2 vUV;
@@ -46,14 +49,13 @@ void main()
     vec2 uvIndex = unpackUV(aPackedXYIndexUV);        // Tile UV index in atlas
 
     // World position in tilemap
-    vec2 worldPosXY = tileIndex * float(uWorldTileSize) + offset;
+    vec2 worldPosXY = tileIndex * uWorldTileSize + offset;
     vec4 worldPos = vec4(worldPosXY, 0.0, 1.0);
     gl_Position = uViewProjection * worldPos;
 
     // Convert tile UV index to normalized texture coordinates
-    vec2 atlasSize = vec2(uTextureTileSize) * 256.0;   // 256 max tile count (from 8-bit packing)
-    vUV = uvIndex * float(uTextureTileSize) / atlasSize;
+    vUV = (uvIndex * uTextureTileSize) / uTilemapDim;
 
     vColor = unpackRGBA(aPackedRGBA);
-    vTextureIndex = 0.0; // Using a single atlas
+    vTextureIndex = uTilemapID; // Using a single atlas
 }

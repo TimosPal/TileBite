@@ -174,22 +174,9 @@ void GLRenderer2D::setupBuffers()
 
 	// When dealing with the quad batch, index data are always the same so we can precompute them and
 	// upload them once.
-	std::vector<uint32_t> indexData(quadsIndicesCount);
-	for (size_t i = 0; i < maxQuadsPerBatch; ++i)
-	{
-		uint32_t offset = i * verticesPerQuad;
-		size_t idx = i * indicesPerQuad;
-
-		indexData[idx + 0] = offset + 0;
-		indexData[idx + 1] = offset + 1;
-		indexData[idx + 2] = offset + 2;
-		indexData[idx + 3] = offset + 2;
-		indexData[idx + 4] = offset + 3;
-		indexData[idx + 5] = offset + 0;
-	}
+	auto indexData = makeIndices(quadsIndicesCount, verticesPerQuad, indicesPerQuad, maxQuadsPerBatch);
 
 	// Sprite
-
 	VertexLayout spriteLayout;
 	spriteLayout.add(VertexAttribute("aPos", ShaderAttributeType::Float2));
 	spriteLayout.add(VertexAttribute("aColor", ShaderAttributeType::Float4));
@@ -290,16 +277,7 @@ void GLRenderer2D::renderQuadMeshes(CameraController& camera)
 	camera.recalculate();
 	program->setUniform("uViewProjection", camera.getViewProjectionMatrix());
 
-	program->setUniform("uWorldTileSize", 1);
-	program->setUniform("uTextureTileSize", 1);
-
-	// TODO: placeholder since textures are currently not supported, setting white tex
-	for (size_t i = 0; i < 32; i++)
-	{
-		m_textureSlotManager.addSlot(i, 0);
-	}
-	auto mapping = m_textureSlotManager.createTextureMapping(maxTextures);
-	program->setUniform("uTexSlotMap", mapping.data(), maxTextures);
+	m_textureSlotManager.makeDisabled();
 
 	int drawCalls = 0;
 	int quadsCount = 255 * 255;
@@ -316,20 +294,7 @@ void GLRenderer2D::renderQuadMeshes(CameraController& camera)
 				6 * quadsCount // max quads per batch * indices per quad
 			);
 
-			std::vector<uint32_t> indexData(quadsCount * 6);
-			for (size_t i = 0; i < quadsCount; ++i)
-			{
-				uint32_t offset = i * verticesPerQuad;
-				size_t idx = i * indicesPerQuad;
-
-				indexData[idx + 0] = offset + 0;
-				indexData[idx + 1] = offset + 1;
-				indexData[idx + 2] = offset + 2;
-				indexData[idx + 3] = offset + 2;
-				indexData[idx + 4] = offset + 3;
-				indexData[idx + 5] = offset + 0;
-			}
-
+			auto indexData = makeIndices(quadsCount * 6, verticesPerQuad, indicesPerQuad, quadsCount);
 			auto* tilemapProgram = m_tilemapProgramHandle.getResource();
 			it->second->setupAttributes(tilemapLayout, tilemapProgram->getGLID());
 			it->second->setIndexData(indexData.data(), indexData.size());
@@ -343,8 +308,26 @@ void GLRenderer2D::renderQuadMeshes(CameraController& camera)
 		}
 
 		mesh->bind();
-		program->setUniform("offset", command.Offset);
-		mesh->draw(255 * 255 * 6);
+
+		bool isAssigned = false;
+		auto textureSlot = m_textureSlotManager.getTextureToSlotID(command.AtlasID, isAssigned);
+		if (!isAssigned)
+		{
+			textureSlot = m_textureSlotManager.getLeastUsedSlot();
+			m_textureSlotManager.addSlot(textureSlot, command.AtlasID);
+			bindTextureToSlot(command.AtlasID, textureSlot);
+
+			auto mapping = m_textureSlotManager.createTextureMapping(maxTextures);
+			program->setUniform("uTexSlotMap", mapping.data(), maxTextures);
+			m_textureSlotManager.setDirty(false);
+		}
+		m_textureSlotManager.incrementSlotCounter(textureSlot);
+
+		program->setUniform("uTilemapID", command.AtlasID);
+		program->setUniform("uTilemapDim", command.TilemapDimensions);
+		program->setUniform("uWorldTileSize", command.WorldTileSize);
+		program->setUniform("uTextureTileSize", command.TilemapDimensions);
+		mesh->draw(quadsCount * 6);
 		
 		drawCalls++;
 	}

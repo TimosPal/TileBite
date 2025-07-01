@@ -12,5 +12,5 @@ out vec4 FragColor;
 void main()
 {
     int slot = uTexSlotMap[int(vTextureIndex)];
-    FragColor = texture(uTextures[slot], vUV) * 0.001 + vColor;
+    FragColor = texture(uTextures[slot], vUV) * vColor;
 }

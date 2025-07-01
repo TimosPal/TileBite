@@ -19,6 +19,9 @@ struct QuadMesh {
 	bool& IsDirty;
 	ID MeshID;
 	glm::vec2 Offset;
+	glm::vec2 AtlasTileSize;
+	glm::vec2 WorldTileSize;
+	glm::vec2 TilemapDimensions;
 };
 
 } // Engine

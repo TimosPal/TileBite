@@ -130,6 +130,25 @@ inline std::array<uint32_t, 8> makePackedTilemapQuad(
 	};
 }
 
+inline std::vector<uint32_t> makeIndices(int indicesCount, int verticesPerQuad, int indicesPerQuad, int quadCount)
+{
+	std::vector<uint32_t> indexData(indicesCount);
+	for (size_t i = 0; i < quadCount; ++i)
+	{
+		uint32_t offset = i * verticesPerQuad;
+		size_t idx = i * indicesPerQuad;
+
+		indexData[idx + 0] = offset + 0;
+		indexData[idx + 1] = offset + 1;
+		indexData[idx + 2] = offset + 2;
+		indexData[idx + 3] = offset + 2;
+		indexData[idx + 4] = offset + 3;
+		indexData[idx + 5] = offset + 0;
+	}
+
+	return indexData;
+}
+
 inline float quickRandFloat(float min = -1.0f, float max = 1.0f) {
 	return min + (max - min) * (rand() / float(RAND_MAX));
 }

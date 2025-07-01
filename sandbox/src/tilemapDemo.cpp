@@ -75,7 +75,8 @@ class MainScene : public Scene {
                     }
                 }
                 std::string resourceName = "tileMapResource_" + std::to_string(i) + "_" + std::to_string(j);
-                m_tilemapHandle = getAssetsManager()->createTilemapResource(resourceName, tiles, { tilemapWidth, tilemapHeight }, 1, 1, 0);
+                // TODO: get width height from IHandle ....
+                m_tilemapHandle = getAssetsManager()->createTilemapResource(resourceName, tiles, { tilemapWidth, tilemapHeight }, { 0.1, 0.1 }, { 100, 100 }, m_ballHandle->getID());
 
                 ID tilemap = getWorld().createEntity();
                 TilemapComponent tilemapComp;

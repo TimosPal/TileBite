@@ -11,7 +11,7 @@ namespace Engine {
 class TilemapResource : public Resource<TilemapResource> {
 	SETUP_ID(Resource, TilemapResource)
 public:
-	TilemapResource(const std::string& resourceName, std::vector<Tile>& tiles, glm::vec2 dimensions, float tileSize, float atlasSize, ID atladID);
+	TilemapResource(const std::string& resourceName, std::vector<Tile>& tiles, glm::vec2 dimensions, glm::vec2 tileSize, glm::vec2 atlasSize, ID atladID);
 
 	std::vector<uint32_t>& getData() { return m_vertices; }
 	virtual bool isValid() override;
@@ -19,8 +19,8 @@ public:
 	// Getters
 	int getWidth() const { return m_width; }
 	int getHeight() const { return m_height; }
-	float getWorldTileSize() const { return m_worldTileSize; }
-	float getAtlasTileSize() const { return m_atlasTileSize; }
+	glm::vec2 getWorldTileSize() const { return m_worldTileSize; }
+	glm::vec2 getAtlasTileSize() const { return m_atlasTileSize; }
 	ID getAtlasID() const { return m_atlasID; }
 	bool& GetIsDirty() { return m_isDirty; }
 
@@ -34,8 +34,8 @@ private:
 
 	int m_width;
 	int m_height;
-	float m_worldTileSize;
-	float m_atlasTileSize;
+	glm::vec2 m_worldTileSize;
+	glm::vec2 m_atlasTileSize;
 
 	ID m_atlasID;
 

@@ -4,7 +4,7 @@
 
 namespace Engine {
 
-TilemapResource::TilemapResource(const std::string& resourceName, std::vector<Tile>& tiles, glm::vec2 dimensions, float tileSize, float atlasSize, ID atladID)
+TilemapResource::TilemapResource(const std::string& resourceName, std::vector<Tile>& tiles, glm::vec2 dimensions, glm::vec2 tileSize, glm::vec2 atlasSize, ID atladID)
 	: 
 	Resource(resourceName, true), m_width(dimensions.x), m_height(dimensions.y), m_worldTileSize(tileSize), m_atlasTileSize(atlasSize), m_atlasID(atladID)
 {
@@ -12,7 +12,7 @@ TilemapResource::TilemapResource(const std::string& resourceName, std::vector<Ti
 	{
 		for (size_t x = 0; x < dimensions.x; x++)
 		{
-			Tile& tile = tiles[y * dimensions.y + x];
+			Tile& tile = tiles[y * dimensions.x + x];
 
 			auto quadVerts = makePackedTilemapQuad(
 				x,
