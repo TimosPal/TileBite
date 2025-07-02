@@ -4,9 +4,17 @@
 
 namespace Engine {
 
-TilemapResource::TilemapResource(const std::string& resourceName, std::vector<Tile>& tiles, glm::vec2 dimensions, glm::vec2 tileSize, glm::vec2 atlasSize, ID atladID)
+TilemapResource::TilemapResource(
+	const std::string& resourceName,
+	std::vector<Tile>& tiles,
+	glm::vec2 dimensions,
+	glm::vec2 tileSize,
+	glm::vec2 atlasSize,
+	glm::vec2 atlasDim,
+	ID atladID)
 	: 
-	Resource(resourceName, true), m_width(dimensions.x), m_height(dimensions.y), m_worldTileSize(tileSize), m_atlasTileSize(atlasSize), m_atlasID(atladID)
+	Resource(resourceName, true),
+	m_width(dimensions.x), m_height(dimensions.y), m_worldTileSize(tileSize), m_atlasTileSize(atlasSize), m_atlasID(atladID), m_atlasDim(atlasDim)
 {
 	for (size_t y = 0; y < dimensions.y; y++)
 	{

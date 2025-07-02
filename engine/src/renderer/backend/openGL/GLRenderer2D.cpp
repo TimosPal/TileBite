@@ -326,7 +326,8 @@ void GLRenderer2D::renderQuadMeshes(CameraController& camera)
 		program->setUniform("uTilemapID", command.AtlasID);
 		program->setUniform("uTilemapDim", command.TilemapDimensions);
 		program->setUniform("uWorldTileSize", command.WorldTileSize);
-		program->setUniform("uTextureTileSize", command.TilemapDimensions);
+		program->setUniform("uTextureTileSize", command.AtlasTileSize);
+
 		mesh->draw(quadsCount * 6);
 		
 		drawCalls++;

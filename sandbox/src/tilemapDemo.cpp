@@ -18,15 +18,13 @@ public:
     void update(float deltaTime) override
     {
         auto cam = getSceneManager()->getActiveScene()->getCameraController();
-        float zoomSpeed = 1.1f;
+        float zoomSpeed = 1.05f;
         cam->setZoom(cam->getZoom() / std::pow(zoomSpeed, deltaTime));
-
     }
 };
 
 class MainScene : public Scene {
-    std::unique_ptr<IResourceHandle> m_ballHandle;
-    std::unique_ptr<IResourceHandle> m_beeHandle;
+    std::unique_ptr<IResourceHandle> m_tilemapTextureHandle;
     ResourceHandle<TilemapResource> m_tilemapHandle;
 
     void onLoad() override
@@ -34,22 +32,13 @@ class MainScene : public Scene {
         auto cameraController = std::make_shared<CameraController>(-1.0f, 1.0f, -1.0f, 1.0f);
         setCameraController(cameraController);
 
-        m_ballHandle = getAssetsManager()->getTextureResource("ball");
-        m_beeHandle = getAssetsManager()->getTextureResource("bee");
-
-        m_ballHandle->watch();
-        m_ballHandle->load();
-        m_beeHandle->watch();
-        m_beeHandle->load();
+        m_tilemapTextureHandle = getAssetsManager()->getTextureResource("tilemap");
+        m_tilemapTextureHandle->watch();
+        m_tilemapTextureHandle->load();
 
 		addSystem(std::make_unique<CameraSystem>());
 
-        ID texIDs[] = {
-            m_ballHandle->getID(),
-            m_beeHandle->getID(),
-            0,
-            4
-        };
+		glm::vec2 uvs[] = { {0,0}, {0,1}, {1,0}, {1,1} };
 
         float posX = 0;
         float posY = 0;
@@ -68,15 +57,26 @@ class MainScene : public Scene {
                         Tile& tile = tiles[y * tilemapWidth + x];
 
                         //ID texID = texIDs[int(quickRandFloat(0.0f, 3.9f))];
-                        auto rngCol = glm::vec4(quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), 1.0f);
-                        tile.uIndex = 0;
-                        tile.vIndex = 0;
+                        //auto rngCol = glm::vec4(quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), 1.0f);
+                        auto rngCol = glm::vec4(1, 1, 1, 1.0f);
+                        
+						auto uvRng = uvs[int(quickRandFloat(0.0f, 3.9f))];
+                      
+						tile.uIndex = uvRng.x;
+						tile.vIndex = uvRng.y;
                         tile.Color = glm::u8vec4(rngCol * 255.0f);
                     }
                 }
                 std::string resourceName = "tileMapResource_" + std::to_string(i) + "_" + std::to_string(j);
-                // TODO: get width height from IHandle ....
-                m_tilemapHandle = getAssetsManager()->createTilemapResource(resourceName, tiles, { tilemapWidth, tilemapHeight }, { 0.1, 0.1 }, { 100, 100 }, m_ballHandle->getID());
+                m_tilemapHandle = getAssetsManager()->createTilemapResource(
+                    resourceName,
+                    tiles,
+                    { tilemapWidth, tilemapHeight },
+                    { 0.1, 0.1 },
+                    { 16, 16 },
+                    {32, 32},
+                    m_tilemapTextureHandle->getID()
+                );
 
                 ID tilemap = getWorld().createEntity();
                 TilemapComponent tilemapComp;
@@ -111,9 +111,8 @@ class MyApp : public Engine::EngineApp {
 
     void setup() override
     {
-        getAssetsManager().createTextureResource("bee", std::string(ResourcePaths::ImagesDir) + "./bee.png");
-        getAssetsManager().createTextureResource("ball", std::string(ResourcePaths::ImagesDir) + "./ball.png");
-
+        getAssetsManager().createTextureResource("tilemap", std::string(ResourcePaths::ImagesDir) + "./tilemap.png");
+       
         pushLayer(std::make_unique<GameLayer>());
     }
 };

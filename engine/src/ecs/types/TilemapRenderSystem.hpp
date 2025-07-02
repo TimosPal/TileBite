@@ -28,7 +28,7 @@ public:
 				transformComp->Position,
 				resource->getAtlasTileSize(),
 				resource->getWorldTileSize(),
-				{resource->getWidth(), resource->getHeight()}
+				resource->getAtlasDim()
 			});
 		});
 	}
