@@ -8,6 +8,11 @@
 
 namespace Engine {
 
+struct BytesChange {
+	uint32_t Offset;
+	uint32_t Size;
+};
+
 class TilemapResource : public Resource<TilemapResource> {
 	SETUP_ID(Resource, TilemapResource)
 public:
@@ -32,7 +37,9 @@ public:
 	glm::vec2 getAtlasTileSize() const { return m_atlasTileSize; }
 	glm::vec2 getAtlasDim() const { return m_atlasDim; }
 	ID getAtlasID() const { return m_atlasID; }
-	bool& GetIsDirty() { return m_isDirty; }
+	bool isDirty() { return !m_bytesChanges.empty(); }
+	void resetChangesList() { m_bytesChanges.clear(); }
+	const std::vector<BytesChange>& getBytesChanges() const { return m_bytesChanges; }
 
 	TilemapResource(TilemapResource&&) noexcept = default;
 	TilemapResource& operator=(TilemapResource&&) noexcept = default;
@@ -48,10 +55,12 @@ private:
 	glm::vec2 m_atlasTileSize;
 	glm::vec2 m_atlasDim;
 
+
 	ID m_atlasID;
 
 	std::vector<uint32_t> m_vertices;
-	bool m_isDirty;
+
+	std::vector<BytesChange> m_bytesChanges;
 };
 
 } // Engine

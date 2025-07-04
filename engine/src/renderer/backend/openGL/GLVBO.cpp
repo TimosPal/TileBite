@@ -33,4 +33,9 @@ void GLVBO::setData(const void* data, uint32_t size)
 	GL(glBufferSubData(GL_ARRAY_BUFFER, 0, size, data));
 }
 
+void GLVBO::setSubData(const void* data, uint32_t size, uint32_t offset) {
+	GL(glBindBuffer(GL_ARRAY_BUFFER, m_glVBO));
+	GL(glBufferSubData(GL_ARRAY_BUFFER, offset, size, data));
+}
+
 }

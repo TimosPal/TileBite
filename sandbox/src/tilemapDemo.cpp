@@ -18,7 +18,7 @@ public:
     void update(float deltaTime) override
     {
         auto cam = getSceneManager()->getActiveScene()->getCameraController();
-        float zoomSpeed = 1.05f;
+        float zoomSpeed = 1.3f;
         cam->setZoom(cam->getZoom() / std::pow(zoomSpeed, deltaTime));
     }
 };
@@ -56,10 +56,8 @@ class MainScene : public Scene {
                     {
                         Tile& tile = tiles[y * tilemapWidth + x];
 
-                        //ID texID = texIDs[int(quickRandFloat(0.0f, 3.9f))];
-                        //auto rngCol = glm::vec4(quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), 1.0f);
-                        auto rngCol = glm::vec4(1, 1, 1, 1.0f);
-                        
+                        auto aC = quickRandFloat(0.0f, 1.0f) < 0.4 ? 1 : 0;
+                        auto rngCol = glm::vec4(quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), aC);                        
 						auto uvRng = uvs[int(quickRandFloat(0.0f, 3.9f))];
                       
 						tile.uIndex = uvRng.x;

@@ -5,6 +5,7 @@
 
 #include "ecs/types/EngineComponents.hpp"
 #include "utilities/Bitset.hpp"
+#include "resources/types/TilemapResource.hpp"
 
 namespace Engine {
 
@@ -13,15 +14,8 @@ struct SpriteQuad {
 	SpriteComponent* SpriteComp;
 };
 
-struct QuadMesh {
-	std::vector<uint32_t>* Vertices;
-	ID AtlasID;
-	bool& IsDirty;
-	ID MeshID;
-	glm::vec2 Offset;
-	glm::vec2 AtlasTileSize;
-	glm::vec2 WorldTileSize;
-	glm::vec2 TilemapDimensions;
+struct TilemapMesh {
+	TilemapResource* TilemapResource;
 };
 
 } // Engine

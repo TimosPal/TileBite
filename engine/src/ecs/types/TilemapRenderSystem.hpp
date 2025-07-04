@@ -18,17 +18,9 @@ public:
 		activeWorld.query<TilemapComponent, TransformComponent>().each([this](ID entityID, TilemapComponent* tilemapComp, TransformComponent* transformComp) {
 			// TODO: Assumes resource is always loaded and valid, might need to retrieve a handle instead.
 			auto resource = tilemapComp->TilemapResource;
-			auto& vertices = resource->getData();
 			uint8_t quadsCount = resource->getWidth() * resource->getHeight();
-			m_renderer2D->drawQuadMesh(QuadMesh{
-				&vertices,
-				resource->getAtlasID(),
-				resource->GetIsDirty(),
-				resource->getInstanceID(),
-				transformComp->Position,
-				resource->getAtlasTileSize(),
-				resource->getWorldTileSize(),
-				resource->getAtlasDim()
+			m_renderer2D->drawQuadMesh(TilemapMesh{
+				resource
 			});
 		});
 	}

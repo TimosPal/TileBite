@@ -16,6 +16,7 @@ public:
 	~GLMesh();
 
 	void setVertexData(const void* data, size_t size);
+	void setSubVertexData(const void* data, size_t size, size_t offset);
 	void setIndexData(const uint32_t* data, size_t count);
 
 	void setupAttributes(const VertexLayout& layout, GLuint shaderProgram);

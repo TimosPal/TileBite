@@ -33,7 +33,8 @@ TilemapResource::TilemapResource(
 		}
 	}
 
-	m_isDirty = true;
+	// Add a change to the whole tilemap so it is updated on the first draw call.
+	m_bytesChanges.push_back(BytesChange{0, (uint32_t)m_vertices.size() * sizeof(uint32_t)});
 }
 
 bool TilemapResource::createImplementation()

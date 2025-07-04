@@ -283,7 +283,7 @@ void GLRenderer2D::renderQuadMeshes(CameraController& camera)
 	int quadsCount = 255 * 255;
 	for (const auto& command : m_quadMeshesDrawCommands)
 	{
-		ID meshID = command.MeshID;
+		ID meshID = command.TilemapResource->getInstanceID();
 		auto [it, inserted] = m_tilemapBuffers.try_emplace(meshID, nullptr);
 		if (inserted) {
 			VertexLayout tilemapLayout;
@@ -301,21 +301,32 @@ void GLRenderer2D::renderQuadMeshes(CameraController& camera)
 		}
 
 		auto& mesh = it->second;
-		if (command.IsDirty)
+		if (command.TilemapResource->isDirty())
 		{
-			mesh->setVertexData(command.Vertices->data(), command.Vertices->size() * sizeof(uint32_t));
-			command.IsDirty = false;
+			auto& vertices = command.TilemapResource->getData();
+			for(auto change : command.TilemapResource->getBytesChanges())
+			{
+				// Update only the changed bytes in the vertex buffer
+				mesh->setSubVertexData(
+					vertices.data() + change.Offset,
+					change.Size,
+					change.Offset
+				);
+			}
+
+			command.TilemapResource->resetChangesList();
 		}
 
 		mesh->bind();
 
 		bool isAssigned = false;
-		auto textureSlot = m_textureSlotManager.getTextureToSlotID(command.AtlasID, isAssigned);
+		ID atlasID = command.TilemapResource->getAtlasID();
+		auto textureSlot = m_textureSlotManager.getTextureToSlotID(atlasID, isAssigned);
 		if (!isAssigned)
 		{
 			textureSlot = m_textureSlotManager.getLeastUsedSlot();
-			m_textureSlotManager.addSlot(textureSlot, command.AtlasID);
-			bindTextureToSlot(command.AtlasID, textureSlot);
+			m_textureSlotManager.addSlot(textureSlot, atlasID);
+			bindTextureToSlot(atlasID, textureSlot);
 
 			auto mapping = m_textureSlotManager.createTextureMapping(maxTextures);
 			program->setUniform("uTexSlotMap", mapping.data(), maxTextures);
@@ -323,10 +334,10 @@ void GLRenderer2D::renderQuadMeshes(CameraController& camera)
 		}
 		m_textureSlotManager.incrementSlotCounter(textureSlot);
 
-		program->setUniform("uTilemapID", command.AtlasID);
-		program->setUniform("uTilemapDim", command.TilemapDimensions);
-		program->setUniform("uWorldTileSize", command.WorldTileSize);
-		program->setUniform("uTextureTileSize", command.AtlasTileSize);
+		program->setUniform("uTilemapID", atlasID);
+		program->setUniform("uTilemapDim", command.TilemapResource->getAtlasDim());
+		program->setUniform("uWorldTileSize", command.TilemapResource->getWorldTileSize());
+		program->setUniform("uTextureTileSize", command.TilemapResource->getAtlasTileSize());
 
 		mesh->draw(quadsCount * 6);
 		

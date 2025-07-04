@@ -49,6 +49,11 @@ void GLMesh::setVertexData(const void* data, size_t size)
 	m_vertexBuffer.setData(data, size);
 }
 
+void GLMesh::setSubVertexData(const void* data, size_t size, size_t offset)
+{
+	m_vertexBuffer.setSubData(data, size, offset);
+}
+
 void GLMesh::setIndexData(const uint32_t* data, size_t count)
 {
 	m_indexBuffer.setData(data, count);

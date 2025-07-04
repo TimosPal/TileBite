@@ -26,7 +26,7 @@ public:
 		m_spriteDrawCommands.emplace_back(std::move(spriteQuad));
 	}
 
-	void drawQuadMesh(QuadMesh&& quadMesh)
+	void drawQuadMesh(TilemapMesh&& quadMesh)
 	{
 		m_quadMeshesDrawCommands.emplace_back(std::move(quadMesh));
 	}
@@ -37,7 +37,7 @@ public:
 
 protected:
 	std::vector<SpriteQuad> m_spriteDrawCommands;
-	std::vector<QuadMesh> m_quadMeshesDrawCommands;
+	std::vector<TilemapMesh> m_quadMeshesDrawCommands;
 
 	TextureSlotManager m_textureSlotManager;
 };

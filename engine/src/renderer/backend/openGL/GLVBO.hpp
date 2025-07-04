@@ -17,6 +17,7 @@ public:
 	void unbind();
 
 	void setData(const void* data, uint32_t size);
+	void setSubData(const void* data, uint32_t size, uint32_t offset);
 private:
 	GLuint m_glVBO;
 	uint32_t m_size;
