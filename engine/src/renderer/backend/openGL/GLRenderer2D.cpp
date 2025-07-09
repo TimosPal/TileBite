@@ -301,6 +301,7 @@ void GLRenderer2D::renderQuadMeshes(CameraController& camera)
 		}
 
 		auto& mesh = it->second;
+		command.TilemapResource->mergeBytesChanges(); // Optimize changes by merging overlapping ones
 		if (command.TilemapResource->isDirty())
 		{
 			auto& vertices = command.TilemapResource->getData();

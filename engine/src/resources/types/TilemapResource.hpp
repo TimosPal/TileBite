@@ -41,6 +41,8 @@ public:
 	void resetChangesList() { m_bytesChanges.clear(); }
 	const std::vector<BytesChange>& getBytesChanges() const { return m_bytesChanges; }
 
+	void mergeBytesChanges();
+
 	// Setters
 	void setTile(Tile tile, uint8_t xIndex, uint8_t yIndex);
 

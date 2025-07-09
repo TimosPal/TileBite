@@ -63,6 +63,39 @@ void TilemapResource::setTile(Tile tile, uint8_t xIndex, uint8_t yIndex)
 	m_bytesChanges.push_back(BytesChange{ byteOffset, size });
 }
 
+void TilemapResource::mergeBytesChanges()
+{
+	if (m_bytesChanges.empty()) return;
+
+	std::sort(m_bytesChanges.begin(), m_bytesChanges.end(), [](const BytesChange& a, const BytesChange& b){
+		return a.Offset < b.Offset;
+	});
+
+	std::vector<BytesChange> mergedChanges;
+	mergedChanges.reserve(m_bytesChanges.size());
+	auto current = m_bytesChanges[0];
+	for (size_t i = 1; i < m_bytesChanges.size(); ++i)
+	{
+		if (m_bytesChanges[i].Offset <= current.Offset + current.Size)
+		{
+			// If the change offset is within the bounds of the current change
+			// then the current change can be extended to match the new max size.
+			current.Size = std::max(current.Size, (m_bytesChanges[i].Offset - current.Offset) + m_bytesChanges[i].Size);
+		}
+		else
+		{
+			// No overlap, push the current change and start a new one
+			mergedChanges.push_back(current);
+			current = m_bytesChanges[i];
+		}
+	}
+	// Add the last change
+	mergedChanges.push_back(current);
+
+	// swap changes with merged changes
+	m_bytesChanges.swap(mergedChanges);
+}
+
 bool TilemapResource::createImplementation()
 {
 	// TODO: laod from disk
