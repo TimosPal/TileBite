@@ -304,11 +304,13 @@ void GLRenderer2D::renderQuadMeshes(CameraController& camera)
 		if (command.TilemapResource->isDirty())
 		{
 			auto& vertices = command.TilemapResource->getData();
+			uint8_t* vertexBytes = reinterpret_cast<uint8_t*>(vertices.data());
 			for(auto change : command.TilemapResource->getBytesChanges())
 			{
 				// Update only the changed bytes in the vertex buffer
-				mesh->setSubVertexData(
-					vertices.data() + change.Offset,
+				mesh->setSubVertexData
+				(
+					vertexBytes + change.Offset,
 					change.Size,
 					change.Offset
 				);
@@ -316,8 +318,6 @@ void GLRenderer2D::renderQuadMeshes(CameraController& camera)
 
 			command.TilemapResource->resetChangesList();
 		}
-
-		mesh->bind();
 
 		bool isAssigned = false;
 		ID atlasID = command.TilemapResource->getAtlasID();

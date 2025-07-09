@@ -15,11 +15,33 @@ using namespace Engine;
 
 class CameraSystem : public ISystem {
 public:
+    float timer = 0;
+
     void update(float deltaTime) override
     {
+		timer += deltaTime;
+
+		if (timer < 0.04f) return; // Update every 0.1 seconds
+        timer = 0;
+
         auto cam = getSceneManager()->getActiveScene()->getCameraController();
-        float zoomSpeed = 1.3f;
+        float zoomSpeed = 1.0f;
         cam->setZoom(cam->getZoom() / std::pow(zoomSpeed, deltaTime));
+
+        auto tilemapHandle = getAssetsManager()->getTilemapResource("tileMapResource_0_0");
+		auto rngCol = glm::vec4(quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), 1.0f);
+
+		auto rngX = quickRandFloat(0, 9.9);
+        auto rngY = quickRandFloat(0, 9.9);
+
+        glm::vec2 uvs[] = { {0,0}, {0,1}, {1,0}, {1,1} };
+        auto uvRng = uvs[int(quickRandFloat(0.0f, 3.9f))];
+
+        tilemapHandle.getResource()->setTile(
+            Tile{ rngCol, (uint8_t)uvRng.x, (uint8_t)uvRng.y}, // Example tile with red color
+            rngX, // xIndex
+            rngY  // yIndex
+		);
     }
 };
 
@@ -46,8 +68,8 @@ class MainScene : public Scene {
         {
             for (size_t j = 0; j < 1; j++)
             {
-                int tilemapHeight = 255;
-                int tilemapWidth = 255;
+                int tilemapHeight = 10;
+                int tilemapWidth = 10;
                 std::vector<Tile> tiles;
                 tiles.resize(tilemapHeight * tilemapWidth);
                 for (size_t y = 0; y < tilemapHeight; y++)
@@ -56,13 +78,13 @@ class MainScene : public Scene {
                     {
                         Tile& tile = tiles[y * tilemapWidth + x];
 
-                        auto aC = quickRandFloat(0.0f, 1.0f) < 0.4 ? 1 : 0;
+                        auto aC = 1; // quickRandFloat(0.0f, 1.0f) < 0.4 ? 1 : 0;
                         auto rngCol = glm::vec4(quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), aC);                        
 						auto uvRng = uvs[int(quickRandFloat(0.0f, 3.9f))];
                       
 						tile.uIndex = uvRng.x;
 						tile.vIndex = uvRng.y;
-                        tile.Color = glm::u8vec4(rngCol * 255.0f);
+                        tile.Color = rngCol;
                     }
                 }
                 std::string resourceName = "tileMapResource_" + std::to_string(i) + "_" + std::to_string(j);

@@ -41,6 +41,9 @@ public:
 	void resetChangesList() { m_bytesChanges.clear(); }
 	const std::vector<BytesChange>& getBytesChanges() const { return m_bytesChanges; }
 
+	// Setters
+	void setTile(Tile tile, uint8_t xIndex, uint8_t yIndex);
+
 	TilemapResource(TilemapResource&&) noexcept = default;
 	TilemapResource& operator=(TilemapResource&&) noexcept = default;
 	TilemapResource(const TilemapResource&) = delete;

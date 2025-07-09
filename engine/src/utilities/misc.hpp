@@ -7,6 +7,8 @@
 
 namespace Engine {
 
+constexpr int PACKED_TILEMAP_QUAD_BYTES = 8;
+
 template<typename Derived, typename Base>
 concept DerivedFrom = std::is_base_of_v<Base, Derived>;
 
@@ -111,12 +113,13 @@ inline uint32_t packRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
 		(uint32_t(a) << 24);
 }
 
-inline std::array<uint32_t, 8> makePackedTilemapQuad(
+inline std::array<uint32_t, PACKED_TILEMAP_QUAD_BYTES> makePackedTilemapQuad(
 	uint8_t xIndex, uint8_t yIndex,
 	uint8_t uIndex, uint8_t vIndex,
-	const glm::u8vec4& color)
+	glm::vec4 color)
 {
-	uint32_t packedColor = packRGBA(color.r, color.g, color.b, color.a);
+	glm::u8vec4 u8Color = glm::u8vec4(color * 255.0f); // Ensure color is in [0, 255] range
+	uint32_t packedColor = packRGBA(u8Color.r, u8Color.g, u8Color.b, u8Color.a);
 
 	return std::array<uint32_t, 8>{
 			packXYIndexUV(xIndex, yIndex, uIndex, vIndex),     // top-left
