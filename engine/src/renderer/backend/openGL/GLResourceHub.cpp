@@ -10,52 +10,57 @@ bool GLResourceHub::init()
 {
 	bool validAssets = true;
 
+	#define LOAD_SHADER(resourceName, textFileName, shaderType) \
+	{ \
+		auto fileResource = m_systemResourceHub.getManager<TextFileResource>().getResource(textFileName); \
+		auto shader = m_shadersResourceManager.addResource( \
+			GLShader(resourceName, std::move(fileResource), shaderType) \
+		); \
+		validAssets = logResourceValidity(shader, resourceName) && validAssets; \
+	} \
+
+	#define LOAD_TEXTURE(resourceName, imageFileName) \
+	{ \
+		auto image = m_systemResourceHub.getManager<ImageResource>().getResource(imageFileName); \
+		auto texture = m_texturesResourceManager.addResource( \
+			GLTexture(resourceName, std::move(image)) \
+		); \
+		validAssets = logResourceValidity(texture, resourceName) && validAssets; \
+	} \
+
+	#define LOAD_PROGRAM(resourceName, vertShaderName, fragShaderName) \
+	{ \
+		auto vert = m_shadersResourceManager.getResource(vertShaderName); \
+		auto frag = m_shadersResourceManager.getResource(fragShaderName); \
+		auto program = m_programsResourceManager.addResource( \
+			GLProgram(resourceName, ResourceHandle<GLShader>(vert), ResourceHandle<GLShader>(frag)) \
+		); \
+		validAssets = logResourceValidity(program, resourceName) && validAssets; \
+	} \
+
 	LOG_INFO("");
 	LOG_INFO("===== Renderer resources =====");
 
 	// ========= Shaders =========
-	auto spriteVertFile = m_systemResourceHub.getManager<TextFileResource>().getResource(ResourceNames::SpriteVertFile);
-	auto spriteVertShader = m_shadersResourceManager.addResource(
-		GLShader(ResourceNames::SpriteVertShader, std::move(spriteVertFile), ShaderType::Vertex)
-	);
-	validAssets = logResourceValidity(spriteVertShader, ResourceNames::SpriteVertShader) && validAssets;
+	LOAD_SHADER(ResourceNames::SpriteVertShader, ResourceNames::SpriteVertFile, ShaderType::Vertex);
+	LOAD_SHADER(ResourceNames::TilemapVertShader, ResourceNames::TilemapVertFile, ShaderType::Vertex);
+	LOAD_SHADER(ResourceNames::LineVertShader, ResourceNames::LineVertFile, ShaderType::Vertex);
 
-	auto spriteFragFile = m_systemResourceHub.getManager<TextFileResource>().getResource(ResourceNames::SpriteFragFile);
-	auto spriteFragShader = m_shadersResourceManager.addResource(
-		GLShader(ResourceNames::SpriteFragShader, std::move(spriteFragFile), ShaderType::Fragment)
-	);
-	validAssets = logResourceValidity(spriteFragShader, ResourceNames::SpriteFragShader) && validAssets;
-
-	auto tilemapVertFile = m_systemResourceHub.getManager<TextFileResource>().getResource(ResourceNames::TilemapVertFile);
-	auto tilemapVertShader = m_shadersResourceManager.addResource(
-		GLShader(ResourceNames::TilemapVertShader, std::move(tilemapVertFile), ShaderType::Vertex)
-	);
-	validAssets = logResourceValidity(tilemapVertShader, ResourceNames::TilemapVertShader) && validAssets;
+	LOAD_SHADER(ResourceNames::SpriteFragShader, ResourceNames::SpriteFragFile, ShaderType::Fragment);
+	LOAD_SHADER(ResourceNames::LineFragShader, ResourceNames::LineFragFile, ShaderType::Fragment);
 
 	// ========= Programs =========
-	auto spriteShader = m_programsResourceManager.addResource(
-		GLProgram(ResourceNames::SpriteShader, ResourceHandle<GLShader>(spriteVertShader), ResourceHandle<GLShader>(spriteFragShader))
-	);
-	validAssets = logResourceValidity(spriteShader, ResourceNames::SpriteShader) && validAssets;
-
-	auto tilemapShader = m_programsResourceManager.addResource(
-		GLProgram(ResourceNames::TilemapShader, ResourceHandle<GLShader>(tilemapVertShader), ResourceHandle<GLShader>(spriteFragShader))
-	);
-	validAssets = logResourceValidity(tilemapShader, ResourceNames::TilemapShader) && validAssets;
+	LOAD_PROGRAM(ResourceNames::SpriteShader, ResourceNames::SpriteVertShader, ResourceNames::SpriteFragShader);
+	LOAD_PROGRAM(ResourceNames::TilemapShader, ResourceNames::TilemapVertShader, ResourceNames::SpriteFragShader);
+	LOAD_PROGRAM(ResourceNames::LineShader, ResourceNames::LineVertShader, ResourceNames::LineFragShader);
 
 	// ========= Textures =========
 	// If this is the first Texture then we can assume default sprite has ID 0 (and set the default spriteComp ID = 0)
-	auto whiteImage = m_systemResourceHub.getManager<ImageResource>().getResource(ResourceNames::WhiteImageFile);
-	auto defaultSpriteTexture = m_texturesResourceManager.addResource(
-		GLTexture(ResourceNames::DefaultSpriteTexture, std::move(whiteImage))
-	);
-	validAssets = logResourceValidity(defaultSpriteTexture, ResourceNames::DefaultSpriteTexture) && validAssets;
+	LOAD_TEXTURE(ResourceNames::DefaultSpriteTexture, ResourceNames::WhiteImageFile);
+	LOAD_TEXTURE(ResourceNames::FallbackTexture, ResourceNames::MissingImageFile);
 
-	auto fallbackImage = m_systemResourceHub.getManager<ImageResource>().getResource(ResourceNames::MissingImageFile);
-	auto fallbackTexture = m_texturesResourceManager.addResource(
-		GLTexture(ResourceNames::FallbackTexture, std::move(fallbackImage))
-	);
-	validAssets = logResourceValidity(fallbackTexture, ResourceNames::FallbackTexture) && validAssets;
+	#undef LOAD_SHADER
+	#undef LOAD_TEXTURE
 
 	LOG_INFO("==============================");
 	LOG_INFO("");

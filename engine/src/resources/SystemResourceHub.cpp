@@ -8,33 +8,36 @@ bool SystemResourceHub::init()
 {
 	bool validAssets = true;
 
+	#define LOAD_TEXT(resourceName, resourcePath) \
+	{ \
+		auto resource = m_textFilesResourceManager.addResource(TextFileResource(resourceName, resourcePath)); \
+		validAssets = logResourceValidity(resource, resourceName) && validAssets; \
+	} \
+
+	#define LOAD_IMAGE(resourceName, resourcePath) \
+	{ \
+		auto resource = m_imagesResourceManager.addResource(ImageResource(resourceName, resourcePath)); \
+		validAssets = logResourceValidity(resource, resourceName) && validAssets; \
+	} \
+
 	LOG_INFO("");
 	LOG_INFO("====== System resources ======");
 
-	auto spriteVert = m_textFilesResourceManager.addResource(
-		TextFileResource(ResourceNames::SpriteVertFile, ResourcePaths::SpriteVertFile())
-	);
-	validAssets = logResourceValidity(spriteVert, ResourceNames::SpriteVertFile) && validAssets;
+	// Vertex
+	LOAD_TEXT(ResourceNames::SpriteVertFile, ResourcePaths::SpriteVertFile());
+	LOAD_TEXT(ResourceNames::TilemapVertFile, ResourcePaths::TilemapVertFile());
+	LOAD_TEXT(ResourceNames::LineVertFile, ResourcePaths::LineVertFile());
 
-	auto spriteFrag = m_textFilesResourceManager.addResource(
-		TextFileResource(ResourceNames::SpriteFragFile, ResourcePaths::SpriteFragFile())
-	);
-	validAssets = logResourceValidity(spriteFrag, ResourceNames::SpriteFragFile) && validAssets;
+	// Fragment
+	LOAD_TEXT(ResourceNames::SpriteFragFile, ResourcePaths::SpriteFragFile());
+	LOAD_TEXT(ResourceNames::LineFragFile, ResourcePaths::LineFragFile());
+	
+	// Images
+	LOAD_IMAGE(ResourceNames::MissingImageFile, ResourcePaths::MissingImageFile());
+	LOAD_IMAGE(ResourceNames::WhiteImageFile, ResourcePaths::WhiteImageFile());
 
-	auto tilemapVert = m_textFilesResourceManager.addResource(
-		TextFileResource(ResourceNames::TilemapVertFile, ResourcePaths::TilemapVertFile())
-	);
-	validAssets = logResourceValidity(tilemapVert, ResourceNames::TilemapVertFile) && validAssets;
-
-	auto missingImage = m_imagesResourceManager.addResource(
-		ImageResource(ResourceNames::MissingImageFile, ResourcePaths::MissingImageFile())
-	);
-	validAssets = logResourceValidity(missingImage, ResourceNames::MissingImageFile) && validAssets;
-
-	auto whiteImage = m_imagesResourceManager.addResource(
-		ImageResource(ResourceNames::WhiteImageFile, ResourcePaths::WhiteImageFile())
-	);
-	validAssets = logResourceValidity(whiteImage, ResourceNames::WhiteImageFile) && validAssets;
+	#undef LOAD_TEXT
+	#undef LOAD_IMAGE
 
 	LOG_INFO("==============================");
 	LOG_INFO("");
