@@ -19,7 +19,7 @@ public:
 			// TODO: Assumes resource is always loaded and valid, might need to retrieve a handle instead.
 			auto resource = tilemapComp->TilemapResource;
 			uint8_t quadsCount = resource->getWidth() * resource->getHeight();
-			m_renderer2D->drawQuadMesh(TilemapMesh{
+			m_renderer2D->drawTilemap(TilemapMesh{
 				resource
 			});
 		});

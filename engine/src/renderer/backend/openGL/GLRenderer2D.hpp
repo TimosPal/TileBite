@@ -15,6 +15,8 @@ constexpr uint32_t maxQuadsPerBatch = 1024;
 constexpr uint32_t quadsIndicesCount = 6 * maxQuadsPerBatch;
 constexpr uint32_t verticesPerQuad = 4;
 constexpr uint32_t indicesPerQuad = 6;
+constexpr uint32_t maxLinesPerBatch = 1024;
+constexpr uint32_t verticesPerLine = 2;
 
 class GLRenderer2D : public Renderer2D {
 public:
@@ -37,10 +39,13 @@ private:
 	std::unordered_map<ID, std::unique_ptr<GLMesh>> m_tilemapBuffers;
 
 	std::unique_ptr<GLMesh> m_spritesBatch;
+	std::unique_ptr<GLMesh> m_linesBatch;
 	std::vector<uint8_t> m_spriteVertexData;
+	std::vector<uint8_t> m_linesVertexData;
 
 	ResourceHandle<GLProgram> m_spriteProgramHandle;
 	ResourceHandle<GLProgram> m_tilemapProgramHandle;
+	ResourceHandle<GLProgram> m_lineProgramHandle;
 	ResourceHandle<GLTexture> m_fallbackTexture;
 
 	void setupShaders();
@@ -52,7 +57,8 @@ private:
 	uint8_t numberOfGPUSlots() const;
 
 	void renderSpriteQuads(CameraController& camera);
-	void renderQuadMeshes(CameraController& camera);
+	void renderTilemaps(CameraController& camera);
+	void renderLines(CameraController& camera);
 };
 
 } // Engine

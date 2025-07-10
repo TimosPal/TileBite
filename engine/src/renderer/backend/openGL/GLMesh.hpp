@@ -21,7 +21,8 @@ public:
 
 	void setupAttributes(const VertexLayout& layout, GLuint shaderProgram);
 
-	void draw(uint32_t indicesCount);
+	void drawIndexed(uint32_t indicesCount);
+	void drawLines(uint32_t verticesCount);
 
 	void bind();
 	void unbind();

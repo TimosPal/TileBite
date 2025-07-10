@@ -112,10 +112,17 @@ void GLMesh::setupAttributes(const VertexLayout& layout, GLuint shaderProgram)
 	}
 }
 
-void GLMesh::draw(uint32_t indicesCount)
+void GLMesh::drawIndexed(uint32_t indicesCount)
 {
+	// Draw using index buffer (EBO)
 	GL(glBindVertexArray(m_glVAO));
 	GL(glDrawElements(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, nullptr));
+}
+
+void GLMesh::drawLines(uint32_t verticesCount)
+{
+	GL(glBindVertexArray(m_glVAO));
+	GL(glDrawArrays(GL_LINES, 0, verticesCount));
 }
 
 } // Engine

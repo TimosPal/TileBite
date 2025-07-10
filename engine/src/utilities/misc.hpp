@@ -43,6 +43,14 @@ bool logResourceValidity(ResourceTypeHandle& handle, const char* name)
 	}
 }
 
+inline std::array<float, 12> makeLineVerticesColored(glm::vec2 start, glm::vec2 end, glm::vec4 color)
+{
+	return {
+		start.x, start.y, color.r, color.g, color.b, color.a,
+		end.x,   end.y,   color.r, color.g, color.b, color.a
+	};
+}
+
 // TODO: move elsewhere (More appropriate file)
 inline std::array<float, 36> makeSpriteQuadVertices(TransformComponent* t, SpriteComponent* spr)
 {

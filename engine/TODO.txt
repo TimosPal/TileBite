@@ -6,3 +6,5 @@
 - Injection of scene manager / asset manager into systems global / scene ones is duplicate code
 - Refactor pushEvent injections
 - tilemaps should retrieve tilemap width and height internally
+- Line rendering for debug purposes
+- Input handling

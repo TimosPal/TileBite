@@ -26,9 +26,14 @@ public:
 		m_spriteDrawCommands.emplace_back(std::move(spriteQuad));
 	}
 
-	void drawQuadMesh(TilemapMesh&& quadMesh)
+	void drawTilemap(TilemapMesh&& quadMesh)
 	{
-		m_quadMeshesDrawCommands.emplace_back(std::move(quadMesh));
+		m_tilemapDrawCommands.emplace_back(std::move(quadMesh));
+	}
+
+	void drawLine(Line&& line)
+	{
+		m_lineDrawCommands.emplace_back(std::move(line));
 	}
 
 	virtual void setViewportSize(uint32_t width, uint32_t height) {}
@@ -37,7 +42,8 @@ public:
 
 protected:
 	std::vector<SpriteQuad> m_spriteDrawCommands;
-	std::vector<TilemapMesh> m_quadMeshesDrawCommands;
+	std::vector<TilemapMesh> m_tilemapDrawCommands;
+	std::vector<Line> m_lineDrawCommands;
 
 	TextureSlotManager m_textureSlotManager;
 };

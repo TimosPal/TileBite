@@ -7,6 +7,8 @@ namespace Engine {
 GLEBO::GLEBO(const uint32_t* data, uint32_t count)
 	: m_count(count)
 {
+	if (count == 0) return; // Not using indices, do not make buffers in GPU
+
 	GL(glCreateBuffers(1, &m_glEBO));
 	GL(glBindBuffer(GL_ARRAY_BUFFER, m_glEBO));
 	GL(glBufferData(GL_ARRAY_BUFFER, count * sizeof(uint32_t), data, GL_STATIC_DRAW));

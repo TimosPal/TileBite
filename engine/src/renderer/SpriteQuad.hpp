@@ -18,6 +18,12 @@ struct TilemapMesh {
 	TilemapResource* TilemapResource;
 };
 
+struct Line {
+	glm::vec2 Start;
+	glm::vec2 End;
+	glm::vec4 Color;
+};
+
 } // Engine
 
 #endif // !SPRITE_QUAD_HPP

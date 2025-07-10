@@ -158,6 +158,10 @@ void GLRenderer2D::setupShaders()
 	m_tilemapProgramHandle.watch();
 	m_tilemapProgramHandle.load();
 
+	m_lineProgramHandle = m_resourceHub.getManager<GLProgram>().getResource(ResourceNames::LineShader);
+	m_lineProgramHandle.watch();
+	m_lineProgramHandle.load();
+
 	// Setup a uniform texture sampler array in the fragment shader
 	// Each slot corresponds to an array index
 	// eg: slot 0 -> uTextures[0]
@@ -191,6 +195,18 @@ void GLRenderer2D::setupBuffers()
 	m_spritesBatch->setupAttributes(spriteLayout, spriteProgram->getGLID());
 	m_spritesBatch->setIndexData(indexData.data(), indexData.size());
 	m_spriteVertexData.resize(maxQuadsPerBatch * verticesPerQuad * spriteLayout.getStride());
+
+	// Tilemap
+	// tilemap layout is created upon request in renderQuadMeshes
+
+	// Line
+	VertexLayout lineLayout;
+	lineLayout.add(VertexAttribute("aPos", ShaderAttributeType::Float2));
+	lineLayout.add(VertexAttribute("aColor", ShaderAttributeType::Float4));
+	m_linesBatch = std::make_unique<GLMesh>(
+		lineLayout.getStride() * verticesPerLine * maxLinesPerBatch,
+		0 // Not using index buffer for line drawing (EBO will not be init)
+	);
 }
 
 void GLRenderer2D::setupTextures()
@@ -215,6 +231,9 @@ bool GLRenderer2D::terminate()
 
 	m_tilemapProgramHandle.unwatch();
 	m_tilemapProgramHandle.unload();
+
+	m_lineProgramHandle.unwatch();
+	m_lineProgramHandle.unload();
 
 	m_fallbackTexture.unwatch();
 	m_fallbackTexture.unload();
@@ -245,7 +264,7 @@ void GLRenderer2D::drawSpritesBatch(uint32_t& quadsCount, uint32_t& bytes, int& 
 		m_textureSlotManager.setDirty(false);
 	}
 
-	m_spritesBatch->draw(quadsCount * 6);
+	m_spritesBatch->drawIndexed(quadsCount * 6);
 
 	quadsCount = 0;
 	bytes = 0;
@@ -267,10 +286,32 @@ void GLRenderer2D::bindTextureToSlot(ID textureID, uint8_t slot)
 void GLRenderer2D::render(CameraController& camera)
 {
 	renderSpriteQuads(camera);
-	renderQuadMeshes(camera);
+	renderTilemaps(camera);
+	renderLines(camera);
 }
 
-void GLRenderer2D::renderQuadMeshes(CameraController& camera)
+void GLRenderer2D::renderLines(CameraController& camera)
+{
+	GLProgram* program = m_lineProgramHandle.getResource();
+	program->use();
+	camera.recalculate();
+	program->setUniform("uViewProjection", camera.getViewProjectionMatrix());
+
+	int drawCalls = 0;
+	for (const auto& command : m_lineDrawCommands)
+	{
+		auto lineVertices = makeLineVerticesColored(command.Start, command.End, command.Color);
+		m_linesBatch->bind();
+		m_linesBatch->setVertexData(m_spriteVertexData.data(), lineVertices.size() * sizeof(float));
+		m_linesBatch->drawLines(lineVertices.size());
+
+		drawCalls++;
+	}
+
+	m_lineDrawCommands.clear();
+}
+
+void GLRenderer2D::renderTilemaps(CameraController& camera)
 {
 	GLProgram* program = m_tilemapProgramHandle.getResource();
 	program->use();
@@ -280,9 +321,10 @@ void GLRenderer2D::renderQuadMeshes(CameraController& camera)
 	m_textureSlotManager.makeDisabled();
 
 	int drawCalls = 0;
-	int quadsCount = 255 * 255;
-	for (const auto& command : m_quadMeshesDrawCommands)
+	for (const auto& command : m_tilemapDrawCommands)
 	{
+		int quadsCount = command.TilemapResource->getWidth() * command.TilemapResource->getHeight();
+		
 		ID meshID = command.TilemapResource->getInstanceID();
 		auto [it, inserted] = m_tilemapBuffers.try_emplace(meshID, nullptr);
 		if (inserted) {
@@ -340,12 +382,12 @@ void GLRenderer2D::renderQuadMeshes(CameraController& camera)
 		program->setUniform("uWorldTileSize", command.TilemapResource->getWorldTileSize());
 		program->setUniform("uTextureTileSize", command.TilemapResource->getAtlasTileSize());
 
-		mesh->draw(quadsCount * 6);
+		mesh->drawIndexed(quadsCount * 6);
 		
 		drawCalls++;
 	}
 
-	m_quadMeshesDrawCommands.clear();
+	m_tilemapDrawCommands.clear();
 }
 
 void GLRenderer2D::renderSpriteQuads(CameraController& camera)
