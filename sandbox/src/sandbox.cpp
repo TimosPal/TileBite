@@ -11,6 +11,8 @@
 #include <ecs/types/EngineComponents.hpp>
 #include <core/ResourceRegistry.hpp>
 
+#include <physics/aabb.hpp>
+
 using namespace Engine;
 
 class MainScene : public Scene {
@@ -18,6 +20,13 @@ class MainScene : public Scene {
     {
         auto cameraController = std::make_shared<CameraController>(-1.0f, 1.0f, -1.0f, 1.0f);
         setCameraController(cameraController);
+
+        auto entID = getWorld().createEntity();
+        getWorld().addComponents(entID,
+            TransformComponent{ {0.5f, 0.5f}, {0.5f, 0.5f}, 0.0f },
+            SpriteComponent{ {1,1,1,1}, 0 },
+			AABB({ -0.5f, -0.5f }, { 0.5f, 0.5f })
+		);
     }
 };
 

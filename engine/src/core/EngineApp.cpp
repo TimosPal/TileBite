@@ -3,6 +3,7 @@
 #include "utilities/assertions.hpp"
 #include "layers/types/SystemLayer.hpp"
 #include "layers/types/GraphicsLayer.hpp"
+#include "layers/types/DebugLayer.hpp"
 #include "renderer/Camera/OrthographicCamera.hpp"
 
 namespace Engine {
@@ -50,6 +51,7 @@ void EngineApp::init()
 	auto stopAppCallback = [&]() { stop(); };
 	pushLayer(std::make_unique<SystemLayer>(SystemLayer(stopAppCallback)));
 	pushOverlay(std::make_unique<GraphicsLayer>(GraphicsLayer(m_renderer2D)));
+	pushOverlay(std::make_unique<DebugLayer>(DebugLayer(m_renderer2D)));
 
 	LOG_INFO("############################");
 	LOG_INFO("# Engine init successfully #");
