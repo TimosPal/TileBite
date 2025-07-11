@@ -16,6 +16,8 @@ GLEBO::GLEBO(const uint32_t* data, uint32_t count)
 
 GLEBO::~GLEBO()
 {
+	if (m_count == 0) return; // Not using indices, no buffers created
+
 	GL(glDeleteBuffers(1, &m_glEBO));
 }
 

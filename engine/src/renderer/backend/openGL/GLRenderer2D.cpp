@@ -207,6 +207,10 @@ void GLRenderer2D::setupBuffers()
 		lineLayout.getStride() * verticesPerLine * maxLinesPerBatch,
 		0 // Not using index buffer for line drawing (EBO will not be init)
 	);
+
+	auto* lineProgram = m_lineProgramHandle.getResource();
+	m_linesBatch->setupAttributes(lineLayout, lineProgram->getGLID());
+	m_linesVertexData.resize(maxLinesPerBatch * verticesPerLine * lineLayout.getStride());
 }
 
 void GLRenderer2D::setupTextures()
@@ -292,6 +296,8 @@ void GLRenderer2D::render(CameraController& camera)
 
 void GLRenderer2D::renderLines(CameraController& camera)
 {
+	// TODO: Optimize line rendering by batching
+
 	GLProgram* program = m_lineProgramHandle.getResource();
 	program->use();
 	camera.recalculate();
@@ -302,8 +308,8 @@ void GLRenderer2D::renderLines(CameraController& camera)
 	{
 		auto lineVertices = makeLineVerticesColored(command.Start, command.End, command.Color);
 		m_linesBatch->bind();
-		m_linesBatch->setVertexData(m_spriteVertexData.data(), lineVertices.size() * sizeof(float));
-		m_linesBatch->drawLines(lineVertices.size());
+		m_linesBatch->setVertexData(lineVertices.data(), lineVertices.size() * sizeof(float));
+		m_linesBatch->drawLines(2);
 
 		drawCalls++;
 	}
