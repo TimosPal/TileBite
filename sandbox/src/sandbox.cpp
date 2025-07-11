@@ -16,6 +16,8 @@ using namespace Engine;
 class MainScene : public Scene {
     void onLoad() override
     {
+        auto cameraController = std::make_shared<CameraController>(-1.0f, 1.0f, -1.0f, 1.0f);
+        setCameraController(cameraController);
     }
 };
 
