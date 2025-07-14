@@ -7,7 +7,8 @@ namespace Engine
 {
 
 DebugLayer::DebugLayer(std::shared_ptr<Renderer2D> renderer2D)
-	: m_renderer2D(renderer2D)
+	: Layer(getName()),
+	m_renderer2D(renderer2D)
 {}
 
 void DebugLayer::onAttach()

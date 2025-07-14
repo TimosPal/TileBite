@@ -14,22 +14,34 @@ namespace Engine {
 // Event listeners subscribe to layers.
 class Layer {
 public:
-	Layer() :
+	Layer(std::string name = "NoName") :
 		m_eventDispatcher(),
-		m_systemManager()
+		m_systemManager(),
+		m_name(std::move(name))
 	{}
 
 	virtual void onAttach() {}
 	virtual void onDetach() {}
 
+	void enable() { m_isEnabled = true; }
+	void disable() { m_isEnabled = false; }
+
+	const std::string& getName() const { return m_name; }
+
 	virtual void onUpdate(float deltaTime)
 	{
+		if(!m_isEnabled)
+			return;
+
 		// Update systems.
 		m_systemManager.updateSystems(deltaTime);
 	}
 
 	virtual void onEvent(Event& event) 
 	{
+		if (!m_isEnabled)
+			return;
+
 		m_eventDispatcher.dispatch(event);
 	}
 
@@ -92,6 +104,9 @@ private:
 	AssetsManager* m_assetsManager;
 
 	std::function<void(std::unique_ptr<Event>)> m_pushEventCallable;
+
+	bool m_isEnabled = true;
+	std::string m_name;
 };
 
 } // Engine

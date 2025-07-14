@@ -11,16 +11,18 @@ class LayerStack {
 public:
 	LayerStack() : m_overlaysIndex(0) {}
 
-	void pushLayer(std::unique_ptr<Layer> layer);
-	void pushOverlay(std::unique_ptr<Layer> overlay);
+	void pushLayer(std::shared_ptr<Layer> layer);
+	void pushOverlay(std::shared_ptr<Layer> overlay);
 	void popLayer(Layer* layer);
 	void popOverlay(Layer* overlay);
 
 	void dispatchEventToLayers(Event& event);
 	void onUpdate(float deltaTime);
 
+	std::shared_ptr<Layer> getLayerByName(const std::string& name) const;
+
 private:
-	std::vector<std::unique_ptr<Layer>> m_layers;
+	std::vector<std::shared_ptr<Layer>> m_layers;
 	uint32_t m_overlaysIndex;
 };
 

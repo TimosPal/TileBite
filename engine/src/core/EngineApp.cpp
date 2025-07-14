@@ -1,9 +1,6 @@
 #include "core/EngineApp.hpp"
 
 #include "utilities/assertions.hpp"
-#include "layers/types/SystemLayer.hpp"
-#include "layers/types/GraphicsLayer.hpp"
-#include "layers/types/DebugLayer.hpp"
 #include "renderer/Camera/OrthographicCamera.hpp"
 
 namespace Engine {
@@ -49,9 +46,12 @@ void EngineApp::init()
 
 	// Engine layers creation.
 	auto stopAppCallback = [&]() { stop(); };
-	pushLayer(std::make_unique<SystemLayer>(SystemLayer(stopAppCallback)));
-	pushOverlay(std::make_unique<GraphicsLayer>(GraphicsLayer(m_renderer2D)));
-	pushOverlay(std::make_unique<DebugLayer>(DebugLayer(m_renderer2D)));
+
+	pushLayer(std::make_shared<SystemLayer>(SystemLayer(stopAppCallback)));
+	pushOverlay(std::make_shared<GraphicsLayer>(GraphicsLayer(m_renderer2D)));
+	auto debugLayer = std::make_shared<DebugLayer>(DebugLayer(m_renderer2D));
+	debugLayer->disable(); // Disable by default, enable it in setup.
+	pushOverlay(debugLayer);
 
 	LOG_INFO("############################");
 	LOG_INFO("# Engine init successfully #");
@@ -143,7 +143,7 @@ void EngineApp::pushEvent(std::unique_ptr<Event> event)
 	}
 }
 
-void EngineApp::pushLayer(std::unique_ptr<Layer> layer)
+void EngineApp::pushLayer(std::shared_ptr<Layer> layer)
 {
 	// Inject dependencies to hide from client side.
 	layer->setSceneManager(&m_sceneManager);
@@ -152,10 +152,10 @@ void EngineApp::pushLayer(std::unique_ptr<Layer> layer)
 		pushEvent(std::move(event));
 	});
 
-	m_layers.pushLayer(std::move(layer));
+	m_layers.pushLayer(layer);
 }
 
-void EngineApp::pushOverlay(std::unique_ptr<Layer> layer)
+void EngineApp::pushOverlay(std::shared_ptr<Layer> layer)
 {
 	// Inject dependencies to hide from client side.
 	layer->setSceneManager(&m_sceneManager);
@@ -164,7 +164,7 @@ void EngineApp::pushOverlay(std::unique_ptr<Layer> layer)
 		pushEvent(std::move(event));
 	});
 
-	m_layers.pushOverlay(std::move(layer));
+	m_layers.pushOverlay(layer);
 }
 
 } // Engine

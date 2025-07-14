@@ -11,6 +11,9 @@
 #include "resources/SystemResourceHub.hpp"
 #include "resources/AssetsManager.hpp"
 #include "scenes/SceneManager.hpp"
+#include "layers/types/SystemLayer.hpp"
+#include "layers/types/GraphicsLayer.hpp"
+#include "layers/types/DebugLayer.hpp"
 
 namespace Engine {
 
@@ -35,8 +38,12 @@ public:
 
 	void pushEvent(std::unique_ptr<Event> event);
 
-	void pushLayer(std::unique_ptr<Layer> layer);
-	void pushOverlay(std::unique_ptr<Layer> layer);
+	void pushLayer(std::shared_ptr<Layer> layer);
+	void pushOverlay(std::shared_ptr<Layer> layer);
+
+	std::shared_ptr<Layer> getLayer(const std::string& layerID) {
+		return m_layers.getLayerByName(layerID);
+	}
 
 	SceneManager& getSceneManager() { return m_sceneManager; }
 	AssetsManager& getAssetsManager() { return m_assetsManager; }

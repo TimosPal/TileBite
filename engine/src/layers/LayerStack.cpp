@@ -2,23 +2,34 @@
 
 namespace Engine {
 
-void LayerStack::pushLayer(std::unique_ptr<Layer> layer)
+std::shared_ptr<Layer> LayerStack::getLayerByName(const std::string& name) const {
+	for (const auto& layer : m_layers)
+	{
+		if (layer->getName() == name)
+		{
+			return layer;
+		}
+	}
+	return nullptr;
+}
+
+void LayerStack::pushLayer(std::shared_ptr<Layer> layer)
 {
 	layer->onAttach();
-	m_layers.emplace(m_layers.begin() + m_overlaysIndex, std::move(layer));
+	m_layers.emplace(m_layers.begin() + m_overlaysIndex, layer);
 	++m_overlaysIndex;
 }
 
-void LayerStack::pushOverlay(std::unique_ptr<Layer> overlay)
+void LayerStack::pushOverlay(std::shared_ptr<Layer> overlay)
 {
 	overlay->onAttach();
-	m_layers.emplace_back(std::move(overlay));
+	m_layers.emplace_back(overlay);
 }
 
 void LayerStack::popLayer(Layer* layer)
 {
 	auto it = std::find_if(m_layers.begin(), m_layers.begin() + m_overlaysIndex,
-		[layer](const std::unique_ptr<Layer>& ptr) { return ptr.get() == layer; });
+		[layer](const std::shared_ptr<Layer>& ptr) { return ptr.get() == layer; });
 	if (it != m_layers.begin() + m_overlaysIndex)
 	{
 		layer->onDetach();
@@ -30,7 +41,7 @@ void LayerStack::popLayer(Layer* layer)
 void LayerStack::popOverlay(Layer* overlay)
 {
 	auto it = std::find_if(m_layers.begin() + m_overlaysIndex, m_layers.end(),
-		[overlay](const std::unique_ptr<Layer>& ptr) { return ptr.get() == overlay; });
+		[overlay](const std::shared_ptr<Layer>& ptr) { return ptr.get() == overlay; });
 	if (it != m_layers.end())
 	{
 		overlay->onDetach();

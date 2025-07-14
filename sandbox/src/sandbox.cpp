@@ -21,12 +21,27 @@ class MainScene : public Scene {
         auto cameraController = std::make_shared<CameraController>(-1.0f, 1.0f, -1.0f, 1.0f);
         setCameraController(cameraController);
 
-        auto entID = getWorld().createEntity();
-        getWorld().addComponents(entID,
-            TransformComponent{ {0.5f, 0.5f}, {0.5f, 0.5f}, 0.0f },
-            SpriteComponent{ {1,1,1,1}, 0 },
+		auto floor = getWorld().createEntity();
+        getWorld().addComponents(floor,
+            TransformComponent{ {0.0f, -0.9f}, {2.0f, 0.3f}, 0.0f },
+			SpriteComponent{ {1, 1, 1, 1}, 0 },
 			AABB({ -0.5f, -0.5f }, { 0.5f, 0.5f })
-		);
+        );
+
+		float startX = -0.8f;
+        float startY = 0.5f;
+        for (size_t i = 0; i < 6; i++)
+        {
+            auto entID = getWorld().createEntity();
+            getWorld().addComponents(entID,
+                TransformComponent{ {startX, startY}, {0.2f, 0.2f}, 0.0f },
+                SpriteComponent{ {1,0,0,1}, 0 },
+                AABB({ -0.5f, -0.5f }, { 0.5f, 0.5f })
+            );
+
+			startX += 0.3f;
+			startY -= 0.1f;
+        }
     }
 };
 
@@ -46,6 +61,8 @@ class MyApp : public Engine::EngineApp {
     void setup() override
     {
         pushLayer(std::make_unique<GameLayer>());
+
+        getLayer(DebugLayer::getName())->enable();
     }
 };
 

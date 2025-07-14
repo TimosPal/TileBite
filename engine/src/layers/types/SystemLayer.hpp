@@ -13,6 +13,8 @@ public:
 
 	void onAttach() override;
 
+	static std::string getName() { return "SystemLayer"; }
+
 private:
 	std::function<void()> m_stopAppCallback;
 };

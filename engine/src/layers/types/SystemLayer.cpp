@@ -7,7 +7,8 @@
 namespace Engine {
 
 SystemLayer::SystemLayer(std::function<void()> stopAppCallback)
-	: m_stopAppCallback(stopAppCallback)
+	: Layer(getName()),
+	m_stopAppCallback(stopAppCallback)
 {}
 
 void SystemLayer::onAttach()
