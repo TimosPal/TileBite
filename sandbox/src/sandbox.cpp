@@ -10,12 +10,83 @@
 #include <layers/Layer.hpp>
 #include <ecs/types/EngineComponents.hpp>
 #include <core/ResourceRegistry.hpp>
-
-#include <physics/aabb.hpp>
+#include <physics/AABB.hpp>
 
 using namespace Engine;
 
+struct RigidBody {};
+
+class GravitySystem : public ISystem {
+public:
+    void update(float deltaTime) override
+    {
+        auto currScene = getSceneManager()->getActiveScene();
+        auto& physicsEngine = currScene->getPhysicsEngine();
+		auto& world = currScene->getWorld();
+
+        world.query<AABB, TransformComponent, SpriteComponent, RigidBody>().each([&](ID entityID, AABB* aabb, TransformComponent* transform, SpriteComponent* sprite, RigidBody* rb) {
+            bool falling = true;
+            
+            glm::vec2 min = aabb->Min * transform->Size + transform->Position;
+            glm::vec2 max = aabb->Max * transform->Size + transform->Position;
+			AABB WorldSpaceAABB{ min, max };
+
+            auto d = physicsEngine.queryCollisions(WorldSpaceAABB);
+            for (auto i : d)
+            {
+                if (i.id == entityID) continue;
+                falling = false;
+                break;
+            }
+
+            if(falling)
+            {
+                transform->Position.y -= 1.0f * deltaTime;
+			}
+		});
+    }
+};
+
+class BoxSpawnerSystem : public ISystem {
+public:
+
+    float timer = 0.0f;
+    void update(float deltaTime) override
+    {
+        timer += deltaTime;
+        if (timer > 0.05f)
+        {
+            auto& world = getSceneManager()->getActiveScene()->getWorld();
+            auto entID = world.createEntity();
+
+			float rX = quickRandFloat(-0.8f, 0.8f);
+            float rY = 1.0f;
+
+            glm::vec4 rRGB = glm::vec4(
+                quickRandFloat(0.0f, 1.0f),
+                quickRandFloat(0.0f, 1.0f),
+                quickRandFloat(0.0f, 1.0f),
+                1.0f
+			);
+
+            auto res = getAssetsManager()->getTextureResource("Bee");
+
+            world.addComponents(entID,
+                TransformComponent{ {rX, rY}, {0.04f, 0.04f}, 0.0f },
+                SpriteComponent{ rRGB, res->getID()},
+                AABB({ -0.5f, -0.5f }, { 0.5f, 0.5f }),
+                RigidBody{}
+            );
+
+            timer = 0.0;
+        }
+
+    }
+};
+
 class MainScene : public Scene {
+    std::unique_ptr<IResourceHandle> beeTex;
+
     void onLoad() override
     {
         auto cameraController = std::make_shared<CameraController>(-1.0f, 1.0f, -1.0f, 1.0f);
@@ -28,20 +99,14 @@ class MainScene : public Scene {
 			AABB({ -0.5f, -0.5f }, { 0.5f, 0.5f })
         );
 
-		float startX = -0.8f;
-        float startY = 0.5f;
-        for (size_t i = 0; i < 6; i++)
-        {
-            auto entID = getWorld().createEntity();
-            getWorld().addComponents(entID,
-                TransformComponent{ {startX, startY}, {0.2f, 0.2f}, 0.0f },
-                SpriteComponent{ {1,0,0,1}, 0 },
-                AABB({ -0.5f, -0.5f }, { 0.5f, 0.5f })
-            );
+        beeTex = getAssetsManager()->getTextureResource("Bee");
+        beeTex->watch();
+        beeTex->load();
 
-			startX += 0.3f;
-			startY -= 0.1f;
-        }
+		LOG_INFO("Loaded bee texture: {}", beeTex->isLoaded());
+
+		addSystem(std::make_unique<BoxSpawnerSystem>());
+		addSystem(std::make_unique<GravitySystem>());
     }
 };
 
@@ -60,9 +125,12 @@ class MyApp : public Engine::EngineApp {
 
     void setup() override
     {
+        // load bee texture
+        getAssetsManager().createTextureResource("Bee", ResourcePaths::ImagesDir + std::string("bee.png"));
+
         pushLayer(std::make_unique<GameLayer>());
 
-        getLayer(DebugLayer::getName())->enable();
+        //getLayer(DebugLayer::getName())->enable();
     }
 };
 

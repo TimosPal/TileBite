@@ -3,6 +3,7 @@
 
 #include "core/pch.hpp"
 #include "ecs/ISystem.hpp"
+#include "physics/PhysicsEngine.hpp"
 
 namespace Engine {
 
