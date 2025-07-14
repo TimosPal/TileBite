@@ -21,18 +21,9 @@ public:
 			// Draw AABB as a rectangle
 			glm::vec2 min = aabb->Min * transformComp->Size + transformComp->Position;
 			glm::vec2 max = aabb->Max * transformComp->Size + transformComp->Position;
-
-			glm::vec2 topLeft = { min.x, max.y };
-			glm::vec2 topRight = { max.x, max.y };
-			glm::vec2 bottomLeft = { min.x, min.y };
-			glm::vec2 bottomRight = { max.x, min.y };
-
 			glm::vec4 color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f); // Green color for AABB
 
-			m_renderer2D->drawLine({ topLeft, topRight, color });
-			m_renderer2D->drawLine({ topRight, bottomRight, color });
-			m_renderer2D->drawLine({ bottomRight, bottomLeft, color });
-			m_renderer2D->drawLine({ bottomLeft, topLeft, color });
+			m_renderer2D->drawSquare(min, max, color);
 		});
 	}
 
