@@ -84,11 +84,14 @@ void EngineApp::run()
 		
 		m_renderer2D->clearScreen();
 
-		m_layers.onUpdate(deltaTime);
 		auto activeScene = m_sceneManager.getActiveScene();
 		ASSERT(activeScene != nullptr, "Active scene not set");
 		activeScene->onUpdate(deltaTime);
 		activeScene->updateWorldActions();
+		
+		// NOTE: this should be done after the scene update to prevent flickering issues.
+		// Also, graphics should be relevant to the current frame changes.
+		m_layers.onUpdate(deltaTime);
 
 		auto activeSceneCamController = activeScene->getCameraController();
 		ASSERT(activeSceneCamController != nullptr, "Main camera not set");
