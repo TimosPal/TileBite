@@ -13,7 +13,7 @@ DebugLayer::DebugLayer(std::shared_ptr<Renderer2D> renderer2D)
 
 void DebugLayer::onAttach()
 {
-	addSystem(std::make_unique<ColliderRenderSystem>(m_renderer2D));
+	getSystemManager().addSystem(std::make_unique<ColliderRenderSystem>(m_renderer2D));
 }
 
 } // Engine

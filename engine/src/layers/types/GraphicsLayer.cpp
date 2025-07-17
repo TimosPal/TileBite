@@ -20,10 +20,10 @@ void GraphicsLayer::onAttach()
 		event.consume();
 		m_renderer2D->setViewportSize(event.getWidth(), event.getHeight());
 	});
-	subscribe<WindowResizeEvent>(windowResizeEventCallback);
+	getEventDispatcher().subscribe<WindowResizeEvent>(windowResizeEventCallback);
 
-	addSystem(std::make_unique<SpriteRenderSystem>(m_renderer2D));
-	addSystem(std::make_unique<TilemapRenderSystem>(m_renderer2D));
+	getSystemManager().addSystem(std::make_unique<SpriteRenderSystem>(m_renderer2D));
+	getSystemManager().addSystem(std::make_unique<TilemapRenderSystem>(m_renderer2D));
 }
 
 } // Engine

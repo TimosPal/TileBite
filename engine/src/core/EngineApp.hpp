@@ -14,10 +14,11 @@
 #include "layers/types/SystemLayer.hpp"
 #include "layers/types/GraphicsLayer.hpp"
 #include "layers/types/DebugLayer.hpp"
+#include "core/EngineContext.hpp"
 
 namespace Engine {
 
-class EngineApp {
+class EngineApp : public IEngineContext {
 public:
 	static EngineApp* getInstance() { return s_instance; }
 
@@ -36,8 +37,6 @@ public:
 
 	void stop() { m_isRunning = false; }
 
-	void pushEvent(std::unique_ptr<Event> event);
-
 	void pushLayer(std::shared_ptr<Layer> layer);
 	void pushOverlay(std::shared_ptr<Layer> layer);
 
@@ -45,8 +44,9 @@ public:
 		return m_layers.getLayerByName(layerID);
 	}
 
-	SceneManager& getSceneManager() { return m_sceneManager; }
-	AssetsManager& getAssetsManager() { return m_assetsManager; }
+	virtual SceneManager& getSceneManager() override { return m_sceneManager; }
+	virtual AssetsManager& getAssetsManager() override { return m_assetsManager; }
+	virtual void pushEvent(std::unique_ptr<Event> event) override;
 
 private:
 	static EngineApp* s_instance;

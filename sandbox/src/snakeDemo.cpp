@@ -40,7 +40,7 @@ public:
 
     void update(float deltaTime) override
     {
-        auto& world = getSceneManager()->getActiveScene()->getWorld();
+        auto& world = getSceneManager().getActiveScene()->getWorld();
 
         world.query<TransformComponent, VelocityComponent, Leader>().each(
             [&](ID id, TransformComponent* t, VelocityComponent* v, Leader* l) {
@@ -123,7 +123,7 @@ class FollowerSystem : public ISystem {
 public:
     void update(float deltaTime) override
     {
-        auto& world = getSceneManager()->getActiveScene()->getWorld();
+        auto& world = getSceneManager().getActiveScene()->getWorld();
 
         std::unordered_map<ID, TransformComponent*> transformCache;
         world.query<TransformComponent>().each([&](ID id, TransformComponent* t) {
@@ -153,7 +153,7 @@ class FoodSystem : public ISystem {
 public:
     void update(float deltaTime) override
     {
-        auto& world = getSceneManager()->getActiveScene()->getWorld();
+        auto& world = getSceneManager().getActiveScene()->getWorld();
 
         world.query<TransformComponent, VelocityComponent, Food>().each(
             [&](ID id, TransformComponent* t, VelocityComponent* v, Food* f) {
@@ -206,9 +206,9 @@ class MainScene : public Scene {
     {
         auto cameraController = std::make_shared<CameraController>(-1.0f, 1.0f, -1.0f, 1.0f);
 
-        addSystem(std::make_unique<FollowerSystem>());
-        addSystem(std::make_unique<LeaderSystem>());
-        addSystem(std::make_unique<FoodSystem>());
+        getSystemManager().addSystem(std::make_unique<FollowerSystem>());
+        getSystemManager().addSystem(std::make_unique<LeaderSystem>());
+        getSystemManager().addSystem(std::make_unique<FoodSystem>());
         setCameraController(cameraController);
 
         int foodC = 2000;

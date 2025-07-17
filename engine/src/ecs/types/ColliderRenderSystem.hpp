@@ -16,7 +16,7 @@ public:
 
 	virtual void update(float deltaTime) override
 	{
-		auto& activeWorld = getSceneManager()->getActiveScene()->getWorld();
+		auto& activeWorld = getSceneManager().getActiveScene()->getWorld();
 		activeWorld.query<AABB, TransformComponent>().each([this](ID entityID, AABB* aabb, TransformComponent* transformComp) {
 			// Draw AABB as a rectangle
 			glm::vec2 min = aabb->Min * transformComp->Size + transformComp->Position;

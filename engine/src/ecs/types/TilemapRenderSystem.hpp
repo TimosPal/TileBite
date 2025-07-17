@@ -14,7 +14,7 @@ public:
 
 	virtual void update(float deltaTime) override
 	{
-		auto& activeWorld = getSceneManager()->getActiveScene()->getWorld();
+		auto& activeWorld = getSceneManager().getActiveScene()->getWorld();
 		activeWorld.query<TilemapComponent, TransformComponent>().each([this](ID entityID, TilemapComponent* tilemapComp, TransformComponent* transformComp) {
 			// TODO: Assumes resource is always loaded and valid, might need to retrieve a handle instead.
 			auto resource = tilemapComp->TilemapResource;

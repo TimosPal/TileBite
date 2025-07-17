@@ -4,15 +4,22 @@
 #include "core/pch.hpp"
 #include "ecs/ISystem.hpp"
 #include "physics/PhysicsEngine.hpp"
+#include "core/EngineContext.hpp"
 
 namespace Engine {
 
-class SystemManager {
+class SystemManager : public InjectEngineContext {
 public:
     SystemManager() = default;
 
     void addSystem(std::unique_ptr<ISystem> system)
     {
+        // Inject world and asset manager for hidden client side use
+        // (Removes the need for client side construction to include injections)
+        system->setAssetsManager(&getAssetsManager());
+        system->setSceneManager(&getSceneManager());
+        system->setPushEventCallable(getPushEventCallable());
+        
         m_systems.push_back(std::move(system));
     }
 

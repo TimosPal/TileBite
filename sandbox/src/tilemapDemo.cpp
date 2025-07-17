@@ -25,7 +25,7 @@ public:
 
         if (cameraTimer < 15)
         {
-            auto cam = getSceneManager()->getActiveScene()->getCameraController();
+            auto cam = getSceneManager().getActiveScene()->getCameraController();
             float zoomSpeed = 1.1f;
             cam->setZoom(cam->getZoom() / std::pow(zoomSpeed, deltaTime));
 
@@ -39,7 +39,7 @@ public:
         {
             timer = 0;
 
-            auto tilemapHandle = getAssetsManager()->getTilemapResource("tileMapResource_0_0");
+            auto tilemapHandle = getAssetsManager().getTilemapResource("tileMapResource_0_0");
 			auto rngA = quickRandFloat(0.0f, 1.0f) < 0.4 ? 1 : 0.1;
             auto rngCol = glm::vec4(quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), rngA);
 
@@ -73,11 +73,11 @@ class MainScene : public Scene {
         auto cameraController = std::make_shared<CameraController>(-1.0f, 1.0f, -1.0f, 1.0f);
         setCameraController(cameraController);
 
-        m_tilemapTextureHandle = getAssetsManager()->getTextureResource("tilemap");
+        m_tilemapTextureHandle = getAssetsManager().getTextureResource("tilemap");
         m_tilemapTextureHandle->watch();
         m_tilemapTextureHandle->load();
 
-		addSystem(std::make_unique<CameraSystem>());
+        getSystemManager().addSystem(std::make_unique<CameraSystem>());
 
 		glm::vec2 uvs[] = { {0,0}, {0,1}, {1,0}, {1,1} };
 
@@ -107,7 +107,7 @@ class MainScene : public Scene {
                     }
                 }
                 std::string resourceName = "tileMapResource_" + std::to_string(i) + "_" + std::to_string(j);
-                m_tilemapHandle = getAssetsManager()->createTilemapResource(
+                m_tilemapHandle = getAssetsManager().createTilemapResource(
                     resourceName,
                     tiles,
                     { tilemapWidth, tilemapHeight },

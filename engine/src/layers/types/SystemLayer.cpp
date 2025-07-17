@@ -18,7 +18,7 @@ void SystemLayer::onAttach()
 		event.consume();
 		m_stopAppCallback();
 	});
-	subscribe<WindowCloseEvent>(windowCloseEventCallback);
+	getEventDispatcher().subscribe<WindowCloseEvent>(windowCloseEventCallback);
 }
 
 } // Engine

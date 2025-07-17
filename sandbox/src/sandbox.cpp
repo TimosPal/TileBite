@@ -20,7 +20,7 @@ class GravitySystem : public ISystem {
 public:
     void update(float deltaTime) override
     {
-        auto currScene = getSceneManager()->getActiveScene();
+        auto currScene = getSceneManager().getActiveScene();
         auto& physicsEngine = currScene->getPhysicsEngine();
 		auto& world = currScene->getWorld();
 
@@ -41,7 +41,7 @@ public:
 
             if(falling)
             {
-                transform->Position.y -= 1.0f * deltaTime;
+                transform->Position.y -= 2.0f * deltaTime;
 			}
 		});
     }
@@ -54,12 +54,12 @@ public:
     void update(float deltaTime) override
     {
         timer += deltaTime;
-        if (timer > 0.05f)
+        if (timer > 0.01f)
         {
-            auto& world = getSceneManager()->getActiveScene()->getWorld();
+            auto& world = getSceneManager().getActiveScene()->getWorld();
             auto entID = world.createEntity();
 
-			float rX = quickRandFloat(-0.8f, 0.8f);
+			float rX = quickRandFloat(-1.0f, 1.0f);
             float rY = 1.0f;
 
             glm::vec4 rRGB = glm::vec4(
@@ -69,11 +69,11 @@ public:
                 1.0f
 			);
 
-            auto res = getAssetsManager()->getTextureResource("Bee");
+            auto res = getAssetsManager().getTextureResource("Bee");
 
             world.addComponents(entID,
-                TransformComponent{ {rX, rY}, {0.04f, 0.04f}, 0.0f },
-                SpriteComponent{ rRGB, res->getID()},
+                TransformComponent{ {rX, rY}, {0.02f, 0.02f}, 0.0f },
+                SpriteComponent{ rRGB, 0},
                 AABB({ -0.5f, -0.5f }, { 0.5f, 0.5f }),
                 RigidBody{}
             );
@@ -99,14 +99,14 @@ class MainScene : public Scene {
 			AABB({ -0.5f, -0.5f }, { 0.5f, 0.5f })
         );
 
-        beeTex = getAssetsManager()->getTextureResource("Bee");
+        beeTex = getAssetsManager().getTextureResource("Bee");
         beeTex->watch();
         beeTex->load();
 
 		LOG_INFO("Loaded bee texture: {}", beeTex->isLoaded());
-
-		addSystem(std::make_unique<BoxSpawnerSystem>());
-		addSystem(std::make_unique<GravitySystem>());
+        
+		getSystemManager().addSystem(std::make_unique<BoxSpawnerSystem>());
+		getSystemManager().addSystem(std::make_unique<GravitySystem>());
     }
 };
 
@@ -131,6 +131,7 @@ class MyApp : public Engine::EngineApp {
         pushLayer(std::make_unique<GameLayer>());
 
         //getLayer(DebugLayer::getName())->enable();
+        //getLayer(GraphicsLayer::getName())->disable();
     }
 };
 

@@ -3,22 +3,21 @@
 
 #include "core/pch.hpp"
 #include "scenes/Scene.hpp"
+#include "core/EngineContext.hpp"
 
 namespace Engine {
 
-class SceneManager {
+class SceneManager : public InjectEngineContext {
 public:
-	SceneManager(AssetsManager* assetsManager) :
-		m_assetsManager(assetsManager) {}
-
 	// Create a new scene with the given name.
 	template<typename SceneDerived>
 	std::shared_ptr<Scene> createScene(const std::string& name)
 	{
 		auto scene = std::make_shared<SceneDerived>();
-		scene->setAssetsManager(m_assetsManager);
+		scene->setAssetsManager(&getAssetsManager());
 		scene->setSceneManager(this);
-		scene->setPushEventCallable(m_pushEventCallable);
+		scene->setPushEventCallable(getPushEventCallable());
+		scene->init();
 		m_scenes[name] = scene;
 		return scene;
 	}
@@ -26,11 +25,6 @@ public:
 	bool setActiveScene(const std::string& name);
 	bool setActiveScene(std::shared_ptr<Scene> scene);
 	std::shared_ptr<Scene> getActiveScene() const;
-
-	void setPushEventCallable(std::function<void(std::unique_ptr<Event>)> pushEventCallable)
-	{
-		m_pushEventCallable = std::move(pushEventCallable);
-	}
 
 	void clearScenes() 
 	{ 
@@ -40,10 +34,6 @@ public:
 private:
 	std::shared_ptr<Scene> m_activeScene = nullptr;
 	std::unordered_map<std::string, std::shared_ptr<Scene>> m_scenes;
-
-	AssetsManager* m_assetsManager = nullptr;
-
-	std::function<void(std::unique_ptr<Event>)> m_pushEventCallable;
 };
 
 } // Engine

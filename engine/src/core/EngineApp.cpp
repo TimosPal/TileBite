@@ -9,8 +9,11 @@ EngineApp* EngineApp::s_instance;
 
 EngineApp::EngineApp()
 	: m_isRunning(true),
-	m_sceneManager(&m_assetsManager)
+	m_sceneManager()
 {
+	m_sceneManager.setAssetsManager(&m_assetsManager);
+	m_sceneManager.setSceneManager(&m_sceneManager); // Set itself for consistency, not usefull.
+
 	// One instance allowed.
 	ASSERT(s_instance == nullptr, "Engine app already created");
 	s_instance = this;
@@ -154,6 +157,7 @@ void EngineApp::pushLayer(std::shared_ptr<Layer> layer)
 	layer->setPushEventCallable([&](std::unique_ptr<Event> event) {
 		pushEvent(std::move(event));
 	});
+	layer->init();
 
 	m_layers.pushLayer(layer);
 }
@@ -166,6 +170,7 @@ void EngineApp::pushOverlay(std::shared_ptr<Layer> layer)
 	layer->setPushEventCallable([&](std::unique_ptr<Event> event) {
 		pushEvent(std::move(event));
 	});
+	layer->init();
 
 	m_layers.pushOverlay(layer);
 }
