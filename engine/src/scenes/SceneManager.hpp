@@ -17,6 +17,7 @@ public:
 		scene->setAssetsManager(&getAssetsManager());
 		scene->setSceneManager(this);
 		scene->setPushEventCallable(getPushEventCallable());
+		scene->setCoreEventDispatcher(&getCoreEventDispatcher());
 		scene->init();
 		m_scenes[name] = scene;
 		return scene;

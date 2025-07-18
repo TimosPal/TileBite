@@ -10,10 +10,13 @@ namespace Engine {
 
 class EventQueue {
 public:
+	void addEventHandler(std::function<void(Event&)> handler);
 	void push(std::unique_ptr<Event> event);
 	void dispatchAll(LayerStack& layers);
 private:
 	std::queue<std::unique_ptr<Event>> m_events;
+
+	std::vector<std::function<void(Event&)>> m_eventHandlers;
 };
 
 } // Engine

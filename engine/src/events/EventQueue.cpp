@@ -2,6 +2,11 @@
 
 namespace Engine {
 
+void EventQueue::addEventHandler(std::function<void(Event&)> handler)
+{
+	m_eventHandlers.push_back(handler);
+}
+
 void EventQueue::push(std::unique_ptr<Event> event)
 {
 	m_events.push(std::move(event));
@@ -19,7 +24,11 @@ void EventQueue::dispatchAll(LayerStack& layers)
 		std::unique_ptr<Event> event = std::move(dispatchEvents.front());
         dispatchEvents.pop();
 
-		layers.dispatchEventToLayers(*event);
+		for(auto handler : m_eventHandlers)
+		{
+			if (event->isHandled()) break;
+			handler(*event);
+		}
 	}
 }
 

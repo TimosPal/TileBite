@@ -14,10 +14,26 @@
 
 using namespace Engine;
 
-struct RigidBody {};
+struct RigidBody {
+    float life;
+};
+
+class TestEvent : public Event {
+    SETUP_ID(Event, TestEvent)
+public:
+    TestEvent() : Engine::Event(true) {}
+};
 
 class GravitySystem : public ISystem {
 public:
+    void onAttach() override
+    {
+        EventCallback<TestEvent> testCallback([&](TestEvent& event) {
+            LOG_INFO("Test event caught");
+        });
+        getCoreEventDispatcher().subscribe<TestEvent>(testCallback);
+    }
+
     void update(float deltaTime) override
     {
         auto currScene = getSceneManager().getActiveScene();
@@ -35,27 +51,40 @@ public:
             for (auto i : d)
             {
                 if (i.id == entityID) continue;
+                auto tr = world.getComponent<TransformComponent>(i.id);
+                if (tr->Position.y >= transform->Position.y) continue;
+
                 falling = false;
                 break;
             }
 
             if(falling)
             {
-                transform->Position.y -= 2.0f * deltaTime;
+                transform->Position.y -= 0.8f * deltaTime;
 			}
+            else
+            {
+				rb->life -= 7.0 * deltaTime;
+                transform->Size -= transform->Size * 0.003f;
+                if (rb->life <= 0.0f)
+                {
+					world.removeEntity(entityID);
+                }
+            }
 		});
     }
 };
 
 class BoxSpawnerSystem : public ISystem {
 public:
-
     float timer = 0.0f;
     void update(float deltaTime) override
     {
         timer += deltaTime;
-        if (timer > 0.01f)
+        if (timer > 1.1f)
         {
+			pushEvent(std::make_unique<TestEvent>());
+
             auto& world = getSceneManager().getActiveScene()->getWorld();
             auto entID = world.createEntity();
 
@@ -75,7 +104,7 @@ public:
                 TransformComponent{ {rX, rY}, {0.02f, 0.02f}, 0.0f },
                 SpriteComponent{ rRGB, 0},
                 AABB({ -0.5f, -0.5f }, { 0.5f, 0.5f }),
-                RigidBody{}
+                RigidBody{ quickRandFloat(0, 1) * 100 }
             );
 
             timer = 0.0;
@@ -127,7 +156,7 @@ class MyApp : public Engine::EngineApp {
     {
         // load bee texture
         getAssetsManager().createTextureResource("Bee", ResourcePaths::ImagesDir + std::string("bee.png"));
-
+        
         pushLayer(std::make_unique<GameLayer>());
 
         //getLayer(DebugLayer::getName())->enable();

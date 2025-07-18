@@ -15,6 +15,7 @@
 #include "layers/types/GraphicsLayer.hpp"
 #include "layers/types/DebugLayer.hpp"
 #include "core/EngineContext.hpp"
+#include "events/EventDispatcher.hpp"
 
 namespace Engine {
 
@@ -46,6 +47,7 @@ public:
 
 	virtual SceneManager& getSceneManager() override { return m_sceneManager; }
 	virtual AssetsManager& getAssetsManager() override { return m_assetsManager; }
+	virtual EventDispatcher& getCoreEventDispatcher() override { return m_coreEventDispatcher; }
 	virtual void pushEvent(std::unique_ptr<Event> event) override;
 
 private:
@@ -61,6 +63,7 @@ private:
 	// Layer ID -> EventDispatcher.
 	EventQueue m_eventQueue;
 	LayerStack m_layers;
+	EventDispatcher m_coreEventDispatcher;
 
 	SceneManager m_sceneManager;
 

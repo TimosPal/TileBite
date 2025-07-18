@@ -10,7 +10,8 @@ namespace Engine {
 class ISystem : public InjectEngineContext {
 public:
     virtual ~ISystem() = default;
-    virtual void update(float deltaTime) = 0;
+	virtual void onAttach() {}; // NOTE: called only on creation, consider if this is correct order of operations.
+    virtual void update(float deltaTime) {};
 private:
 };
 
