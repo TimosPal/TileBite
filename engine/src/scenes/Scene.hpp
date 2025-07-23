@@ -2,44 +2,25 @@
 #define SCENE_HPP
 
 #include "core/pch.hpp"
+#include "core/EngineContext.hpp"
 #include "ecs/World.hpp"
 #include "renderer/camera/CameraController.hpp"
 #include "ecs/SystemManager.hpp"
 #include "physics/PhysicsEngine.hpp"
-#include "core/EngineContext.hpp"
+#include "events/EventCallback.hpp"
 
 namespace Engine {
 
 class Scene : public InjectEngineContext {
 public:
-	void init()
-	{
-		m_systemManager.setAssetsManager(&getAssetsManager());
-		m_systemManager.setSceneManager(&getSceneManager());
-		m_systemManager.setCoreEventDispatcher(&getCoreEventDispatcher());
-		m_systemManager.setPushEventCallable(getPushEventCallable());
-	}
+	void init();
 
 	World& getWorld() { return m_world; }
 	PhysicsEngine& getPhysicsEngine() { return m_physicsEngine; } // TODO: maybe return a protected interface instead of the whole physics engine?
 	
 	std::shared_ptr<CameraController> getCameraController() const { return m_cameraController; }
 	
-	void onUpdate(float deltaTime) 
-	{
-		// TODO: really slow to re create colliders each frame
-		// (place holder code!!!)
-		// Need to add and remove on spawn / despawn of entities with colliders
-		m_physicsEngine.clearColliders(); // Clear colliders at the start of each update
-		m_world.query<AABB, TransformComponent>().each([this](ID entityID, AABB* aabb, TransformComponent* transformComp) {
-			// Draw AABB as a rectangle
-			glm::vec2 min = aabb->Min * transformComp->Size + transformComp->Position;
-			glm::vec2 max = aabb->Max * transformComp->Size + transformComp->Position;
-			m_physicsEngine.addCollider(AABB(min, max), entityID);
-		});
-
-		m_systemManager.updateSystems(deltaTime); 
-	}
+	void onUpdate(float deltaTime);
 	void updateWorldActions() { m_world.executeDeferredActions(); }
 
 	virtual void onLoad() {};

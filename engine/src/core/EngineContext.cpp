@@ -1,4 +1,5 @@
 #include "core/EngineContext.hpp"
+
 #include "resources/AssetsManager.hpp"
 #include "scenes/SceneManager.hpp"
 #include "events/EventDispatcher.hpp"

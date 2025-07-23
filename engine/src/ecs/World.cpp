@@ -61,6 +61,8 @@ void World::removeEntityImpl(ID id)
 	std::shared_ptr<Archetype> arch = rec.archetype;
 	removeEntityFromArchHelper(rec.entityIndex, *arch);
 	m_entityRecords.erase(entityIt);
+
+	m_pushEventCallable(std::make_unique<EntityRemoveEvent>(id));
 }
 
 void World::removeEntityFromArchHelper(uint32_t entityIndex, Archetype& arch)

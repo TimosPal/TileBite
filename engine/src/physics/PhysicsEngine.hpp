@@ -19,8 +19,9 @@ public:
 	// Return all colliders overlapping with the given one
 	std::vector<CollisionData> queryCollisions(const AABB& collider) const;
 
-	void addCollider(const AABB& collider, ID id);
+	void addCollider(ID id, AABB* collider, TransformComponent* transform);
 	void removeCollider(ID id);
+	void updateCollider(ID id, AABB* collider, TransformComponent* transform);
 	void clearColliders();
 
 private:

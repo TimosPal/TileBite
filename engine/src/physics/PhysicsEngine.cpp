@@ -16,9 +16,13 @@ std::vector<CollisionData> PhysicsEngine::queryCollisions(const AABB& collider) 
 	return results;
 }
 
-void PhysicsEngine::addCollider(const AABB& collider, ID id)
+void PhysicsEngine::addCollider(ID id, AABB* collider, TransformComponent* transform)
 {
-	m_colliders.emplace_back(id, collider);
+	// Make world position AABB
+	glm::vec2 min = collider->Min * transform->Size + transform->Position;
+	glm::vec2 max = collider->Max * transform->Size + transform->Position;
+	
+	m_colliders.emplace_back(id, AABB{ min, max });
 }
 
 void PhysicsEngine::removeCollider(ID id)
@@ -30,6 +34,12 @@ void PhysicsEngine::removeCollider(ID id)
 			}),
 		m_colliders.end()
 	);
+}
+
+void PhysicsEngine::updateCollider(ID id, AABB* collider, TransformComponent* transform)
+{
+	removeCollider(id);
+	addCollider(id, collider, transform);
 }
 
 void PhysicsEngine::clearColliders()

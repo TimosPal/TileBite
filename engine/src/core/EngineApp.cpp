@@ -57,7 +57,7 @@ void EngineApp::init()
 	debugLayer->disable(); // Disable by default, enable it in setup.
 	pushOverlay(debugLayer);
 
-	// Event queue setup.
+	// Event queue setup. (Order matters)
 	m_eventQueue.addEventHandler([&](Event& event) {
 		// Dispatch to layers.
 		m_layers.dispatchEventToLayers(event);

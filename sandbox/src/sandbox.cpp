@@ -29,7 +29,7 @@ public:
     void onAttach() override
     {
         EventCallback<TestEvent> testCallback([&](TestEvent& event) {
-            LOG_INFO("Test event caught");
+            //LOG_INFO("Test event caught");
         });
         getCoreEventDispatcher().subscribe<TestEvent>(testCallback);
     }
@@ -60,7 +60,10 @@ public:
 
             if(falling)
             {
-                transform->Position.y -= 0.8f * deltaTime;
+                transform->Position.y -= 1.9f * deltaTime;
+
+                pushEvent(std::make_unique<EntityRemoveEvent>(entityID));
+				pushEvent(std::make_unique<EntityAddComponentEvent>(entityID));
 			}
             else
             {
@@ -81,7 +84,7 @@ public:
     void update(float deltaTime) override
     {
         timer += deltaTime;
-        if (timer > 1.1f)
+        if (timer > 0.1f)
         {
 			pushEvent(std::make_unique<TestEvent>());
 

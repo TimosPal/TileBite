@@ -8,6 +8,9 @@
 #include "ecs/Signature.hpp"
 #include "ecs/QueryResponse.hpp"
 
+#include "events/Event.hpp"
+#include "events/types/EntityEvents.hpp"
+
 namespace Engine {
 
 class Scene; // Forward declaration for friendship.
@@ -34,6 +37,11 @@ public:
 	// NOTE: using friendship to avoid making a wrapper view class for a single function 
 	// If more private API is needed then a wrapper class should be created.
 	friend class Scene; // Allow Scene to access executeDeferredActions.
+
+	void setPushEvent(std::function<void(std::unique_ptr<Event>)> pushEventCallable)
+	{
+		m_pushEventCallable = pushEventCallable;
+	}
 
 	// NOTE: createEntity and addComponents are delaying actions by adding them to a deferredActions vector.
 	// This way systems can change the world state without causing inconsistencies. The world needs to run the
@@ -148,6 +156,8 @@ private:
 		
 		removeEntityFromArchHelper(rec.entityIndex, oldArch);
 		rec.entityIndex = index;
+
+		m_pushEventCallable(std::make_unique<EntityAddComponentEvent>(entityID));
 	}
 
 	void removeEntityFromArchHelper(uint32_t entityIndex, Archetype& arch);
@@ -176,6 +186,8 @@ private:
 	Bitset m_existingArchetypes{ DEFAULT_ARCHETYPES_SIZE, false };
 
 	std::shared_ptr<Archetype> getArchetype(Signature& sig);
+
+	std::function<void(std::unique_ptr<Event>)> m_pushEventCallable;
 };
 
 } // Engine
