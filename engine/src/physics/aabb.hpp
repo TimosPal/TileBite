@@ -3,9 +3,11 @@
 
 #include <glm/glm.hpp>
 
+#include "ecs/types/BaseComponent.hpp"
+
 namespace Engine {
 
-struct AABB {
+struct AABB : public BaseComponent {
 	glm::vec2 Min; // Minimum point (bottom-left corner)
 	glm::vec2 Max; // Maximum point (top-right corner)
 	

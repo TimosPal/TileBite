@@ -10,29 +10,45 @@
 #include <layers/Layer.hpp>
 #include <ecs/types/EngineComponents.hpp>
 #include <core/ResourceRegistry.hpp>
+#include "ecs/types/BaseComponent.hpp"
 
 using namespace Engine;
 
-struct VelocityComponent {
-    float v;
-    float startingV;
+struct VelocityComponent : public BaseComponent {
+    float v = 0.0f;
+    float startingV = 0.0f;
+
+    VelocityComponent(float velocity = 0.0f, float startV = 0.0f)
+        : v(velocity), startingV(startV) {
+    }
 };
 
-struct Leader {
-    ID target;
+struct Leader : public BaseComponent {
+    ID target = 0;
     bool hasTarget = false;
     ID lastBodyPart = 0;
     int bodyPartsCount = 0;
+    glm::vec4 color = glm::vec4(1.0f);
 
-    glm::vec4 color;
+    Leader(ID t = 0, bool h = false, ID l = 0, int b = 0, glm::vec4 c = glm::vec4(1.0f))
+        : target(t), hasTarget(h), lastBodyPart(l), bodyPartsCount(b), color(c) {
+    }
 };
 
-struct Follower {
-    ID target;
+struct Follower : public BaseComponent {
+    ID target = 0;
+
+    Follower(ID t = 0)
+        : target(t) {
+    }
 };
 
-struct Food {
-    bool isTargeted;
+struct Food : public BaseComponent {
+    bool isTargeted = false;
+
+    Food(bool targeted = false)
+        : isTargeted(targeted) {
+    }
 };
 
 class LeaderSystem : public ISystem {

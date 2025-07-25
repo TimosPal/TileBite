@@ -4,36 +4,62 @@
 #include <glm/glm.hpp>
 
 #include "utilities/IDGenerator.hpp"
+#include "ecs/types/BaseComponent.hpp"
 
 namespace Engine {
 
 class TilemapResource;
 
-struct SpriteComponent
+struct SpriteComponent : public BaseComponent
 {
-	glm::vec4 Color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	
-	ID TextureID = 0;
+	glm::vec4 Color;
+	ID TextureID;
+	glm::vec4 UVRect;
 
-	// Quad uvs (Default set for whole texture)
-	glm::vec4 UVRect = glm::vec4(0.0f, 1.0f, 1.0f, 0.0f);
+	SpriteComponent(
+		const glm::vec4& color = glm::vec4(1.0f),
+		ID textureID = 0,
+		const glm::vec4& uvRect = glm::vec4(0.0f, 1.0f, 1.0f, 0.0f))
+		: Color(color), TextureID(textureID), UVRect(uvRect) {
+	}
 };
 
-struct TransformComponent
-{
-	glm::vec2 Position = glm::vec2(0, 0);
-	glm::vec2 Size = glm::vec2(1, 1);
-	float Rotation = 0.0f; // In radians
+struct TransformComponent : public BaseComponent {
+	glm::vec2 Position;
+	glm::vec2 Size;
+	float Rotation;
+
+	void setDirty(bool dirty = true) {
+		BaseComponent::setDirty(dirty);
+	}
+
+	TransformComponent(
+		const glm::vec2& position = { 0.0f, 0.0f },
+		const glm::vec2& size = { 1.0f, 1.0f },
+		float rotation = 0.0f)
+		: Position(position), Size(size), Rotation(rotation) {
+	}
 };
 
-struct Tile {
-	glm::vec4 Color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	uint8_t uIndex = 0;
-	uint8_t vIndex = 0;
+struct Tile : public BaseComponent {
+	glm::vec4 Color;
+	uint8_t uIndex;
+	uint8_t vIndex;
+
+	Tile(
+		const glm::vec4& color = { 1.0f, 1.0f, 1.0f, 1.0f },
+		uint8_t u = 0,
+		uint8_t v = 0)
+		: Color(color), uIndex(u), vIndex(v) {
+	}
 };
 
-struct TilemapComponent {
-	TilemapResource* TilemapResource = nullptr;
+struct TilemapComponent : public BaseComponent {
+	TilemapResource* TilemapResourcePtr;
+
+	TilemapComponent(TilemapResource* ptr = nullptr)
+		: TilemapResourcePtr(ptr) {
+	}
 };
 
 } // Engine

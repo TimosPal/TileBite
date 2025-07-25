@@ -11,11 +11,16 @@
 #include <ecs/types/EngineComponents.hpp>
 #include <core/ResourceRegistry.hpp>
 #include <physics/AABB.hpp>
+#include "ecs/types/BaseComponent.hpp"
 
 using namespace Engine;
 
-struct RigidBody {
-    float life;
+struct RigidBody : public BaseComponent {
+    float life = 0.0f;
+
+    RigidBody(float l = 0.0f)
+        : life(l) {
+    }
 };
 
 class TestEvent : public Event {
@@ -61,18 +66,16 @@ public:
             if(falling)
             {
                 transform->Position.y -= 1.9f * deltaTime;
-
-                pushEvent(std::make_unique<EntityRemoveEvent>(entityID));
-				pushEvent(std::make_unique<EntityAddComponentEvent>(entityID));
+                transform->setDirty(true);
 			}
             else
             {
-				rb->life -= 7.0 * deltaTime;
-                transform->Size -= transform->Size * 0.003f;
-                if (rb->life <= 0.0f)
-                {
-					world.removeEntity(entityID);
-                }
+				//rb->life -= 7.0 * deltaTime;
+    //            transform->Size -= transform->Size * 0.003f;
+    //            if (rb->life <= 0.0f)
+    //            {
+				//	world.removeEntity(entityID);
+    //            }
             }
 		});
     }
@@ -81,11 +84,16 @@ public:
 class BoxSpawnerSystem : public ISystem {
 public:
     float timer = 0.0f;
+    int c = 0;
     void update(float deltaTime) override
     {
         timer += deltaTime;
-        if (timer > 0.1f)
+        if (timer > 0.01f)
         {
+            c++;
+            if(c % 1000 == 0) LOG_INFO("Creating box {}", c);
+            // Push a test event to the event dispatcher
+			// This is just for testing purposes, you can remove it if not needed
 			pushEvent(std::make_unique<TestEvent>());
 
             auto& world = getSceneManager().getActiveScene()->getWorld();
@@ -129,6 +137,13 @@ class MainScene : public Scene {
             TransformComponent{ {0.0f, -0.9f}, {2.0f, 0.3f}, 0.0f },
 			SpriteComponent{ {1, 1, 1, 1}, 0 },
 			AABB({ -0.5f, -0.5f }, { 0.5f, 0.5f })
+        );
+
+        auto floor2 = getWorld().createEntity();
+        getWorld().addComponents(floor2,
+            TransformComponent{ {0.0f, -0.2f}, {0.2f, 0.3f}, 0.0f },
+            SpriteComponent{ {1, 1, 1, 1}, 0 },
+            AABB({ -0.5f, -0.5f }, { 0.5f, 0.5f })
         );
 
         beeTex = getAssetsManager().getTextureResource("Bee");
