@@ -7,10 +7,19 @@ Bitset::Bitset(size_t numBits, bool filled)
 	m_words((numBits + BITS_PER_WORD - 1) / BITS_PER_WORD, (filled) ? ~0 : 0)
 {}
 
-void Bitset::set(size_t index)
+bool Bitset::isSet(size_t index) const {
+	ASSERT(index < m_bitsSize, "Out of range");
+	return (m_words[index / BITS_PER_WORD] >> (index % BITS_PER_WORD)) & 1;
+}
+
+void Bitset::set(size_t index, bool value)
 {
 	ASSERT(index < m_bitsSize, "Out of range");
-	m_words[index / BITS_PER_WORD] |= (WordType(1) << (index % BITS_PER_WORD));
+
+	constexpr size_t WORD_SHIFT = std::countr_zero(BITS_PER_WORD);
+	constexpr size_t WORD_MASK = BITS_PER_WORD - 1;
+
+	m_words[index >> WORD_SHIFT] |= (WordType(value) << (index & WORD_MASK));
 }
 
 void Bitset::clear(size_t index)
@@ -21,7 +30,7 @@ void Bitset::clear(size_t index)
 
 void Bitset::clear()
 {
-	std::fill(m_words.begin(), m_words.end(), 0);
+	std::memset(m_words.data(), 0, m_words.size() * sizeof(uint32_t));
 }
 
 std::vector<size_t> Bitset::getSetBits() const
