@@ -29,15 +29,26 @@ struct TransformComponent : public BaseComponent {
 	glm::vec2 Size;
 	float Rotation;
 
-	void setDirty(bool dirty = true) {
-		BaseComponent::setDirty(dirty);
-	}
-
 	TransformComponent(
 		const glm::vec2& position = { 0.0f, 0.0f },
 		const glm::vec2& size = { 1.0f, 1.0f },
 		float rotation = 0.0f)
 		: Position(position), Size(size), Rotation(rotation) {
+	}
+
+	void setPosition(const glm::vec2& position) {
+		Position = position;
+		BaseComponent::setDirty(true);
+	}
+
+	void setSize(const glm::vec2& size) {
+		Size = size;
+		BaseComponent::setDirty(true);
+	}
+
+	void setRotation(float rotation) {
+		Rotation = rotation;
+		BaseComponent::setDirty(true);
 	}
 };
 

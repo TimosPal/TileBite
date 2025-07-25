@@ -25,6 +25,13 @@ struct AABB : public BaseComponent {
 		return (Min.x <= other.Max.x && Max.x >= other.Min.x &&
 				Min.y <= other.Max.y && Max.y >= other.Min.y);
 	}
+
+	void setSize(const glm::vec2& min, const glm::vec2& max)
+	{
+		Min = min;
+		Max = max;
+		BaseComponent::setDirty(true);
+	}
 };
 
 } // Engine
