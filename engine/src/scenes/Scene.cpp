@@ -14,18 +14,6 @@ void Scene::init()
 
 	m_world.setPushEvent(getPushEventCallable());
 
-	// Subscribe to ECS change events to update physics colliders
-	EventCallback<EntityAddComponentEvent> entAddComponentCallback([&](EntityAddComponentEvent& event) {
-		// TODO: getComponents (?)
-		ID entityID = event.getEntityID();
-		TransformComponent* transformComp = m_world.getComponent<TransformComponent>(entityID);
-		AABB* aabb = m_world.getComponent<AABB>(entityID);
-		if (!transformComp || !aabb) return;
-
-		m_physicsEngine.addCollider(entityID, aabb, transformComp);
-	});
-	getCoreEventDispatcher().subscribe(entAddComponentCallback);
-
 	EventCallback<EntityRemoveEvent> entRemoveCallback([&](EntityRemoveEvent& event) {
 		ID entityID = event.getEntityID();
 		m_physicsEngine.removeCollider(entityID);
@@ -37,6 +25,16 @@ void Scene::init()
 
 void Scene::onUpdate(float deltaTime)
 {
+	// Place holder for colliders update
+	m_world.query<AABB, TransformComponent>().each([&](ID entityID, AABB* aabb, TransformComponent* transform) {
+		if(transform->isDirty() || aabb->isDirty())
+		{
+			m_physicsEngine.updateCollider(entityID, aabb, transform);
+			transform->resetDirty();
+			aabb->resetDirty();
+		}
+	});
+
 	m_systemManager.updateSystems(deltaTime);
 }
 

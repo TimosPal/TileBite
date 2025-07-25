@@ -22,7 +22,7 @@ Archetype::Archetype(Signature& sig, std::vector<std::tuple<ID, size_t>>&& compo
 void* Archetype::getComponent(uint32_t entityIndex, uint32_t componentIndex)
 {
 	ASSERT(entityIndex < m_entitiesCount, "Entity index out of bounds");
-	ASSERT(componentIndex < m_signature.getCount(), "Component index out of bounds");
+    if (componentIndex >= m_signature.getCount()) return nullptr;
     return m_components[componentIndex].get(entityIndex);
 }
 

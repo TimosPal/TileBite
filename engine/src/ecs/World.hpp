@@ -156,8 +156,6 @@ private:
 		
 		removeEntityFromArchHelper(rec.entityIndex, oldArch);
 		rec.entityIndex = index;
-
-		m_pushEventCallable(std::make_unique<EntityAddComponentEvent>(entityID));
 	}
 
 	void removeEntityFromArchHelper(uint32_t entityIndex, Archetype& arch);

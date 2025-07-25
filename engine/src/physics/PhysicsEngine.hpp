@@ -4,6 +4,7 @@
 #include "utilities/Identifiable.hpp"
 #include "physics/AABB.hpp"
 #include <vector>
+#include <unordered_map>
 
 namespace Engine {
 
@@ -26,7 +27,7 @@ public:
 
 private:
 	// TODO: update to AABBTree or similar for better performance
-	std::vector<std::tuple<ID, AABB>> m_colliders;
+	std::unordered_map<ID, AABB> m_colliders;
 };
 
 } // Engine
