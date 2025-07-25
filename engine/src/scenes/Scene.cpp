@@ -1,7 +1,6 @@
 #include "scenes/Scene.hpp"
 
 #include "events/EventDispatcher.hpp"
-#include "events/types/EntityEvents.hpp"
 
 namespace Engine {
 
@@ -12,13 +11,9 @@ void Scene::init()
 	m_systemManager.setCoreEventDispatcher(&getCoreEventDispatcher());
 	m_systemManager.setPushEventCallable(getPushEventCallable());
 
-	m_world.setPushEvent(getPushEventCallable());
-
-	EventCallback<EntityRemoveEvent> entRemoveCallback([&](EntityRemoveEvent& event) {
-		ID entityID = event.getEntityID();
+	m_world.setRemoveEntityCallback([&](ID entityID) {
 		m_physicsEngine.removeCollider(entityID);
 	});
-	getCoreEventDispatcher().subscribe(entRemoveCallback);
 
 	// TODO: add for remove component if colider was removed.
 }

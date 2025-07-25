@@ -62,7 +62,7 @@ void World::removeEntityImpl(ID id)
 	removeEntityFromArchHelper(rec.entityIndex, *arch);
 	m_entityRecords.erase(entityIt);
 
-	m_pushEventCallable(std::make_unique<EntityRemoveEvent>(id));
+	if(m_removeEntityCallback) m_removeEntityCallback(id);
 }
 
 void World::removeEntityFromArchHelper(uint32_t entityIndex, Archetype& arch)

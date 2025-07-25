@@ -9,7 +9,6 @@
 #include "ecs/QueryResponse.hpp"
 
 #include "events/Event.hpp"
-#include "events/types/EntityEvents.hpp"
 
 namespace Engine {
 
@@ -38,9 +37,9 @@ public:
 	// If more private API is needed then a wrapper class should be created.
 	friend class Scene; // Allow Scene to access executeDeferredActions.
 
-	void setPushEvent(std::function<void(std::unique_ptr<Event>)> pushEventCallable)
+	void setRemoveEntityCallback(std::function<void(ID entityID)> removeEntityCallback)
 	{
-		m_pushEventCallable = pushEventCallable;
+		m_removeEntityCallback = removeEntityCallback;
 	}
 
 	// NOTE: createEntity and addComponents are delaying actions by adding them to a deferredActions vector.
@@ -185,7 +184,7 @@ private:
 
 	std::shared_ptr<Archetype> getArchetype(Signature& sig);
 
-	std::function<void(std::unique_ptr<Event>)> m_pushEventCallable;
+	std::function<void(ID entityID)> m_removeEntityCallback;
 };
 
 } // Engine
