@@ -30,6 +30,11 @@ struct AABB {
 		Max = max;
 	}
 
+	float getArea() const
+	{
+		return (Max.x - Min.x) * (Max.y - Min.y);
+	}
+
 	static AABB getUnion(const AABB& a, const AABB& b)
 	{
 		return AABB(

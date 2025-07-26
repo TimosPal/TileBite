@@ -53,10 +53,10 @@ public:
 			AABB WorldSpaceAABBComponent{ min, max };
 
             auto d = physicsEngine.queryCollisions(WorldSpaceAABBComponent);
-            for (const auto& i : d)
+            for (const auto& id : d)
             {
-                if (i.id == entityID) continue;
-                auto tr = world.getComponent<TransformComponent>(i.id);
+                if (id == entityID) continue;
+                auto tr = world.getComponent<TransformComponent>(id);
                 if (tr->Position.y >= transform->Position.y) continue;
 
                 falling = false;
@@ -87,7 +87,7 @@ public:
     void update(float deltaTime) override
     {
         timer += deltaTime;
-        if (timer > 0.01f)
+        if (timer > 0.8f)
         {
             c++;
             if(c % 1000 == 0) LOG_INFO("Creating box {}", c);
@@ -138,12 +138,21 @@ class MainScene : public Scene {
 			AABBComponent({ -0.5f, -0.5f }, { 0.5f, 0.5f })
         );
 
-        auto floor2 = getWorld().createEntity();
-        getWorld().addComponents(floor2,
-            TransformComponent{ {0.0f, -0.2f}, {0.2f, 0.3f}, 0.0f },
-            SpriteComponent{ {1, 1, 1, 1}, 0 },
-            AABBComponent({ -0.5f, -0.5f }, { 0.5f, 0.5f })
-        );
+        for (size_t i = 0; i < 5; i++)
+        {
+            auto ent = getWorld().createEntity();
+
+			// Gen random position size
+            float margin = 0.1f;
+            auto rngX = quickRandFloat(-1 + margin, 1 - margin);
+            auto rngY = quickRandFloat(-1 + margin, 1 - margin);
+
+            getWorld().addComponents(ent,
+                TransformComponent{ {rngX, rngY}, {0.2f, 0.2f}, 0.0f },
+                SpriteComponent{ {1, 1, 1, 1}, 0 },
+                AABBComponent({ -0.5f, -0.5f }, { 0.5f, 0.5f })
+            );
+        }
 
         beeTex = getAssetsManager().getTextureResource("Bee");
         beeTex->watch();

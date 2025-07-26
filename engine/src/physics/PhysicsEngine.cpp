@@ -2,46 +2,36 @@
 
 namespace Engine {
 
-std::vector<CollisionData> PhysicsEngine::queryCollisions(const AABB& collider) const
+std::vector<ID> PhysicsEngine::queryCollisions(const AABB& collider) const
 {
-	std::vector<CollisionData> results;
-	for (const auto& [id, aabb] : m_colliders) {
-		if (collider.intersects(aabb))
-			results.push_back({ id, aabb });
-	}
-	return results;
+	return m_aabbTree.query(collider);
 }
 
 void PhysicsEngine::addCollider(ID id, AABB* collider, TransformComponent* transform)
 {
 	glm::vec2 min = collider->Min * transform->Size + transform->Position;
 	glm::vec2 max = collider->Max * transform->Size + transform->Position;
-	m_colliders[id] = AABB{ min, max };
+	ColliderInfo info{ id, AABB{min, max} };
+	m_aabbTree.insert(info);
 }
 
 void PhysicsEngine::removeCollider(ID id)
 {
-	m_colliders.erase(id);
+	// TODO
 }
 
-void PhysicsEngine::updateCollider(ID id, AABB* aabb, TransformComponent* transform)
+void PhysicsEngine::updateCollider(ID id, AABB* collider, TransformComponent* transform)
 {
-	auto it = m_colliders.find(id);
-	if (it != m_colliders.end()) {
-		glm::vec2 min = aabb->Min * transform->Size + transform->Position;
-		glm::vec2 max = aabb->Max * transform->Size + transform->Position;
-		it->second = AABB{ min, max };
-	}
-	else
-	{
-		// If the collider does not exist, add it
-		addCollider(id, aabb, transform);
-	}
+	glm::vec2 min = collider->Min * transform->Size + transform->Position;
+	glm::vec2 max = collider->Max * transform->Size + transform->Position;
+	ColliderInfo info{ id, AABB{min, max} };
+	bool updated = m_aabbTree.update(info);
+	if (!updated) m_aabbTree.insert(info);
 }
 
-void PhysicsEngine::clearColliders()
+const std::vector<AABB> PhysicsEngine::getAllColliders()
 {
-	m_colliders.clear();
+	return m_aabbTree.getLeafColliders();
 }
 
 } // Engine

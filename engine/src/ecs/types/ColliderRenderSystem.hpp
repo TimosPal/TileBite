@@ -16,11 +16,18 @@ public:
 
 	virtual void update(float deltaTime) override
 	{
+		const auto& bounds = getSceneManager().getActiveScene()->getPhysicsEngine().getInternalBounds();
+		for(const auto& bound : bounds)
+		{
+			glm::vec4 color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f); // Red color for bounds
+			m_renderer2D->drawSquare(bound.Min, bound.Max, color);
+		}
+
 		const auto& colliders = getSceneManager().getActiveScene()->getPhysicsEngine().getAllColliders();
-		for(const auto& colliderPair : colliders)
+		for (const auto& collider : colliders)
 		{
 			glm::vec4 color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f); // Green color for AABB
-			m_renderer2D->drawSquare(colliderPair.second.Min, colliderPair.second.Max, color);
+			m_renderer2D->drawSquare(collider.Min, collider.Max, color);
 		}
 	}
 
