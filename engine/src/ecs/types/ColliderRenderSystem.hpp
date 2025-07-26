@@ -16,15 +16,12 @@ public:
 
 	virtual void update(float deltaTime) override
 	{
-		auto& activeWorld = getSceneManager().getActiveScene()->getWorld();
-		activeWorld.query<AABB, TransformComponent>().each([this](ID entityID, AABB* aabb, TransformComponent* transformComp) {
-			// Draw AABB as a rectangle
-			glm::vec2 min = aabb->Min * transformComp->Size + transformComp->Position;
-			glm::vec2 max = aabb->Max * transformComp->Size + transformComp->Position;
+		const auto& colliders = getSceneManager().getActiveScene()->getPhysicsEngine().getAllColliders();
+		for(const auto& colliderPair : colliders)
+		{
 			glm::vec4 color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f); // Green color for AABB
-
-			m_renderer2D->drawSquare(min, max, color);
-		});
+			m_renderer2D->drawSquare(colliderPair.second.Min, colliderPair.second.Max, color);
+		}
 	}
 
 private:

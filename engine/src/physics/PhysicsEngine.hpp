@@ -24,6 +24,7 @@ public:
 	void removeCollider(ID id);
 	void updateCollider(ID id, AABB* collider, TransformComponent* transform);
 	void clearColliders();
+	const std::unordered_map<ID, AABB>& getAllColliders() { return m_colliders; }
 
 private:
 	// TODO: update to AABBTree or similar for better performance

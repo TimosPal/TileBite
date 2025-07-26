@@ -5,6 +5,7 @@
 
 #include "utilities/IDGenerator.hpp"
 #include "ecs/types/BaseComponent.hpp"
+#include "physics/AABB.hpp"
 
 namespace Engine {
 
@@ -71,6 +72,40 @@ struct TilemapComponent : public BaseComponent {
 	TilemapComponent(TilemapResource* ptr = nullptr)
 		: TilemapResourcePtr(ptr) {
 	}
+};
+
+struct AABBComponent : public BaseComponent {
+	AABB Collider;
+
+	AABBComponent() : Collider(glm::vec2(0.0f), glm::vec2(0.0f)) {}
+	AABBComponent(const glm::vec2& min, const glm::vec2& max) : Collider(min, max) {}
+
+	bool contains(const glm::vec2& point) const
+	{
+		Collider.contains(point);
+	}
+
+	bool intersects(const AABB& other) const
+	{
+		return Collider.intersects(other);
+	}
+
+	void setSize(const glm::vec2& min, const glm::vec2& max)
+	{
+		Collider.setSize(min, max);
+		BaseComponent::setDirty(true);
+	}
+
+	const glm::vec2& getMin() const
+	{
+		return Collider.Min;
+	}
+
+	const glm::vec2& getMax() const
+	{
+		return Collider.Max;
+	}
+
 };
 
 } // Engine

@@ -4,6 +4,8 @@
 #include "events/types/WindowResizeEvent.hpp"
 #include "events/EventCallback.hpp"
 
+#include "ecs/types/CollidersUpdateSystem.hpp"
+
 namespace Engine {
 
 SystemLayer::SystemLayer(std::function<void()> stopAppCallback)
@@ -19,6 +21,8 @@ void SystemLayer::onAttach()
 		m_stopAppCallback();
 	});
 	getEventDispatcher().subscribe<WindowCloseEvent>(windowCloseEventCallback);
+
+	getSystemManager().addSystem(std::make_unique<ColliderUpdateSystem>());
 }
 
 } // Engine

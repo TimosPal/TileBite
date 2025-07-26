@@ -10,16 +10,16 @@
 #include <layers/Layer.hpp>
 #include <ecs/types/EngineComponents.hpp>
 #include <core/ResourceRegistry.hpp>
-#include <physics/AABB.hpp>
 #include "ecs/types/BaseComponent.hpp"
 
 using namespace Engine;
 
 struct RigidBody : public BaseComponent {
     float life = 0.0f;
+	float currLife = 0.0f;
 
     RigidBody(float l = 0.0f)
-        : life(l) {
+        : life(l), currLife(l) {
     }
 };
 
@@ -45,15 +45,15 @@ public:
         auto& physicsEngine = currScene->getPhysicsEngine();
 		auto& world = currScene->getWorld();
 
-        world.query<AABB, TransformComponent, SpriteComponent, RigidBody>().each([&](ID entityID, AABB* aabb, TransformComponent* transform, SpriteComponent* sprite, RigidBody* rb) {
+        world.query<AABBComponent, TransformComponent, SpriteComponent, RigidBody>().each([&](ID entityID, AABBComponent* aabb, TransformComponent* transform, SpriteComponent* sprite, RigidBody* rb) {
             bool falling = true;
             
-            glm::vec2 min = aabb->Min * transform->Size + transform->Position;
-            glm::vec2 max = aabb->Max * transform->Size + transform->Position;
-			AABB WorldSpaceAABB{ min, max };
+            glm::vec2 min = aabb->getMin() * transform->Size + transform->Position;
+            glm::vec2 max = aabb->getMax() * transform->Size + transform->Position;
+			AABB WorldSpaceAABBComponent{ min, max };
 
-            auto d = physicsEngine.queryCollisions(WorldSpaceAABB);
-            for (auto i : d)
+            auto d = physicsEngine.queryCollisions(WorldSpaceAABBComponent);
+            for (const auto& i : d)
             {
                 if (i.id == entityID) continue;
                 auto tr = world.getComponent<TransformComponent>(i.id);
@@ -65,14 +65,13 @@ public:
 
             if(falling)
             {
-                transform->Position.y -= 1.9f * deltaTime;
-                transform->setDirty(true);
+				transform->setPosition(transform->Position + glm::vec2(0.0f, -0.9f * deltaTime));
 			}
             else
             {
-				//rb->life -= 7.0 * deltaTime;
-    //            transform->Size -= transform->Size * 0.003f;
-    //            if (rb->life <= 0.0f)
+				//rb->currLife -= 0.2 * deltaTime;
+    //            transform->Size = transform->Size * (rb->currLife / rb->life);
+    //            if (rb->currLife <= 0.0f)
     //            {
 				//	world.removeEntity(entityID);
     //            }
@@ -114,7 +113,7 @@ public:
             world.addComponents(entID,
                 TransformComponent{ {rX, rY}, {0.02f, 0.02f}, 0.0f },
                 SpriteComponent{ rRGB, 0},
-                AABB({ -0.5f, -0.5f }, { 0.5f, 0.5f }),
+                AABBComponent({ -0.5f, -0.5f }, { 0.5f, 0.5f }),
                 RigidBody{ quickRandFloat(0, 1) * 100 }
             );
 
@@ -136,14 +135,14 @@ class MainScene : public Scene {
         getWorld().addComponents(floor,
             TransformComponent{ {0.0f, -0.9f}, {2.0f, 0.3f}, 0.0f },
 			SpriteComponent{ {1, 1, 1, 1}, 0 },
-			AABB({ -0.5f, -0.5f }, { 0.5f, 0.5f })
+			AABBComponent({ -0.5f, -0.5f }, { 0.5f, 0.5f })
         );
 
         auto floor2 = getWorld().createEntity();
         getWorld().addComponents(floor2,
             TransformComponent{ {0.0f, -0.2f}, {0.2f, 0.3f}, 0.0f },
             SpriteComponent{ {1, 1, 1, 1}, 0 },
-            AABB({ -0.5f, -0.5f }, { 0.5f, 0.5f })
+            AABBComponent({ -0.5f, -0.5f }, { 0.5f, 0.5f })
         );
 
         beeTex = getAssetsManager().getTextureResource("Bee");

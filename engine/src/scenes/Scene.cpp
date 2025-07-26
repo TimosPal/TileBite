@@ -20,16 +20,6 @@ void Scene::init()
 
 void Scene::onUpdate(float deltaTime)
 {
-	// Place holder for colliders update
-	m_world.query<AABB, TransformComponent>().each([&](ID entityID, AABB* aabb, TransformComponent* transform) {
-		if(transform->isDirty() || aabb->isDirty())
-		{
-			m_physicsEngine.updateCollider(entityID, aabb, transform);
-			transform->resetDirty();
-			aabb->resetDirty();
-		}
-	});
-
 	m_systemManager.updateSystems(deltaTime);
 }
 

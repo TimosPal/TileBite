@@ -3,11 +3,9 @@
 
 #include <glm/glm.hpp>
 
-#include "ecs/types/BaseComponent.hpp"
-
 namespace Engine {
 
-struct AABB : public BaseComponent {
+struct AABB {
 	glm::vec2 Min; // Minimum point (bottom-left corner)
 	glm::vec2 Max; // Maximum point (top-right corner)
 	
@@ -30,7 +28,14 @@ struct AABB : public BaseComponent {
 	{
 		Min = min;
 		Max = max;
-		BaseComponent::setDirty(true);
+	}
+
+	static AABB getUnion(const AABB& a, const AABB& b)
+	{
+		return AABB(
+			glm::min(a.Min, b.Min),
+			glm::max(a.Max, b.Max)
+		);
 	}
 };
 
