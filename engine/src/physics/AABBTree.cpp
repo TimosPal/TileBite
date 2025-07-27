@@ -16,14 +16,35 @@ void AABBTree::insert(const ColliderInfo& colliderInfo)
 		return;
 	}
 
-	uint32_t bestSiblingIndex = findBestSibbling();
+	uint32_t bestSiblingIndex = findBestSibbling(newNodeIndex);
 	uint32_t newParentNodeIndex = createParentNode(bestSiblingIndex, newNodeIndex);
 	refitParentNodes(newParentNodeIndex);
 }
 
-uint32_t AABBTree::findBestSibbling()
+uint32_t AABBTree::findBestSibbling(uint32_t newLeafIndex)
 {
-	return m_rootIndex; // TODO
+	const AABB& newBounds = m_nodes[newLeafIndex].Bounds;
+	float bestCost = std::numeric_limits<float>::max();
+	uint32_t bestIndex = NullIndex;
+
+	for (auto nodeIt : m_leafNodesIndices)
+	{
+		Node currNode = m_nodes[nodeIt.second];
+		if (nodeIt.second == newLeafIndex)
+			continue;
+
+		const AABB& candidateBounds = currNode.Bounds;
+		AABB merged = AABB::getUnion(candidateBounds, newBounds);
+		float cost = merged.getArea();
+
+		if (cost < bestCost)
+		{
+			bestCost = cost;
+			bestIndex = nodeIt.second;
+		}
+	}
+
+	return bestIndex;
 }
 
 uint32_t AABBTree::createLeafNode(const ColliderInfo& colliderInfo)
@@ -43,6 +64,7 @@ void AABBTree::refitParentNodes(uint32_t startingIndex)
 	while (updateIndex != NullIndex)
 	{
 		Node& updateNode = m_nodes[updateIndex];
+		ASSERT(updateNode.IsLeaf == false, "Refitting parent node that is a leaf");
 		updateNode.Bounds = AABB::getUnion(m_nodes[updateNode.LeftIndex].Bounds, m_nodes[updateNode.RightIndex].Bounds);
 		updateIndex = updateNode.ParentIndex;
 	}
@@ -51,49 +73,106 @@ void AABBTree::refitParentNodes(uint32_t startingIndex)
 uint32_t AABBTree::createParentNode(uint32_t bestSiblingIndex, uint32_t newNodeIndex)
 {
 	uint32_t newParentNodeIndex = createNode(false);
+
 	Node& newParentNode = m_nodes[newParentNodeIndex];
 	Node& bestSiblingNode = m_nodes[bestSiblingIndex];
-
-	newParentNode.ParentIndex = bestSiblingNode.ParentIndex;
-	newParentNode.LeftIndex = bestSiblingIndex;
-	newParentNode.RightIndex = newNodeIndex;
-
 	Node& newNode = m_nodes[newNodeIndex];
-	newNode.ParentIndex = newParentNodeIndex;
-	bestSiblingNode.ParentIndex = newParentNodeIndex;
 
-	if (m_rootIndex == bestSiblingIndex)
+	uint32_t siblingParentIndex = bestSiblingNode.ParentIndex;
+
+	if(siblingParentIndex != NullIndex)
 	{
-		// Update root if necessary
-		m_rootIndex = newParentNodeIndex;
+		Node& siblingParentNode = m_nodes[siblingParentIndex];
+		if (siblingParentNode.LeftIndex == bestSiblingIndex)
+			siblingParentNode.LeftIndex = newParentNodeIndex;
+		else
+			siblingParentNode.RightIndex = newParentNodeIndex;
 	}
 	else
 	{
-		Node& oldParent = m_nodes[bestSiblingNode.ParentIndex];
-		if (oldParent.LeftIndex == bestSiblingIndex)
-			oldParent.LeftIndex = newParentNodeIndex;
-		else
-			oldParent.RightIndex = newParentNodeIndex;
+		// This is the root node, so we update the root index
+		m_rootIndex = newParentNodeIndex;
 	}
+
+	newParentNode.ParentIndex = siblingParentIndex;
+	newParentNode.LeftIndex = bestSiblingIndex;
+	newParentNode.RightIndex = newNodeIndex;
+	newNode.ParentIndex = newParentNodeIndex;
+	bestSiblingNode.ParentIndex = newParentNodeIndex;
 
 	return newParentNodeIndex;
 }
 
 uint32_t AABBTree::createNode(bool isLeaf)
 {
-	// TODO: pick better strategy for cache locality, now we just push back to the end
-	uint32_t newNodeIndex = static_cast<uint32_t>(m_nodes.size());
-	Node newNode;
+	// TODO: maybe defragment indices to avoid gaps in the nodes list
+
+	Node newNode = {};
 	newNode.IsLeaf = isLeaf;
 
-	m_nodes.push_back(newNode);
+	uint32_t newNodeIndex;
+	if (!m_freeIndices.empty())
+	{
+		// Reuse an index from the free indices
+		newNodeIndex = m_freeIndices.back();
+		m_freeIndices.pop_back();
+		m_nodes[newNodeIndex] = newNode;
+	}
+	else
+	{
+		newNodeIndex = static_cast<uint32_t>(m_nodes.size());
+		m_nodes.push_back(newNode);
+	}
 
 	return newNodeIndex;
 }
 
 void AABBTree::remove(ID id)
 {
-	// TODO:
+	// TODO: removing nodes leaves a gap in the nodes list, which is not ideal for cache locality
+
+	ASSERT(m_leafNodesIndices.find(id) != m_leafNodesIndices.end(), "Trying to remove a node that does not exist in the tree");
+	uint32_t nodeIndex = m_leafNodesIndices[id]; // Find the index of the leaf node
+	Node& node = m_nodes[nodeIndex];
+	ASSERT(node.IsLeaf, "Trying to remove non leaf node");
+
+	m_leafNodesIndices.erase(id);
+	m_freeIndices.push_back(nodeIndex);
+
+	// If the node is the root, we need to update the root index
+	if (nodeIndex == m_rootIndex)
+	{
+		m_rootIndex = NullIndex; 
+		return;
+	}
+
+	// If the node is not the root, we need to remove it from its parent
+	uint32_t parentIndex = node.ParentIndex;
+	Node& parentNode = m_nodes[parentIndex];
+	uint32_t grandParentIndex = parentNode.ParentIndex;
+
+	m_freeIndices.push_back(parentIndex);
+
+	uint32_t siblingIndex = (parentNode.LeftIndex == nodeIndex) ? parentNode.RightIndex : parentNode.LeftIndex;
+	Node& siblingNode = m_nodes[siblingIndex];
+	// Update the sibling's parent index to point to the grandparent
+	siblingNode.ParentIndex = grandParentIndex;
+
+	if (grandParentIndex == NullIndex)
+	{
+		m_rootIndex = siblingIndex;
+	}
+	else
+	{
+		Node& grandParentNode = m_nodes[grandParentIndex];
+		if (grandParentNode.LeftIndex == parentIndex)
+			grandParentNode.LeftIndex = siblingIndex;
+		else
+			grandParentNode.RightIndex = siblingIndex;
+
+	}
+
+	refitParentNodes(grandParentIndex);
 }
 
 bool AABBTree::update(const ColliderInfo& colliderInfo)
@@ -157,21 +236,31 @@ float AABBTree::computeNodeCost(uint32_t index) const
 
 std::vector<AABB> AABBTree::getInternalBounds() const
 {
-	std::vector<AABB> bounds;
-	for (const auto& node : m_nodes)
+	std::vector<uint32_t> nodeStack;
+	std::vector<AABB> results;
+	uint32_t index = m_rootIndex;
+
+	if (index != NullIndex)
+		nodeStack.push_back(index);
+	while (!nodeStack.empty())
 	{
-		if (node.IsLeaf)
+		index = nodeStack.back();
+		nodeStack.pop_back();
+		const Node& currNode = m_nodes[index];
+
+		results.push_back(currNode.Bounds);
+
+		if (!currNode.IsLeaf)
 		{
-			ASSERT(node.Value.has_value(), "Lead node without value");
-			bounds.push_back(node.Value.value().Collider);
-		}
-		else
-		{
-			bounds.push_back(node.Bounds);
+			// Traverse children
+			if (currNode.RightIndex != NullIndex)
+				nodeStack.push_back(currNode.RightIndex);
+			if (currNode.LeftIndex != NullIndex)
+				nodeStack.push_back(currNode.LeftIndex);
 		}
 	}
 
-	return bounds;
+	return results;
 }
 
 std::vector<AABB> AABBTree::getLeafColliders() const

@@ -87,7 +87,7 @@ public:
     void update(float deltaTime) override
     {
         timer += deltaTime;
-        if (timer > 0.8f)
+        if (timer > 0.02f)
         {
             c++;
             if(c % 1000 == 0) LOG_INFO("Creating box {}", c);
@@ -123,6 +123,56 @@ public:
     }
 };
 
+class BoxSpawnerSystem2 : public ISystem {
+public:
+    float timer = 0.0f;
+    int c = 0;
+    int cl = 5;
+    bool adding = true;
+	std::vector<ID> entities;
+
+    void update(float deltaTime) override
+    {
+        timer += deltaTime;
+
+        auto& world = getSceneManager().getActiveScene()->getWorld();
+        if (adding)
+        {
+            if (timer > 0.4f)
+            {
+                auto ent = world.createEntity();
+
+                // Gen random position size
+                float margin = 0.1f;
+                auto rngX = quickRandFloat(-1 + margin, 1 - margin);
+                auto rngY = quickRandFloat(-1 + margin, 1 - margin);
+
+                world.addComponents(ent,
+                    TransformComponent{ {rngX, rngY}, {0.2f, 0.2f}, 0.0f },
+                    SpriteComponent{ {1, 1, 1, 1}, 0 },
+                    AABBComponent({ -0.5f, -0.5f }, { 0.5f, 0.5f })
+                );
+
+				entities.push_back(ent);
+                c++;
+                if (c >= cl) adding = false;
+                timer = 0.0;
+            }
+        }
+        else
+        {
+            if (timer > 0.2f)
+            {
+				world.removeEntity(entities.back());
+				entities.pop_back();
+                c--;
+                if (c <= 0) adding = true;
+                timer = 0.0;
+            }
+        }
+    }
+};
+
 class MainScene : public Scene {
     std::unique_ptr<IResourceHandle> beeTex;
 
@@ -131,14 +181,14 @@ class MainScene : public Scene {
         auto cameraController = std::make_shared<CameraController>(-1.0f, 1.0f, -1.0f, 1.0f);
         setCameraController(cameraController);
 
-		auto floor = getWorld().createEntity();
+		/*auto floor = getWorld().createEntity();
         getWorld().addComponents(floor,
             TransformComponent{ {0.0f, -0.9f}, {2.0f, 0.3f}, 0.0f },
 			SpriteComponent{ {1, 1, 1, 1}, 0 },
 			AABBComponent({ -0.5f, -0.5f }, { 0.5f, 0.5f })
-        );
+        );*/
 
-        for (size_t i = 0; i < 5; i++)
+        for (size_t i = 0; i < 0; i++)
         {
             auto ent = getWorld().createEntity();
 
@@ -160,8 +210,10 @@ class MainScene : public Scene {
 
 		LOG_INFO("Loaded bee texture: {}", beeTex->isLoaded());
         
-		getSystemManager().addSystem(std::make_unique<BoxSpawnerSystem>());
-		getSystemManager().addSystem(std::make_unique<GravitySystem>());
+        //getSystemManager().addSystem(std::make_unique<BoxSpawnerSystem>());
+		//getSystemManager().addSystem(std::make_unique<GravitySystem>());
+
+        getSystemManager().addSystem(std::make_unique<BoxSpawnerSystem2>());
     }
 };
 
@@ -185,7 +237,7 @@ class MyApp : public Engine::EngineApp {
         
         pushLayer(std::make_unique<GameLayer>());
 
-        //getLayer(DebugLayer::getName())->enable();
+        getLayer(DebugLayer::getName())->enable();
         //getLayer(GraphicsLayer::getName())->disable();
     }
 };

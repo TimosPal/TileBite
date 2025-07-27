@@ -35,6 +35,7 @@ private:
 	};
 
 	std::vector<Node> m_nodes;
+	std::vector<uint32_t> m_freeIndices;
 	std::unordered_map<ID, uint32_t> m_leafNodesIndices;
 	uint32_t m_rootIndex = NullIndex;
 
@@ -43,7 +44,7 @@ private:
 	uint32_t createNode(bool isLeaf);
 	void refitParentNodes(uint32_t startingIndex);
 	uint32_t createParentNode(uint32_t bestSiblingIndex, uint32_t newNodeIndex);
-	uint32_t findBestSibbling();
+	uint32_t findBestSibbling(uint32_t newLeafIndex);
 	uint32_t createLeafNode(const ColliderInfo& colliderInfo);
 };
 

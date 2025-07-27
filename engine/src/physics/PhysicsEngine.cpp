@@ -17,7 +17,7 @@ void PhysicsEngine::addCollider(ID id, AABB* collider, TransformComponent* trans
 
 void PhysicsEngine::removeCollider(ID id)
 {
-	// TODO
+	m_aabbTree.remove(id);
 }
 
 void PhysicsEngine::updateCollider(ID id, AABB* collider, TransformComponent* transform)
