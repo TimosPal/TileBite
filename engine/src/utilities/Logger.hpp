@@ -1,7 +1,7 @@
 #ifndef LOGGER_HPP
 #define LOGGER_HPP
 
-#ifndef DEBUG_MODE
+#if !defined(DEBUG_MODE) && 0 // Logging enabled in release mode
 
 // No-op in release mode
 #define LOG_INFO(msg, ...) ((void)0)

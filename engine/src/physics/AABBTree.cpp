@@ -28,7 +28,8 @@ uint32_t AABBTree::findBestSibbling(uint32_t newLeafIndex)
 	float bestCost = std::numeric_limits<float>::max();
 	uint32_t bestIndex = m_rootIndex;
 
-	static std::vector<uint32_t> nodeQueue(124);
+	static std::vector<uint32_t> nodeQueue;
+	nodeQueue.reserve(124);
 	nodeQueue.clear();
 	uint32_t queueHead = 0;
 	nodeQueue.push_back(m_rootIndex);
@@ -43,8 +44,8 @@ uint32_t AABBTree::findBestSibbling(uint32_t newLeafIndex)
 
 		const Node& currNode = m_nodes[currIndex];
 		
-		float deltaCost = computeRefitCostDelta(currNode.ParentIndex);
 		float newParentArea = AABB::getUnion(currNode.Bounds, newNode.Bounds).getArea();
+		float deltaCost = computeRefitCostDelta(currNode.ParentIndex, newParentArea, bestCost);
 
 		float lowerBound = newNodeArea + deltaCost;
 		float cost = newParentArea + deltaCost;
@@ -88,13 +89,15 @@ void AABBTree::refitParentNodes(uint32_t startingIndex)
 	}
 }
 
-float AABBTree::computeRefitCostDelta(uint32_t startingIndex) const
+float AABBTree::computeRefitCostDelta(uint32_t startingIndex, float newParentArea, float bestCost) const
 {
 	float deltaCost = 0.0f;
 
 	uint32_t currIndex = startingIndex;
 	while (currIndex != NullIndex)
 	{
+		if (deltaCost + newParentArea > bestCost) break;
+
 		const Node& currNode = m_nodes[currIndex];
 		ASSERT(currNode.IsLeaf == false, "Refiting cost delta should start with a parent node");
 		float oldSA = currNode.Bounds.getArea(); // TODO: Could be stored.
