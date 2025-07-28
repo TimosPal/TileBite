@@ -169,11 +169,13 @@ uint32_t AABBTree::createNode(bool isLeaf)
 	return newNodeIndex;
 }
 
-void AABBTree::remove(ID id)
+bool AABBTree::remove(ID id)
 {
 	// TODO: removing nodes leaves a gap in the nodes list, which is not ideal for cache locality
+	
+	if (m_leafNodesIndices.find(id) == m_leafNodesIndices.end())
+		return false;
 
-	ASSERT(m_leafNodesIndices.find(id) != m_leafNodesIndices.end(), "Trying to remove a node that does not exist in the tree");
 	uint32_t nodeIndex = m_leafNodesIndices[id]; // Find the index of the leaf node
 	Node& node = m_nodes[nodeIndex];
 	ASSERT(node.IsLeaf, "Trying to remove non leaf node");
@@ -185,7 +187,7 @@ void AABBTree::remove(ID id)
 	if (nodeIndex == m_rootIndex)
 	{
 		m_rootIndex = NullIndex; 
-		return;
+		return true;
 	}
 
 	// If the node is not the root, we need to remove it from its parent
@@ -215,6 +217,7 @@ void AABBTree::remove(ID id)
 	}
 
 	refitParentNodes(grandParentIndex);
+	return true;
 }
 
 bool AABBTree::update(const ColliderInfo& colliderInfo)

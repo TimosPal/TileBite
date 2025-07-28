@@ -15,7 +15,7 @@ struct ColliderInfo {
 class AABBTree {
 public:
 	void insert(const ColliderInfo& colliderInfo);
-	void remove(ID id);
+	bool remove(ID id);
 	bool update(const ColliderInfo& colliderInfo);
 	std::vector<ID> query(const AABB& collider) const;
 
