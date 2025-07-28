@@ -25,12 +25,14 @@ uint32_t AABBTree::findBestSibbling(uint32_t newLeafIndex)
 {
 	// Branch and bound algorithm to find the best sibling node for the new leaf
 
-	float bestCost = computeNewNodeCost(m_rootIndex, newLeafIndex);
+	float bestCost = std::numeric_limits<float>::max();
 	uint32_t bestIndex = m_rootIndex;
 
 	std::queue<uint32_t> nodeQueue;
 	nodeQueue.push(m_rootIndex);
 
+	Node& newNode = m_nodes[newLeafIndex];
+	float newNodeArea = newNode.Bounds.getArea();
 	while (!nodeQueue.empty())
 	{
 		uint32_t currIndex = nodeQueue.front();
@@ -40,8 +42,11 @@ uint32_t AABBTree::findBestSibbling(uint32_t newLeafIndex)
 
 		const Node& currNode = m_nodes[currIndex];
 		
-		float lowerBound = computeLowerBoundCost(currIndex, newLeafIndex);
-		float cost = computeNewNodeCost(currIndex, newLeafIndex);
+		float deltaCost = computeRefitCostDelta(currNode.ParentIndex);
+		float newParentArea = AABB::getUnion(currNode.Bounds, newNode.Bounds).getArea();
+
+		float lowerBound = newNodeArea + deltaCost;
+		float cost = newParentArea + deltaCost;
 		if (cost < bestCost)
 		{
 			bestCost = cost;
@@ -55,6 +60,7 @@ uint32_t AABBTree::findBestSibbling(uint32_t newLeafIndex)
 		}
 	}
 
+	ASSERT(bestIndex != NullIndex, "Best sibling index should not be null");
 	return bestIndex;
 }
 
@@ -93,29 +99,12 @@ float AABBTree::computeRefitCostDelta(uint32_t startingIndex) const
 		float oldSA = currNode.Bounds.getArea(); // TODO: Could be stored.
 		float newSA = AABB::getUnion(m_nodes[currNode.LeftIndex].Bounds, m_nodes[currNode.RightIndex].Bounds).getArea();
 		float delta = newSA - oldSA;
+		if (delta == 0) break;
 		deltaCost += delta;
 		currIndex = currNode.ParentIndex;
 	}
 
 	return deltaCost;
-}
-
-float AABBTree::computeNewNodeCost(uint32_t siblingIndex, uint32_t newNodeIndex) const
-{
-	const Node& siblingNode = m_nodes[siblingIndex];
-	const Node& newNode = m_nodes[newNodeIndex];
-	float deltaCost = computeRefitCostDelta(siblingNode.ParentIndex);
-	float newArea = AABB::getUnion(siblingNode.Bounds, newNode.Bounds).getArea();
-	return newArea + deltaCost;
-}
-
-float AABBTree::computeLowerBoundCost(uint32_t siblingIndex, uint32_t newNodeIndex) const
-{
-	const Node& siblingNode = m_nodes[siblingIndex];
-	const Node& newNode = m_nodes[newNodeIndex];
-	float deltaCost = computeRefitCostDelta(siblingNode.ParentIndex);
-	float newArea = newNode.Bounds.getArea();
-	return newArea + deltaCost;
 }
 
 uint32_t AABBTree::createParentNode(uint32_t bestSiblingIndex, uint32_t newNodeIndex)
