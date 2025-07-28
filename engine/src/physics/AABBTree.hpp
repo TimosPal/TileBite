@@ -39,7 +39,9 @@ private:
 	std::unordered_map<ID, uint32_t> m_leafNodesIndices;
 	uint32_t m_rootIndex = NullIndex;
 
-	float computeNodeCost(uint32_t index) const;
+	float computeNewNodeCost(uint32_t siblingIndex, uint32_t newNodeIndex) const;
+	float computeRefitCostDelta(uint32_t startingIndex) const;
+	float computeLowerBoundCost(uint32_t siblingIndex, uint32_t newNodeIndex) const;
 
 	uint32_t createNode(bool isLeaf);
 	void refitParentNodes(uint32_t startingIndex);

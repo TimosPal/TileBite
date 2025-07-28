@@ -181,12 +181,12 @@ class MainScene : public Scene {
         auto cameraController = std::make_shared<CameraController>(-1.0f, 1.0f, -1.0f, 1.0f);
         setCameraController(cameraController);
 
-		/*auto floor = getWorld().createEntity();
+		auto floor = getWorld().createEntity();
         getWorld().addComponents(floor,
             TransformComponent{ {0.0f, -0.9f}, {2.0f, 0.3f}, 0.0f },
 			SpriteComponent{ {1, 1, 1, 1}, 0 },
 			AABBComponent({ -0.5f, -0.5f }, { 0.5f, 0.5f })
-        );*/
+        );
 
         for (size_t i = 0; i < 0; i++)
         {
@@ -210,8 +210,8 @@ class MainScene : public Scene {
 
 		LOG_INFO("Loaded bee texture: {}", beeTex->isLoaded());
         
-        //getSystemManager().addSystem(std::make_unique<BoxSpawnerSystem>());
-		//getSystemManager().addSystem(std::make_unique<GravitySystem>());
+        getSystemManager().addSystem(std::make_unique<BoxSpawnerSystem>());
+		getSystemManager().addSystem(std::make_unique<GravitySystem>());
 
         getSystemManager().addSystem(std::make_unique<BoxSpawnerSystem2>());
     }

@@ -23,24 +23,35 @@ void AABBTree::insert(const ColliderInfo& colliderInfo)
 
 uint32_t AABBTree::findBestSibbling(uint32_t newLeafIndex)
 {
-	const AABB& newBounds = m_nodes[newLeafIndex].Bounds;
-	float bestCost = std::numeric_limits<float>::max();
-	uint32_t bestIndex = NullIndex;
+	// Branch and bound algorithm to find the best sibling node for the new leaf
 
-	for (auto nodeIt : m_leafNodesIndices)
+	float bestCost = computeNewNodeCost(m_rootIndex, newLeafIndex);
+	uint32_t bestIndex = m_rootIndex;
+
+	std::queue<uint32_t> nodeQueue;
+	nodeQueue.push(m_rootIndex);
+
+	while (!nodeQueue.empty())
 	{
-		Node currNode = m_nodes[nodeIt.second];
-		if (nodeIt.second == newLeafIndex)
+		uint32_t currIndex = nodeQueue.front();
+		nodeQueue.pop();
+		if(currIndex == NullIndex)
 			continue;
 
-		const AABB& candidateBounds = currNode.Bounds;
-		AABB merged = AABB::getUnion(candidateBounds, newBounds);
-		float cost = merged.getArea();
-
+		const Node& currNode = m_nodes[currIndex];
+		
+		float lowerBound = computeLowerBoundCost(currIndex, newLeafIndex);
+		float cost = computeNewNodeCost(currIndex, newLeafIndex);
 		if (cost < bestCost)
 		{
 			bestCost = cost;
-			bestIndex = nodeIt.second;
+			bestIndex = currIndex;
+		}
+
+		if (lowerBound < bestCost)
+		{
+			nodeQueue.push(currNode.LeftIndex);
+			nodeQueue.push(currNode.RightIndex);
 		}
 	}
 
@@ -68,6 +79,43 @@ void AABBTree::refitParentNodes(uint32_t startingIndex)
 		updateNode.Bounds = AABB::getUnion(m_nodes[updateNode.LeftIndex].Bounds, m_nodes[updateNode.RightIndex].Bounds);
 		updateIndex = updateNode.ParentIndex;
 	}
+}
+
+float AABBTree::computeRefitCostDelta(uint32_t startingIndex) const
+{
+	float deltaCost = 0.0f;
+
+	uint32_t currIndex = startingIndex;
+	while (currIndex != NullIndex)
+	{
+		const Node& currNode = m_nodes[currIndex];
+		ASSERT(currNode.IsLeaf == false, "Refiting cost delta should start with a parent node");
+		float oldSA = currNode.Bounds.getArea(); // TODO: Could be stored.
+		float newSA = AABB::getUnion(m_nodes[currNode.LeftIndex].Bounds, m_nodes[currNode.RightIndex].Bounds).getArea();
+		float delta = newSA - oldSA;
+		deltaCost += delta;
+		currIndex = currNode.ParentIndex;
+	}
+
+	return deltaCost;
+}
+
+float AABBTree::computeNewNodeCost(uint32_t siblingIndex, uint32_t newNodeIndex) const
+{
+	const Node& siblingNode = m_nodes[siblingIndex];
+	const Node& newNode = m_nodes[newNodeIndex];
+	float deltaCost = computeRefitCostDelta(siblingNode.ParentIndex);
+	float newArea = AABB::getUnion(siblingNode.Bounds, newNode.Bounds).getArea();
+	return newArea + deltaCost;
+}
+
+float AABBTree::computeLowerBoundCost(uint32_t siblingIndex, uint32_t newNodeIndex) const
+{
+	const Node& siblingNode = m_nodes[siblingIndex];
+	const Node& newNode = m_nodes[newNodeIndex];
+	float deltaCost = computeRefitCostDelta(siblingNode.ParentIndex);
+	float newArea = newNode.Bounds.getArea();
+	return newArea + deltaCost;
 }
 
 uint32_t AABBTree::createParentNode(uint32_t bestSiblingIndex, uint32_t newNodeIndex)
@@ -180,12 +228,8 @@ bool AABBTree::update(const ColliderInfo& colliderInfo)
 	auto it = m_leafNodesIndices.find(colliderInfo.id);
 	if (it == m_leafNodesIndices.end()) return false;
 
-	uint32_t index = it->second;
-	Node& node = m_nodes[index];
-	node.Bounds = colliderInfo.Collider;
-	node.Value = colliderInfo;
-
-	refitParentNodes(node.ParentIndex);
+	remove(colliderInfo.id);
+	insert(colliderInfo);
 
 	return true;
 }
@@ -226,12 +270,6 @@ std::vector<ID> AABBTree::query(const AABB& collider) const
 	}
 
 	return results;
-}
-
-float AABBTree::computeNodeCost(uint32_t index) const
-{
-	float cost = 0.0f;
-	return 0;
 }
 
 std::vector<AABB> AABBTree::getInternalBounds() const
