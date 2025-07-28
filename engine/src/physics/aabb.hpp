@@ -17,6 +17,11 @@ struct AABB {
 		return (point.x >= Min.x && point.x <= Max.x &&
 				point.y >= Min.y && point.y <= Max.y);
 	}
+
+	bool contains(const AABB& other) const
+	{
+		return contains(other.Min) && contains(other.Max);
+	}
 	
 	bool intersects(const AABB& other) const
 	{
@@ -35,12 +40,18 @@ struct AABB {
 		return (Max.x - Min.x) * (Max.y - Min.y);
 	}
 
-	static AABB getUnion(const AABB& a, const AABB& b)
+	inline static AABB getUnion(const AABB& a, const AABB& b) noexcept
 	{
 		return AABB(
 			glm::min(a.Min, b.Min),
 			glm::max(a.Max, b.Max)
 		);
+	}
+
+	static AABB inflate(const AABB& b, float fat = 0.05f)
+	{
+		glm::vec2 margin(fat);
+		return AABB(b.Min - margin, b.Max + margin);
 	}
 };
 

@@ -121,7 +121,7 @@ void GLMesh::drawIndexed(uint32_t indicesCount)
 
 void GLMesh::drawLines(uint32_t verticesCount)
 {
-	GL(glLineWidth(2.0f)); // TODO: Make line width configurable 
+	GL(glLineWidth(0.3f)); // TODO: Make line width configurable 
 	GL(glBindVertexArray(m_glVAO));
 	GL(glDrawArrays(GL_LINES, 0, verticesCount));
 }

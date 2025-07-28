@@ -28,15 +28,16 @@ uint32_t AABBTree::findBestSibbling(uint32_t newLeafIndex)
 	float bestCost = std::numeric_limits<float>::max();
 	uint32_t bestIndex = m_rootIndex;
 
-	std::queue<uint32_t> nodeQueue;
-	nodeQueue.push(m_rootIndex);
+	static std::vector<uint32_t> nodeQueue(124);
+	nodeQueue.clear();
+	uint32_t queueHead = 0;
+	nodeQueue.push_back(m_rootIndex);
 
 	Node& newNode = m_nodes[newLeafIndex];
 	float newNodeArea = newNode.Bounds.getArea();
-	while (!nodeQueue.empty())
+	while (queueHead < nodeQueue.size())
 	{
-		uint32_t currIndex = nodeQueue.front();
-		nodeQueue.pop();
+		uint32_t currIndex = nodeQueue[queueHead++];
 		if(currIndex == NullIndex)
 			continue;
 
@@ -55,8 +56,8 @@ uint32_t AABBTree::findBestSibbling(uint32_t newLeafIndex)
 
 		if (lowerBound < bestCost)
 		{
-			nodeQueue.push(currNode.LeftIndex);
-			nodeQueue.push(currNode.RightIndex);
+			nodeQueue.push_back(currNode.LeftIndex);
+			nodeQueue.push_back(currNode.RightIndex);
 		}
 	}
 
@@ -69,7 +70,7 @@ uint32_t AABBTree::createLeafNode(const ColliderInfo& colliderInfo)
 	uint32_t newNodeIndex = createNode(true);
 	Node& newNode = m_nodes[newNodeIndex];
 	// TODO: find AABB from generic collider, now we only have AABB so this isnt relevant
-	newNode.Bounds = colliderInfo.Collider;
+	newNode.Bounds = AABB::inflate(colliderInfo.Collider);
 	newNode.Value = colliderInfo;
 
 	return newNodeIndex;
@@ -99,7 +100,8 @@ float AABBTree::computeRefitCostDelta(uint32_t startingIndex) const
 		float oldSA = currNode.Bounds.getArea(); // TODO: Could be stored.
 		float newSA = AABB::getUnion(m_nodes[currNode.LeftIndex].Bounds, m_nodes[currNode.RightIndex].Bounds).getArea();
 		float delta = newSA - oldSA;
-		if (delta == 0) break;
+		if (delta <= 0.001) break; // If delta is almost zero then parent delta will not change significantly, so we can stop here
+		ASSERT(delta >= 0, "Delta cost should not be negative");
 		deltaCost += delta;
 		currIndex = currNode.ParentIndex;
 	}
@@ -216,6 +218,14 @@ bool AABBTree::update(const ColliderInfo& colliderInfo)
 {
 	auto it = m_leafNodesIndices.find(colliderInfo.id);
 	if (it == m_leafNodesIndices.end()) return false;
+
+	Node& node = m_nodes[it->second];
+	if (node.Bounds.contains(colliderInfo.Collider))
+	{
+		// No need to update if the collider is still within the bounds
+		node.Value = colliderInfo;
+		return true;
+	}
 
 	remove(colliderInfo.id);
 	insert(colliderInfo);
