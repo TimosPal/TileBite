@@ -3,6 +3,8 @@
 #include "utilities/Logger.hpp"
 #include "events/types/WindowCloseEvent.hpp"
 #include "events/types/WindowResizeEvent.hpp"
+#include "events/types/KeyEvent.hpp"
+#include "events/types/MouseEvent.hpp"
 
 namespace Engine {
 
@@ -45,7 +47,7 @@ bool GlfwWindow::init()
 	glfwSetWindowCloseCallback(m_glfwWindow, [](GLFWwindow* window) {
 		Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
 		data->pushEvent(std::make_unique<WindowCloseEvent>());
-		});
+	});
 
 	// Resize window
 	glfwSetFramebufferSizeCallback(m_glfwWindow, [](GLFWwindow* window, int width, int height) {
@@ -53,6 +55,62 @@ bool GlfwWindow::init()
 		data->width = width;
 		data->height = height;
 		data->pushEvent(std::make_unique<WindowResizeEvent>(WindowResizeEvent(width, height)));
+	});
+
+	// Key events
+	glfwSetKeyCallback(m_glfwWindow, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
+		Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
+
+		switch (action) {
+		case GLFW_PRESS: {
+			KeyPressedEvent keyPressedEvent(key);
+			data->pushEvent(std::make_unique<KeyPressedEvent>(keyPressedEvent));
+			break;
+		}
+		case GLFW_RELEASE: {
+			KeyReleasedEvent keyReleasedEvent(key);
+			data->pushEvent(std::make_unique<KeyReleasedEvent>(keyReleasedEvent));
+			break;
+		}
+		case GLFW_REPEAT: {
+			KeyRepeatEvent keyRepeatEvent(key);
+			data->pushEvent(std::make_unique<KeyRepeatEvent>(keyRepeatEvent));
+			break;
+		}
+		}
+	});
+
+	// Mouse button events
+	glfwSetMouseButtonCallback(m_glfwWindow, [](GLFWwindow* window, int button, int action, int mods) {
+		Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
+		
+		switch (action) {
+		case GLFW_PRESS: {
+			MouseKeyPressedEvent mouseKeyPressedEvent(button);
+			data->pushEvent(std::make_unique<MouseKeyPressedEvent>(mouseKeyPressedEvent));
+			break;
+		}
+		case GLFW_RELEASE: {
+			MouseKeyReleasedEvent mouseKeyReleasedEvent(button);
+			data->pushEvent(std::make_unique<MouseKeyReleasedEvent>(mouseKeyReleasedEvent));
+			break;
+		}
+		}
+	});
+
+	// Mouse position event
+	glfwSetCursorPosCallback(m_glfwWindow, [](GLFWwindow* window, double xpos, double ypos) {
+		Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
+
+		MouseMovementEvent mouseMovedEvent(static_cast<float>(xpos), static_cast<float>(ypos));
+		data->pushEvent(std::make_unique<MouseMovementEvent>(mouseMovedEvent));
+	});
+
+	// Mouse scroll event
+	glfwSetScrollCallback(m_glfwWindow, [](GLFWwindow* window, double xoffset, double yoffset) {
+		Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
+		MouseScrollEvent mouseScrollEvent(static_cast<float>(xoffset), static_cast<float>(yoffset));
+		data->pushEvent(std::make_unique<MouseScrollEvent>(mouseScrollEvent));
 	});
 
 	return true; 
