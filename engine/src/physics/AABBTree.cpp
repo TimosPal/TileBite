@@ -7,6 +7,8 @@ namespace Engine {
 
 void AABBTree::insert(const ColliderInfo& colliderInfo)
 {
+	// TODO: tree rebalancing
+
 	uint32_t newNodeIndex = createLeafNode(colliderInfo);
 	m_leafNodesIndices[colliderInfo.id] = newNodeIndex;
 
@@ -29,7 +31,7 @@ uint32_t AABBTree::findBestSibbling(uint32_t newLeafIndex)
 	uint32_t bestIndex = m_rootIndex;
 
 	static std::vector<uint32_t> nodeQueue;
-	nodeQueue.reserve(124);
+	nodeQueue.reserve(256);
 	nodeQueue.clear();
 	uint32_t queueHead = 0;
 	nodeQueue.push_back(m_rootIndex);
@@ -241,7 +243,9 @@ bool AABBTree::update(const ColliderInfo& colliderInfo)
 
 std::vector<ID> AABBTree::query(const AABB& collider) const
 {
-	std::vector<uint32_t> nodeStack;
+	static std::vector<uint32_t> nodeStack;
+	nodeStack.clear();
+	nodeStack.reserve(256);
 	std::vector<ID> results;
 	uint32_t index = m_rootIndex;
 

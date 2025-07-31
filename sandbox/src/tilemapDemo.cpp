@@ -146,7 +146,7 @@ public:
 };
 
 class MyApp : public Engine::EngineApp {
-    AppConfig config() override { return AppConfig(800, 600, "Testing demos"); }
+    AppConfig config() override { return AppConfig(800, 600, "Tilemap demo"); }
 
     void setup() override
     {

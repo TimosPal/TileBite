@@ -109,6 +109,7 @@ bool GlfwWindow::init()
 	// Mouse scroll event
 	glfwSetScrollCallback(m_glfwWindow, [](GLFWwindow* window, double xoffset, double yoffset) {
 		Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
+		
 		MouseScrollEvent mouseScrollEvent(static_cast<float>(xoffset), static_cast<float>(yoffset));
 		data->pushEvent(std::make_unique<MouseScrollEvent>(mouseScrollEvent));
 	});
