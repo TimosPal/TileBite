@@ -6,10 +6,7 @@ namespace Engine {
 
 void Scene::init()
 {
-	m_systemManager.setAssetsManager(&getAssetsManager());
-	m_systemManager.setSceneManager(&getSceneManager());
-	m_systemManager.setCoreEventDispatcher(&getCoreEventDispatcher());
-	m_systemManager.setPushEventCallable(getPushEventCallable());
+	m_systemManager.setEngineContext(getEngineContext());
 
 	m_world.setRemoveEntityCallback([&](ID entityID) {
 		m_physicsEngine.removeCollider(entityID);

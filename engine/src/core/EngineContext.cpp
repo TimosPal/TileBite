@@ -3,52 +3,38 @@
 #include "resources/AssetsManager.hpp"
 #include "scenes/SceneManager.hpp"
 #include "events/EventDispatcher.hpp"
+#include "input/InputManager.hpp"
 
 namespace Engine {
 
-void InjectEngineContext::setCoreEventDispatcher(EventDispatcher* coreEventDispatcher) {
-	m_coreEventDispatcher = coreEventDispatcher;
-}
-
-void InjectEngineContext::setSceneManager(SceneManager* sceneManager) {
-	m_sceneManager = sceneManager;
-}
-
-void InjectEngineContext::setAssetsManager(AssetsManager* assets) {
-	m_assetsManager = assets;
-}
-
-void InjectEngineContext::setPushEventCallable(std::function<void(std::unique_ptr<Event>)> pushEventCallable) {
-	m_pushEventCallable = std::move(pushEventCallable);
-}
-
 EventDispatcher& InjectEngineContext::getCoreEventDispatcher()
 {
-	ASSERT(m_coreEventDispatcher != nullptr, "Core event dispatcher not injected");
-	return *m_coreEventDispatcher;
+	ASSERT(m_engineContext != nullptr, "Engine context not injected");
+	return *m_engineContext->EventDispatcherPtr;
 }
 
 SceneManager& InjectEngineContext::getSceneManager()
 {
-	ASSERT(m_sceneManager != nullptr, "Scene manager not injected");
-	return *m_sceneManager;
+	ASSERT(m_engineContext != nullptr, "Engine context not injected");
+	return *m_engineContext->SceneManagerPtr;
 }
 
 AssetsManager& InjectEngineContext::getAssetsManager()
 {
-	ASSERT(m_assetsManager != nullptr, "Assets manager not injected");
-	return *m_assetsManager;
+	ASSERT(m_engineContext != nullptr, "Engine context not injected");
+	return *m_engineContext->AssetsManagerPtr;
 }
 
 void InjectEngineContext::pushEvent(std::unique_ptr<Event> event)
 {
-	m_pushEventCallable(std::move(event));
+	ASSERT(m_engineContext != nullptr, "Engine context not injected");
+	m_engineContext->pushEventCallable(std::move(event));
 }
 
-std::function<void(std::unique_ptr<Event>)> InjectEngineContext::getPushEventCallable()
+InputManager& InjectEngineContext::getInputManager()
 {
-	ASSERT(m_pushEventCallable != nullptr, "Push event callable not initialized");
-	return m_pushEventCallable;
+	ASSERT(m_engineContext != nullptr, "Engine context not injected");
+	return *m_engineContext->InputManagerPtr;
 }
 
 } // Engine

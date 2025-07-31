@@ -140,6 +140,7 @@ public:
 
     void onAttach() override
     {
+        getAssetsManager().createTextureResource("tilemap", std::string(ResourcePaths::ImagesDir) + "./tilemap.png");
         auto scene = getSceneManager().createScene<MainScene>("MainScene");
         getSceneManager().setActiveScene(scene);
     }
@@ -150,8 +151,6 @@ class MyApp : public Engine::EngineApp {
 
     void setup() override
     {
-        getAssetsManager().createTextureResource("tilemap", std::string(ResourcePaths::ImagesDir) + "./tilemap.png");
-       
         pushLayer(std::make_unique<GameLayer>());
     }
 };

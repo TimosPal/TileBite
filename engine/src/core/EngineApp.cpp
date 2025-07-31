@@ -11,17 +11,20 @@ EngineApp::EngineApp()
 	: m_isRunning(true),
 	m_sceneManager()
 {
-	m_sceneManager.setAssetsManager(&m_assetsManager);
-	m_sceneManager.setSceneManager(&m_sceneManager); // Set itself for consistency, not usefull.
-	m_sceneManager.setCoreEventDispatcher(&m_coreEventDispatcher);
+	// Initialize the engine context.
+	m_engineContext.SceneManagerPtr = &m_sceneManager;
+	m_engineContext.AssetsManagerPtr = &m_assetsManager;
+	m_engineContext.EventDispatcherPtr = &m_coreEventDispatcher;
+	m_engineContext.InputManagerPtr = &m_inputManager;
+	m_engineContext.pushEventCallable = [&](std::unique_ptr<Event> event) {
+		pushEvent(std::move(event));
+	};
+
+	m_sceneManager.setEngineContext(&m_engineContext);
 
 	// One instance allowed.
 	ASSERT(s_instance == nullptr, "Engine app already created");
 	s_instance = this;
-
-	m_sceneManager.setPushEventCallable([&](std::unique_ptr<Event> event) {
-		pushEvent(std::move(event));
-	});
 }
 
 void EngineApp::init()
@@ -164,12 +167,7 @@ void EngineApp::pushEvent(std::unique_ptr<Event> event)
 void EngineApp::pushLayer(std::shared_ptr<Layer> layer)
 {
 	// Inject dependencies to hide from client side.
-	layer->setSceneManager(&m_sceneManager);
-	layer->setAssetsManager(&m_assetsManager);
-	layer->setCoreEventDispatcher(&m_coreEventDispatcher);
-	layer->setPushEventCallable([&](std::unique_ptr<Event> event) {
-		pushEvent(std::move(event));
-	});
+	layer->setEngineContext(&m_engineContext);
 	layer->init();
 
 	m_layers.pushLayer(layer);
@@ -178,12 +176,7 @@ void EngineApp::pushLayer(std::shared_ptr<Layer> layer)
 void EngineApp::pushOverlay(std::shared_ptr<Layer> layer)
 {
 	// Inject dependencies to hide from client side.
-	layer->setSceneManager(&m_sceneManager);
-	layer->setAssetsManager(&m_assetsManager);
-	layer->setCoreEventDispatcher(&m_coreEventDispatcher);
-	layer->setPushEventCallable([&](std::unique_ptr<Event> event) {
-		pushEvent(std::move(event));
-	});
+	layer->setEngineContext(&m_engineContext);
 	layer->init();
 
 	m_layers.pushOverlay(layer);

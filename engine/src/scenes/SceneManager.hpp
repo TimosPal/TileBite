@@ -14,10 +14,7 @@ public:
 	std::shared_ptr<Scene> createScene(const std::string& name)
 	{
 		auto scene = std::make_shared<SceneDerived>();
-		scene->setAssetsManager(&getAssetsManager());
-		scene->setSceneManager(this);
-		scene->setPushEventCallable(getPushEventCallable());
-		scene->setCoreEventDispatcher(&getCoreEventDispatcher());
+		scene->setEngineContext(getEngineContext());
 		scene->init();
 		m_scenes[name] = scene;
 		return scene;

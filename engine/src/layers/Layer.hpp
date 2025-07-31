@@ -23,10 +23,7 @@ public:
 
 	void init()
 	{
-		m_systemManager.setAssetsManager(&getAssetsManager());
-		m_systemManager.setSceneManager(&getSceneManager());
-		m_systemManager.setCoreEventDispatcher(&getCoreEventDispatcher());
-		m_systemManager.setPushEventCallable(getPushEventCallable());
+		m_systemManager.setEngineContext(getEngineContext());
 	}
 
 	virtual void onAttach() {}

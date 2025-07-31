@@ -10,6 +10,8 @@ public:
 	KeyEvent(int keyCode) 
 		: m_keyCode(keyCode), Engine::Event(true)
 	{}
+
+	int getKeyCode() const { return m_keyCode; }
 protected:
 	int m_keyCode;
 };

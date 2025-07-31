@@ -16,10 +16,11 @@
 #include "layers/types/DebugLayer.hpp"
 #include "core/EngineContext.hpp"
 #include "events/EventDispatcher.hpp"
+#include "input/InputManager.hpp"
 
 namespace Engine {
 
-class EngineApp : public IEngineContext {
+class EngineApp {
 public:
 	static EngineApp* getInstance() { return s_instance; }
 
@@ -45,17 +46,17 @@ public:
 		return m_layers.getLayerByName(layerID);
 	}
 
-	virtual SceneManager& getSceneManager() override { return m_sceneManager; }
-	virtual AssetsManager& getAssetsManager() override { return m_assetsManager; }
-	virtual EventDispatcher& getCoreEventDispatcher() override { return m_coreEventDispatcher; }
-	virtual void pushEvent(std::unique_ptr<Event> event) override;
+	void pushEvent(std::unique_ptr<Event> event);
 
 private:
 	static EngineApp* s_instance;
+	EngineContext m_engineContext;
 
 	// Resources
 	SystemResourceHub m_resourceHub;
 	AssetsManager m_assetsManager;
+
+	InputManager m_inputManager;
 
 	std::unique_ptr<Window> m_window;
 	std::shared_ptr<Renderer2D> m_renderer2D;

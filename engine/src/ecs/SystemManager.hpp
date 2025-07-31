@@ -16,11 +16,7 @@ public:
     {
         // Inject world and asset manager for hidden client side use
         // (Removes the need for client side construction to include injections)
-        system->setAssetsManager(&getAssetsManager());
-        system->setSceneManager(&getSceneManager());
-		system->setCoreEventDispatcher(&getCoreEventDispatcher());
-        system->setPushEventCallable(getPushEventCallable());
-
+		system->setEngineContext(getEngineContext());
 		system->onAttach();
         
         m_systems.push_back(std::move(system));

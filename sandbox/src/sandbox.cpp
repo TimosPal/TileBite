@@ -12,6 +12,7 @@
 #include <core/ResourceRegistry.hpp>
 #include "ecs/types/BaseComponent.hpp"
 #include <events/types/MouseEvent.hpp>
+#include <events/types/KeyEvent.hpp>
 
 using namespace Engine;
 
@@ -29,6 +30,11 @@ public:
     {
         auto scene = getSceneManager().createScene<MainScene>("MainScene");
         getSceneManager().setActiveScene(scene);
+
+        EventCallback<KeyPressedEvent> e([&](KeyPressedEvent& event) {
+            LOG_INFO("Key: {}", event.getKeyCode());
+		});
+        getCoreEventDispatcher().subscribe(e);
     }
 };
 
@@ -38,7 +44,7 @@ class MyApp : public Engine::EngineApp {
     void setup() override
     {     
         pushLayer(std::make_unique<GameLayer>());
-
+        
         //getLayer(DebugLayer::getName())->enable();
         //getLayer(GraphicsLayer::getName())->disable();
     }
