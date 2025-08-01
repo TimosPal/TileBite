@@ -6,6 +6,7 @@
 #include "events/types/KeyEvent.hpp"
 #include "events/types/MouseEvent.hpp"
 
+#include "input/InputManager.hpp"
 #include "ecs/types/CollidersUpdateSystem.hpp"
 
 namespace Engine {
@@ -22,39 +23,44 @@ void SystemLayer::onAttach()
 		event.consume();
 		m_stopAppCallback();
 	});
-	getEventDispatcher().subscribe(windowCloseEventCallback);
 
+	InputManager& inputManager = getInputManager();
 
 	// Key events
 	EventCallback<KeyPressedEvent> keyPressedEventCallback([&](KeyPressedEvent& event) {
-		getInputManager();
+		inputManager.setKeyState(event.getKeyCode(), InputManager::KeyState::State::DOWN);
 	});
 
 	EventCallback<KeyReleasedEvent> keyReleasedEventCallback([&](KeyReleasedEvent& event) {
-		getInputManager();
+		inputManager.setKeyState(event.getKeyCode(), InputManager::KeyState::State::RELEASED);
 	});
 
-	EventCallback<KeyRepeatEvent> keyTypedEventCallback([&](KeyRepeatEvent& event) {
-		getInputManager();
+	EventCallback<KeyRepeatEvent> keyRapeatEventCallback([&](KeyRepeatEvent& event) {
+		inputManager.setKeyState(event.getKeyCode(), InputManager::KeyState::State::REPEAT);
 	});
-
-	getEventDispatcher().subscribe(keyPressedEventCallback);
-	getEventDispatcher().subscribe(keyReleasedEventCallback);
-	getEventDispatcher().subscribe(keyTypedEventCallback);
 
 
 	// Mouse events
 	EventCallback<MouseKeyPressedEvent> mouseButtonPressedEventCallback([&](MouseKeyPressedEvent& event) {
-		getInputManager();
+		inputManager.setKeyState(event.getKeyCode(), InputManager::KeyState::State::DOWN);
+	});
+
+	EventCallback<MouseKeyReleasedEvent> mouseButtonReleasedEventCallback([&](MouseKeyReleasedEvent& event) {
+		inputManager.setKeyState(event.getKeyCode(), InputManager::KeyState::State::DOWN);
 	});
 
 	EventCallback<MouseMovementEvent> mouseMovedEventCallback([&](MouseMovementEvent& event) {
-		getInputManager();
+		inputManager.setMousePosition(event.getX(), event.getY());
 	});
 
-	getEventDispatcher().subscribe(mouseButtonPressedEventCallback);
-	getEventDispatcher().subscribe(mouseMovedEventCallback);
-
+	EventDispatcher& eventDispatcher = getEventDispatcher();
+	eventDispatcher.subscribe(windowCloseEventCallback);
+	eventDispatcher.subscribe(keyPressedEventCallback);
+	eventDispatcher.subscribe(keyReleasedEventCallback);
+	eventDispatcher.subscribe(keyRapeatEventCallback);
+	eventDispatcher.subscribe(mouseButtonPressedEventCallback);
+	eventDispatcher.subscribe(mouseButtonReleasedEventCallback);
+	eventDispatcher.subscribe(mouseMovedEventCallback);
 
 	getSystemManager().addSystem(std::make_unique<ColliderUpdateSystem>());
 }

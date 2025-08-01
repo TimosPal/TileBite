@@ -96,6 +96,8 @@ void EngineApp::run()
 		fpsLogTimer += deltaTime;
 		framesCounter++;
 
+		m_inputManager.update();
+
 		m_window->pollEvents();
 		m_eventQueue.dispatchAll(m_layers);
 		

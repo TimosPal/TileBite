@@ -2,6 +2,7 @@
 
 #if defined(WINDOW_BACKEND_GLFW)
     #include "window/backend/glfw/GlfwWindow.hpp"
+    #include "window/backend/glfw/GlfwKeyCodes.hpp"
     using WindowBackend = Engine::GlfwWindow;
 #elif defined(WINDOW_BACKEND_NATIVE)
     #if defined(PLATFORM_WINDOWS)

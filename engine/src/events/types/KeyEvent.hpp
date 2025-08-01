@@ -8,7 +8,7 @@ namespace Engine {
 class KeyEvent : public Event {
 public:
 	KeyEvent(int keyCode) 
-		: m_keyCode(keyCode), Engine::Event(true)
+		: m_keyCode(keyCode), Engine::Event(false)
 	{}
 
 	int getKeyCode() const { return m_keyCode; }

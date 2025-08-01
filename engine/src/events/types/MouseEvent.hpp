@@ -8,8 +8,10 @@ namespace Engine {
 class MouseKeyEvent : public Event {
 public:
 	MouseKeyEvent(int keyCode)
-		: m_keyCode(keyCode), Engine::Event(true)
+		: m_keyCode(keyCode), Engine::Event(false)
 	{}
+
+	int getKeyCode() const { return m_keyCode; }
 protected:
 	int m_keyCode;
 };
@@ -34,7 +36,7 @@ class MouseMovementEvent : public Event {
 	SETUP_ID(Event, MouseMovementEvent)
 public:
 	MouseMovementEvent(float x, float y)
-		: m_x(x), m_y(y), Event(true)
+		: m_x(x), m_y(y), Event(false)
 	{}
 
 	float getX() const { return m_x; }
@@ -48,7 +50,7 @@ class MouseScrollEvent : public Event {
 	SETUP_ID(Event, MouseScrollEvent)
 public:
 	MouseScrollEvent(float xOffset, float yOffset)
-		: m_xOffset(xOffset), m_yOffset(yOffset), Event(true)
+		: m_xOffset(xOffset), m_yOffset(yOffset), Event(false)
 	{}
 
 	float getXOffset() const { return m_xOffset; }
