@@ -53,6 +53,10 @@ void SystemLayer::onAttach()
 		inputManager.setMousePosition(event.getX(), event.getY());
 	});
 
+	EventCallback<MouseScrollEvent> mouseScrollEventCallback([&](MouseScrollEvent& event) {
+		inputManager.setMouseScroll(event.getXOffset(), event.getYOffset());
+	});
+
 	EventDispatcher& eventDispatcher = getEventDispatcher();
 	eventDispatcher.subscribe(windowCloseEventCallback);
 	eventDispatcher.subscribe(keyPressedEventCallback);
@@ -61,6 +65,7 @@ void SystemLayer::onAttach()
 	eventDispatcher.subscribe(mouseButtonPressedEventCallback);
 	eventDispatcher.subscribe(mouseButtonReleasedEventCallback);
 	eventDispatcher.subscribe(mouseMovedEventCallback);
+	eventDispatcher.subscribe(mouseScrollEventCallback);
 
 	getSystemManager().addSystem(std::make_unique<ColliderUpdateSystem>());
 }
