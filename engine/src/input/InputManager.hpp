@@ -40,6 +40,8 @@ public:
 	void update() {
 		for (auto& [key, state] : m_states)
 			state.previous = state.current;
+		m_mouseScrollX = 0.0f;
+		m_mouseScrollY = 0.0f;
 	}
 
 	// Mouse buttons
