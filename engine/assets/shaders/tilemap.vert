@@ -5,7 +5,7 @@ layout (location = 0) in uint aPackedXYIndexUV;
 layout (location = 1) in uint aPackedRGBA;
 
 uniform mat4 uViewProjection;
-uniform vec2 offset;
+uniform vec2 uOffset;
 
 uniform vec2 uWorldTileSize;
 
@@ -49,7 +49,7 @@ void main()
     vec2 uvIndex = unpackUV(aPackedXYIndexUV);        // Tile UV index in atlas
 
     // World position in tilemap
-    vec2 worldPosXY = tileIndex * uWorldTileSize + offset;
+    vec2 worldPosXY = tileIndex * uWorldTileSize + uOffset;
     vec4 worldPos = vec4(worldPosXY, 0.0, 1.0);
     gl_Position = uViewProjection * worldPos;
 

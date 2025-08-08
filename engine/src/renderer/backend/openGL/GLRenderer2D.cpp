@@ -387,6 +387,7 @@ void GLRenderer2D::renderTilemaps(CameraController& camera)
 		program->setUniform("uTilemapDim", command.TilemapResource->getAtlasDim());
 		program->setUniform("uWorldTileSize", command.TilemapResource->getWorldTileSize());
 		program->setUniform("uTextureTileSize", command.TilemapResource->getAtlasTileSize());
+		program->setUniform("uOffset", command.TransformComp->Position);
 
 		mesh->drawIndexed(quadsCount * 6);
 		

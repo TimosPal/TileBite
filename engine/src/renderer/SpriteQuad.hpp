@@ -16,6 +16,7 @@ struct SpriteQuad {
 
 struct TilemapMesh {
 	TilemapResource* TilemapResource;
+	TransformComponent* TransformComp;
 };
 
 struct Line {
