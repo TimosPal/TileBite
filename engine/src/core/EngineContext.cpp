@@ -37,4 +37,10 @@ InputManager& InjectEngineContext::getInputManager()
 	return *m_engineContext->InputManagerPtr;
 }
 
+Window& InjectEngineContext::getWindow()
+{
+	ASSERT(m_engineContext != nullptr, "Engine context not injected");
+	return *m_engineContext->WindowPtr;
+}
+
 } // Engine

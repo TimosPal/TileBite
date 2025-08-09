@@ -20,9 +20,9 @@
 
 namespace Engine {
 
-std::unique_ptr<Window> Window::createWindow(const Data& data)
+std::shared_ptr<Window> Window::createWindow(const Data& data)
 {
-    return std::make_unique<WindowBackend>(data);
+    return std::make_shared<WindowBackend>(data);
 }
 
 } // Engine

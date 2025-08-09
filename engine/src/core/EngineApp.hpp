@@ -58,7 +58,7 @@ private:
 
 	InputManager m_inputManager;
 
-	std::unique_ptr<Window> m_window;
+	std::shared_ptr<Window> m_window;
 	std::shared_ptr<Renderer2D> m_renderer2D;
 
 	// Layer ID -> EventDispatcher.

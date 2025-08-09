@@ -16,6 +16,7 @@ EngineApp::EngineApp()
 	m_engineContext.AssetsManagerPtr = &m_assetsManager;
 	m_engineContext.EventDispatcherPtr = &m_coreEventDispatcher;
 	m_engineContext.InputManagerPtr = &m_inputManager;
+	m_engineContext.WindowPtr = nullptr; // Will be set after window creation.
 	m_engineContext.pushEventCallable = [&](std::unique_ptr<Event> event) {
 		pushEvent(std::move(event));
 	};
@@ -38,6 +39,8 @@ void EngineApp::init()
 	bool resInitWindow = m_window->init();
 	ASSERT(resInitWindow, "Window not init");
 
+	m_engineContext.WindowPtr = m_window.get();
+
 	// Load engine resources
 	// Needs to be done before renderer since it needs to load shaders.
 	bool resResourceHubInit = m_resourceHub.init();
@@ -48,7 +51,7 @@ void EngineApp::init()
 	bool resInitRendered2D = m_renderer2D->init();
 	ASSERT(resInitRendered2D, "Renderer2D not init");
 
-	// Assets inteface
+	// Assets interface
 	m_assetsManager.init(&m_resourceHub, &m_renderer2D->getGPUAssets());
 
 	// Engine layers creation.
