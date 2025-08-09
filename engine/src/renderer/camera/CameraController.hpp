@@ -9,9 +9,10 @@ namespace Engine {
 
 class CameraController {
 public:
-	CameraController(float left, float right, float bottom, float top)
-		: m_camera(left, right, bottom, top), m_isDirty(false),
-		m_left(left), m_right(right), m_bottom(bottom), m_top(top), zoomLevel(1.0f)
+	// Init values shall be overriden by the window resize callback.
+	CameraController()
+		: m_camera(-1, 1, -1, 1), m_isDirty(false),
+		m_left(-1), m_right(1), m_bottom(-1), m_top(1), zoomLevel(1.0f)
 	{}
 
 	void setPosition(const glm::vec2& position) 
@@ -37,8 +38,8 @@ public:
 		}
 	}
 
-	void setZoom(float zoom) {
-		if (zoomLevel != zoom) {
+	void setZoom(float zoom, bool forceReapply = false) {
+		if (zoomLevel != zoom || forceReapply) {
 			zoomLevel = zoom;
 			m_isDirty = true;
 
@@ -50,6 +51,16 @@ public:
 
 			m_camera.setProjection(scaledLeft, scaledRight, scaledBottom, scaledTop);
 		}
+	}
+
+	void setProjection(float left, float right, float bottom, float top)
+	{
+		m_left = left;
+		m_right = right;
+		m_bottom = bottom;
+		m_top = top;
+
+		setZoom(zoomLevel, true); // Reapply zoom to update projection
 	}
 
 	float getZoom() const { return zoomLevel; }

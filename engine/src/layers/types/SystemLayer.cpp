@@ -24,6 +24,15 @@ void SystemLayer::onAttach()
 		m_stopAppCallback();
 	});
 
+	// Resize window
+	EventCallback<WindowResizeEvent> windowResizeEventCallback([&](WindowResizeEvent& event) {
+		float aspect = (float)event.getWidth() / event.getHeight();
+		getSceneManager().getActiveScene()->getCameraController()->setProjection(
+			-aspect, aspect, -1.0f, 1.0f
+		);
+	});
+	getEventDispatcher().subscribe<WindowResizeEvent>(windowResizeEventCallback);
+
 	InputManager& inputManager = getInputManager();
 
 	// Key events

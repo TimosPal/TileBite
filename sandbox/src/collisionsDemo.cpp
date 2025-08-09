@@ -174,7 +174,7 @@ public:
 class MainScene : public Scene {
     void onLoad() override
     {
-        auto cameraController = std::make_shared<CameraController>(-1.0f, 1.0f, -1.0f, 1.0f);
+        auto cameraController = std::make_shared<CameraController>();
         setCameraController(cameraController);
 
 		auto floor = getWorld().createEntity();

@@ -4,6 +4,7 @@
 #include "scenes/SceneManager.hpp"
 #include "events/EventDispatcher.hpp"
 #include "input/InputManager.hpp"
+#include "window/Window.hpp"
 
 namespace Engine {
 

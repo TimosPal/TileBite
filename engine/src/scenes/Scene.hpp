@@ -8,6 +8,7 @@
 #include "ecs/SystemManager.hpp"
 #include "physics/PhysicsEngine.hpp"
 #include "events/EventCallback.hpp"
+#include "events/types/WindowResizeEvent.hpp"
 
 namespace Engine {
 
@@ -25,7 +26,7 @@ public:
 
 	virtual void onLoad() {};
 protected:
-	void setCameraController(std::shared_ptr<CameraController> cameraController) { m_cameraController = cameraController; }
+	void setCameraController(std::shared_ptr<CameraController> cameraController);
 
 	SystemManager& getSystemManager() { return m_systemManager; } // TODO: make a more protective interface for client side use.
 private:
