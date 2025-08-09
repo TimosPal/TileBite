@@ -6,14 +6,12 @@
 namespace Engine
 {
 
-DebugLayer::DebugLayer(std::shared_ptr<Renderer2D> renderer2D)
-	: Layer(getName()),
-	m_renderer2D(renderer2D)
-{}
+DebugLayer::DebugLayer()
+	: Layer(getName()) {}
 
 void DebugLayer::onAttach()
 {
-	getSystemManager().addSystem(std::make_unique<ColliderRenderSystem>(m_renderer2D));
+	getSystemManager().addSystem(std::make_unique<ColliderRenderSystem>());
 }
 
 } // Engine

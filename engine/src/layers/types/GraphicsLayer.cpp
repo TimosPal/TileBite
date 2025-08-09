@@ -8,9 +8,8 @@
 namespace Engine
 {
 
-GraphicsLayer::GraphicsLayer(std::shared_ptr<Renderer2D> renderer2D)
-	: Layer(getName()),
-	m_renderer2D(renderer2D)
+GraphicsLayer::GraphicsLayer()
+	: Layer(getName())
 {}
 
 void GraphicsLayer::onAttach()
@@ -18,12 +17,12 @@ void GraphicsLayer::onAttach()
 	// Resize window
 	EventCallback<WindowResizeEvent> windowResizeEventCallback([&](WindowResizeEvent& event) {
 		event.consume();
-		m_renderer2D->setViewportSize(event.getWidth(), event.getHeight());
+		getRenderer().setViewportSize(event.getWidth(), event.getHeight());
 	});
 	getEventDispatcher().subscribe<WindowResizeEvent>(windowResizeEventCallback);
 
-	getSystemManager().addSystem(std::make_unique<SpriteRenderSystem>(m_renderer2D));
-	getSystemManager().addSystem(std::make_unique<TilemapRenderSystem>(m_renderer2D));
+	getSystemManager().addSystem(std::make_unique<SpriteRenderSystem>());
+	getSystemManager().addSystem(std::make_unique<TilemapRenderSystem>());
 }
 
 } // Engine

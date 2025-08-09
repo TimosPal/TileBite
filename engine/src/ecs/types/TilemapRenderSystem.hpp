@@ -10,23 +10,20 @@ namespace Engine {
 
 class TilemapRenderSystem : public ISystem {
 public:
-	TilemapRenderSystem(std::shared_ptr<Renderer2D> renderer2D) : m_renderer2D(renderer2D) {}
-
 	virtual void update(float deltaTime) override
 	{
+		auto& renderer2D = getRenderer();
 		auto& activeWorld = getSceneManager().getActiveScene()->getWorld();
-		activeWorld.query<TilemapComponent, TransformComponent>().each([this](ID entityID, TilemapComponent* tilemapComp, TransformComponent* transformComp) {
+		activeWorld.query<TilemapComponent, TransformComponent>().each([&](ID entityID, TilemapComponent* tilemapComp, TransformComponent* transformComp) {
 			// TODO: Assumes resource is always loaded and valid, might need to retrieve a handle instead.
 			auto resource = tilemapComp->TilemapResourcePtr;
 			uint8_t quadsCount = resource->getWidth() * resource->getHeight();
-			m_renderer2D->drawTilemap(TilemapMesh{
-				resource
+			renderer2D.drawTilemap(TilemapMesh{
+				resource,
+				transformComp
 			});
 		});
 	}
-
-private:
-	std::shared_ptr<Renderer2D> m_renderer2D;
 };
 
 } // Engine

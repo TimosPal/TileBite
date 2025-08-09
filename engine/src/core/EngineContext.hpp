@@ -12,6 +12,7 @@ class AssetsManager;
 class EventDispatcher;
 class InputManager;
 class Window;
+class Renderer2D;
 
 struct EngineContext {
 	SceneManager* SceneManagerPtr;
@@ -19,6 +20,7 @@ struct EngineContext {
 	EventDispatcher* EventDispatcherPtr;
 	InputManager* InputManagerPtr;
 	Window* WindowPtr;
+	Renderer2D* RendererPtr;
 	std::function<void(std::unique_ptr<Event>)> pushEventCallable;
 };
 
@@ -42,6 +44,7 @@ protected:
 	EventDispatcher& getCoreEventDispatcher();
 	InputManager& getInputManager();
 	Window& getWindow();
+	Renderer2D& getRenderer();
 	void pushEvent(std::unique_ptr<Event> event);
 private:
 	EngineContext* m_engineContext = nullptr;

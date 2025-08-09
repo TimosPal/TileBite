@@ -9,13 +9,11 @@ namespace Engine {
 
 class DebugLayer : public Layer {
 public:
-	DebugLayer(std::shared_ptr<Renderer2D> renderer2D);
+	DebugLayer();
 
 	void onAttach() override;
 
 	static std::string getName() { return "DebugLayer"; }
-private:
-	std::shared_ptr<Renderer2D> m_renderer2D;
 };
 
 } // Engine

@@ -16,6 +16,7 @@ EngineApp::EngineApp()
 	m_engineContext.AssetsManagerPtr = &m_assetsManager;
 	m_engineContext.EventDispatcherPtr = &m_coreEventDispatcher;
 	m_engineContext.InputManagerPtr = &m_inputManager;
+	m_engineContext.RendererPtr = nullptr; // Will be set after renderer creation.
 	m_engineContext.WindowPtr = nullptr; // Will be set after window creation.
 	m_engineContext.pushEventCallable = [&](std::unique_ptr<Event> event) {
 		pushEvent(std::move(event));
@@ -39,7 +40,6 @@ void EngineApp::init()
 	bool resInitWindow = m_window->init();
 	ASSERT(resInitWindow, "Window not init");
 
-	m_engineContext.WindowPtr = m_window.get();
 
 	// Load engine resources
 	// Needs to be done before renderer since it needs to load shaders.
@@ -50,6 +50,9 @@ void EngineApp::init()
 	m_renderer2D = Renderer2D::createRenderer2D(m_resourceHub);
 	bool resInitRendered2D = m_renderer2D->init();
 	ASSERT(resInitRendered2D, "Renderer2D not init");
+	
+	m_engineContext.WindowPtr = m_window.get();
+	m_engineContext.RendererPtr = m_renderer2D.get();
 
 	// Assets interface
 	m_assetsManager.init(&m_resourceHub, &m_renderer2D->getGPUAssets());
@@ -58,8 +61,8 @@ void EngineApp::init()
 	auto stopAppCallback = [&]() { stop(); };
 
 	pushLayer(std::make_shared<SystemLayer>(SystemLayer(stopAppCallback)));
-	pushOverlay(std::make_shared<GraphicsLayer>(GraphicsLayer(m_renderer2D)));
-	auto debugLayer = std::make_shared<DebugLayer>(DebugLayer(m_renderer2D));
+	pushOverlay(std::make_shared<GraphicsLayer>(GraphicsLayer()));
+	auto debugLayer = std::make_shared<DebugLayer>(DebugLayer());
 	debugLayer->disable(); // Disable by default, enable it in setup.
 	pushOverlay(debugLayer);
 

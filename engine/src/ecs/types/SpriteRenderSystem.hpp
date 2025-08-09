@@ -9,18 +9,14 @@ namespace Engine {
 
 class SpriteRenderSystem : public ISystem {
 public:
-	SpriteRenderSystem(std::shared_ptr<Renderer2D> renderer2D) : m_renderer2D(renderer2D) {}
-
 	virtual void update(float deltaTime) override
 	{
+		auto& renderer2D = getRenderer();
 		auto& activeWorld = getSceneManager().getActiveScene()->getWorld();
-		activeWorld.query<SpriteComponent, TransformComponent>().each([this](ID entityID, SpriteComponent* spriteComp, TransformComponent* transformComp) {
-			m_renderer2D->drawQuad(SpriteQuad{ transformComp, spriteComp });
+		activeWorld.query<SpriteComponent, TransformComponent>().each([&](ID entityID, SpriteComponent* spriteComp, TransformComponent* transformComp) {
+			renderer2D.drawQuad(SpriteQuad{ transformComp, spriteComp });
 		});
 	}
-
-private:
-	std::shared_ptr<Renderer2D> m_renderer2D;
 };
 
 } // Engine

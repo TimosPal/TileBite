@@ -289,8 +289,8 @@ void GLRenderer2D::bindTextureToSlot(ID textureID, uint8_t slot)
 
 void GLRenderer2D::render(CameraController& camera)
 {
-	renderSpriteQuads(camera);
 	renderTilemaps(camera);
+	renderSpriteQuads(camera);
 	renderLines(camera);
 }
 
