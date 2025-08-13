@@ -16,10 +16,8 @@ std::vector<CollisionData> PhysicsEngine::queryCollisions(const AABB& collider, 
 		ASSERT(it != m_tilemapColliderGroups.end(), "Tilemap collider group not found in the map");
 
 		const TilemapColliderGroup& group = it->second;
-		if (group.isColliding(collider))
-		{
-			collisionData.push_back(tilemapCollisionData);
-		}
+		auto groupColliderData = group.query(collider, excludeID);
+		collisionData.insert(collisionData.end(), groupColliderData.begin(), groupColliderData.end());
 	}
 
 	return collisionData;
@@ -47,33 +45,33 @@ void PhysicsEngine::updateCollider(ID id, AABB* collider, TransformComponent* tr
 	if (!updated) m_coreTree.insert(info);
 }
 
-void PhysicsEngine::addTilemapColliderGroup(ID id, TransformComponent* transform, float width, float height)
+void PhysicsEngine::addTilemapColliderGroup(ID id, TransformComponent* transform, glm::vec2 tilemapSize, glm::vec2 tileSize)
 {
 	glm::vec2 min = transform->Position;
-	glm::vec2 max = glm::vec2(width, height) * transform->Size + transform->Position;
+	glm::vec2 max = glm::vec2(tilemapSize.x * tileSize.x, tilemapSize.y * tileSize.y) * transform->Size + transform->Position;
 	auto bounds = AABB(min, max);
-	m_tilemapColliderGroups.emplace(id, TilemapColliderGroup(bounds));
+	m_tilemapColliderGroups.emplace(id, TilemapColliderGroup(id, bounds, tilemapSize, tileSize));
 	
 	// Create a collider for the tilemap group
 	ColliderInfo info{ id, bounds };
 	m_tilemapColliderTree.insert(info);
 }
 
-void PhysicsEngine::updateTilemapColliderGroup(ID id, TransformComponent* transform, float width, float height)
+void PhysicsEngine::updateTilemapColliderGroup(ID id, TransformComponent* transform, glm::vec2 tilemapSize, glm::vec2 tileSize)
 {
 	glm::vec2 min = transform->Position;
-	glm::vec2 max = glm::vec2(width, height) * transform->Size + transform->Position;
+	glm::vec2 max = glm::vec2(tilemapSize.x * tileSize.x, tilemapSize.y * tileSize.y) * transform->Size + transform->Position;
 	auto bounds = AABB(min, max);
 	ColliderInfo info{ id, bounds };
 	bool updated = m_tilemapColliderTree.update(info);
 	if (!updated)
 	{
 		m_tilemapColliderTree.insert(info);
-		m_tilemapColliderGroups.emplace(id, TilemapColliderGroup(bounds));
+		m_tilemapColliderGroups.emplace(id, TilemapColliderGroup(id, bounds, tilemapSize, tileSize));
 	}
 	else
 	{
-		m_tilemapColliderGroups[id] = TilemapColliderGroup(bounds);
+		m_tilemapColliderGroups[id] = TilemapColliderGroup(id, bounds, tilemapSize, tileSize);
 	}
 }
 

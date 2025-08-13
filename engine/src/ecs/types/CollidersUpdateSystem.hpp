@@ -29,8 +29,8 @@ public:
 				m_physicsEngine.updateTilemapColliderGroup(
 					entityID,
 					transform,
-					tilemap->TilemapResourcePtr->getWidth() * tilemap->TilemapResourcePtr->getWorldTileSize().x,
-					tilemap->TilemapResourcePtr->getHeight() * tilemap->TilemapResourcePtr->getWorldTileSize().y
+					glm::vec2(tilemap->TilemapResourcePtr->getWidth(), tilemap->TilemapResourcePtr->getHeight()),
+					glm::vec2(tilemap->TilemapResourcePtr->getWorldTileSize().x, tilemap->TilemapResourcePtr->getWorldTileSize().y)
 				);
 				transform->resetDirty();
 				tilemap->resetDirty();

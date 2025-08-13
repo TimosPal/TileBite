@@ -12,6 +12,16 @@ struct AABB {
 	AABB() : Min(glm::vec2(0.0f)), Max(glm::vec2(0.0f)) {}
 	AABB(const glm::vec2& min, const glm::vec2& max) : Min(min), Max(max) {}
 	
+	inline float getWidth() const noexcept
+	{
+		return Max.x - Min.x;
+	}
+
+	inline float getHeight() const noexcept
+	{
+		return Max.y - Min.y;
+	}
+
 	inline bool contains(const glm::vec2& point) const noexcept
 	{
 		return (point.x >= Min.x && point.x <= Max.x &&

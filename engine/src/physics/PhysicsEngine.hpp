@@ -16,9 +16,9 @@ public:
 	std::vector<CollisionData> queryCollisions(const AABB& collider, ID excludeID = INVALID_ID) const;
 
 	void addCollider(ID id, AABB* collider, TransformComponent* transform);
-	void addTilemapColliderGroup(ID id, TransformComponent* transform, float width, float height);
+	void addTilemapColliderGroup(ID id, TransformComponent* transform, glm::vec2 tilemapSize, glm::vec2 tileSize);
 	void addTileCollider(ID tilemapGroup, uint8_t x, uint8_t y);
-	void updateTilemapColliderGroup(ID id, TransformComponent* transform, float width, float height);
+	void updateTilemapColliderGroup(ID id, TransformComponent* transform, glm::vec2 tilemapSize, glm::vec2 tileSize);
 	void removeCollider(ID id);
 	void updateCollider(ID id, AABB* collider, TransformComponent* transform);
 
