@@ -30,7 +30,8 @@ public:
 					entityID,
 					transform,
 					glm::vec2(tilemap->TilemapResourcePtr->getWidth(), tilemap->TilemapResourcePtr->getHeight()),
-					glm::vec2(tilemap->TilemapResourcePtr->getWorldTileSize().x, tilemap->TilemapResourcePtr->getWorldTileSize().y)
+					tilemap->TilemapResourcePtr->getWorldTileSize(),
+					tilemap->TilemapResourcePtr->getSolidTiles()
 				);
 				transform->resetDirty();
 				tilemap->resetDirty();

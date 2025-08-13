@@ -11,8 +11,8 @@ namespace Engine {
 class TilemapColliderGroup {
 public:
 	TilemapColliderGroup() = default;
-	TilemapColliderGroup(ID tilemapID, const AABB& bounds, glm::vec2 tilemapSize, glm::vec2 tileSize)
-		: m_bounds(bounds), m_tiles(tilemapSize.x* tilemapSize.y),
+	TilemapColliderGroup(ID tilemapID, const AABB& bounds, glm::vec2 tilemapSize, glm::vec2 tileSize, Bitset solidTiles)
+		: m_bounds(bounds), m_tiles(solidTiles),
 		tilemapSize(tilemapSize), tileSize(tileSize), m_id(tilemapID)
 	{}
 

@@ -45,19 +45,19 @@ void PhysicsEngine::updateCollider(ID id, AABB* collider, TransformComponent* tr
 	if (!updated) m_coreTree.insert(info);
 }
 
-void PhysicsEngine::addTilemapColliderGroup(ID id, TransformComponent* transform, glm::vec2 tilemapSize, glm::vec2 tileSize)
+void PhysicsEngine::addTilemapColliderGroup(ID id, TransformComponent* transform, glm::vec2 tilemapSize, glm::vec2 tileSize, Bitset solidTiles)
 {
 	glm::vec2 min = transform->Position;
 	glm::vec2 max = glm::vec2(tilemapSize.x * tileSize.x, tilemapSize.y * tileSize.y) * transform->Size + transform->Position;
 	auto bounds = AABB(min, max);
-	m_tilemapColliderGroups.emplace(id, TilemapColliderGroup(id, bounds, tilemapSize, tileSize));
+	m_tilemapColliderGroups.emplace(id, TilemapColliderGroup(id, bounds, tilemapSize, tileSize, solidTiles));
 	
 	// Create a collider for the tilemap group
 	ColliderInfo info{ id, bounds };
 	m_tilemapColliderTree.insert(info);
 }
 
-void PhysicsEngine::updateTilemapColliderGroup(ID id, TransformComponent* transform, glm::vec2 tilemapSize, glm::vec2 tileSize)
+void PhysicsEngine::updateTilemapColliderGroup(ID id, TransformComponent* transform, glm::vec2 tilemapSize, glm::vec2 tileSize, Bitset solidTiles)
 {
 	glm::vec2 min = transform->Position;
 	glm::vec2 max = glm::vec2(tilemapSize.x * tileSize.x, tilemapSize.y * tileSize.y) * transform->Size + transform->Position;
@@ -67,11 +67,11 @@ void PhysicsEngine::updateTilemapColliderGroup(ID id, TransformComponent* transf
 	if (!updated)
 	{
 		m_tilemapColliderTree.insert(info);
-		m_tilemapColliderGroups.emplace(id, TilemapColliderGroup(id, bounds, tilemapSize, tileSize));
+		m_tilemapColliderGroups.emplace(id, TilemapColliderGroup(id, bounds, tilemapSize, tileSize, solidTiles));
 	}
 	else
 	{
-		m_tilemapColliderGroups[id] = TilemapColliderGroup(id, bounds, tilemapSize, tileSize);
+		m_tilemapColliderGroups[id] = TilemapColliderGroup(id, bounds, tilemapSize, tileSize, solidTiles);
 	}
 }
 

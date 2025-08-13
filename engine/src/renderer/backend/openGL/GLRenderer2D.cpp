@@ -350,7 +350,7 @@ void GLRenderer2D::renderTilemaps(CameraController& camera)
 
 		auto& mesh = it->second;
 		command.TilemapResource->mergeBytesChanges(); // Optimize changes by merging overlapping ones
-		if (command.TilemapResource->isDirty())
+		if (command.TilemapResource->hasByteChanges())
 		{
 			auto& vertices = command.TilemapResource->getData();
 			uint8_t* vertexBytes = reinterpret_cast<uint8_t*>(vertices.data());

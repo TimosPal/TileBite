@@ -14,7 +14,8 @@ TilemapResource::TilemapResource(
 	ID atlasID)
 	: 
 	Resource(resourceName, true),
-	m_width(dimensions.x), m_height(dimensions.y), m_worldTileSize(tileSize), m_atlasTileSize(atlasSize), m_atlasID(atlasID), m_atlasDim(atlasDim)
+	m_width(dimensions.x), m_height(dimensions.y), m_worldTileSize(tileSize), m_atlasTileSize(atlasSize), m_atlasID(atlasID), m_atlasDim(atlasDim),
+	m_solidTiles(tiles.size())
 {
 	m_vertices.resize(dimensions.x * dimensions.y * PACKED_TILEMAP_QUAD_BYTES);
 	for (size_t y = 0; y < dimensions.y; y++)
@@ -61,6 +62,7 @@ void TilemapResource::setTile(Tile tile, uint8_t xIndex, uint8_t yIndex)
 	);
 
 	m_bytesChanges.push_back(BytesChange{ byteOffset, size });
+	m_solidTiles.set(yIndex * m_width + xIndex, tile.IsSolid);
 }
 
 void TilemapResource::mergeBytesChanges()

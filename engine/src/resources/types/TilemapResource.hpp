@@ -5,6 +5,7 @@
 #include "resources/Resource.hpp"
 
 #include "ecs/types/EngineComponents.hpp"
+#include "utilities/Bitset.hpp"
 
 namespace Engine {
 
@@ -37,9 +38,10 @@ public:
 	glm::vec2 getAtlasTileSize() const { return m_atlasTileSize; }
 	glm::vec2 getAtlasDim() const { return m_atlasDim; }
 	ID getAtlasID() const { return m_atlasID; }
-	bool isDirty() { return !m_bytesChanges.empty(); }
+	bool hasByteChanges() { return !m_bytesChanges.empty(); }
 	void resetChangesList() { m_bytesChanges.clear(); }
 	const std::vector<BytesChange>& getBytesChanges() const { return m_bytesChanges; }
+	const Bitset& getSolidTiles() const { return m_solidTiles; }
 
 	void mergeBytesChanges();
 
@@ -66,6 +68,7 @@ private:
 	std::vector<uint32_t> m_vertices;
 
 	std::vector<BytesChange> m_bytesChanges;
+	Bitset m_solidTiles; // Bitset representing solid tiles in the tilemap
 };
 
 } // Engine

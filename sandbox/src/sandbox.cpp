@@ -28,7 +28,7 @@ public:
         box = world.createEntity();
         world.addComponents(
             box,
-            TransformComponent{ glm::vec2(0.0f, 0.0f), glm::vec2(0.2f, 0.2f) },
+            TransformComponent{ glm::vec2(0.0f, 0.1f), glm::vec2(0.2f, 0.2f) },
             SpriteComponent(glm::vec4(0.7f, 0.0f, 0.0f, 1.0f), 0),
             AABBComponent({ -0.5f, -0.5f }, { 0.5f, 0.5f })
         );
@@ -113,6 +113,8 @@ class MainScene : public Scene {
 
     void createTilemap(float x, float y, int size)
     {
+        ID tilemap = getWorld().createEntity();
+
         int tilemapHeight = size;
         int tilemapWidth = size;
         std::vector<Tile> tiles;
@@ -129,16 +131,7 @@ class MainScene : public Scene {
                 tile.uIndex = 0;
                 tile.vIndex = 0;
                 tile.Color = rngCol;
-
-                /*if (aC == 1)
-                {
-                    ID collider = getWorld().createEntity();
-                    getWorld().addComponents(
-                        collider,
-                        TransformComponent{ glm::vec2(x * 0.1f, y * 0.1f), glm::vec2(1.0f, 1.0f) },
-                        AABBComponent{ glm::vec2(0,0), glm::vec2(0.1f, 0.1f) }
-                    );
-                }*/
+                tile.IsSolid = aC == 1;
             }
         }
 
@@ -156,7 +149,7 @@ class MainScene : public Scene {
 
         m_tilemapHandles.emplace_back(std::move(tilemapHandle));
 
-        ID tilemap = getWorld().createEntity();
+        
         TilemapComponent tilemapComp;
         tilemapComp.TilemapResourcePtr = m_tilemapHandles.back().getResource();
 

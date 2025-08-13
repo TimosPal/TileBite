@@ -57,17 +57,21 @@ struct Tile : public BaseComponent {
 	glm::vec4 Color;
 	uint8_t uIndex;
 	uint8_t vIndex;
+	bool IsSolid = false;
 
 	Tile(
 		const glm::vec4& color = { 1.0f, 1.0f, 1.0f, 1.0f },
 		uint8_t u = 0,
-		uint8_t v = 0)
-		: Color(color), uIndex(u), vIndex(v) {
-	}
+		uint8_t v = 0,
+		bool isSolid = false)
+		: Color(color), uIndex(u), vIndex(v), IsSolid(isSolid) {
+	} 
 };
 
 struct TilemapComponent : public BaseComponent {
 	TilemapResource* TilemapResourcePtr;
+
+	void setTile(Tile tile, uint8_t xIndex, uint8_t yIndex);
 
 	TilemapComponent(TilemapResource* ptr = nullptr)
 		: TilemapResourcePtr(ptr) {

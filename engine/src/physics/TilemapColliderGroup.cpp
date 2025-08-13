@@ -30,6 +30,7 @@ std::vector<CollisionData> TilemapColliderGroup::query(const AABB& collider) con
     uint32_t endX = static_cast<uint32_t>(std::max(0.0f, std::floor(brNormalised.x - epsilon)));
     uint32_t endY = static_cast<uint32_t>(std::max(0.0f, std::floor(brNormalised.y - epsilon)));
 
+	// TODO: this for loop can be optimized by using bitset operations
     results.reserve((endX - startX + 1) * (endY - startY + 1));
     for (uint32_t y = startY; y <= endY; y++)
     {
@@ -46,6 +47,5 @@ std::vector<CollisionData> TilemapColliderGroup::query(const AABB& collider) con
 
     return results;
 }
-
 
 } // Engine
