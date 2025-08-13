@@ -16,7 +16,7 @@ std::vector<CollisionData> PhysicsEngine::queryCollisions(const AABB& collider, 
 		ASSERT(it != m_tilemapColliderGroups.end(), "Tilemap collider group not found in the map");
 
 		const TilemapColliderGroup& group = it->second;
-		auto groupColliderData = group.query(collider, excludeID);
+		auto groupColliderData = group.query(collider);
 		collisionData.insert(collisionData.end(), groupColliderData.begin(), groupColliderData.end());
 	}
 

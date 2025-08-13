@@ -12,6 +12,16 @@ struct AABB {
 	AABB() : Min(glm::vec2(0.0f)), Max(glm::vec2(0.0f)) {}
 	AABB(const glm::vec2& min, const glm::vec2& max) : Min(min), Max(max) {}
 	
+	inline bool isValid() const noexcept
+	{
+		return Min.x < Max.x && Min.y < Max.y;
+	}
+
+	inline bool isEmpty() const noexcept
+	{
+		return Min.x >= Max.x || Min.y >= Max.y;
+	}
+
 	inline float getWidth() const noexcept
 	{
 		return Max.x - Min.x;
@@ -63,6 +73,21 @@ struct AABB {
 		glm::vec2 margin(fat); // TODO: make margin percentage based?
 		return AABB(b.Min - margin, b.Max + margin);
 	}
+
+	inline static AABB intersectAABB(const AABB& a, const AABB& b)
+	{
+		float minX = std::max(a.Min.x, b.Min.x);
+		float minY = std::max(a.Min.y, b.Min.y);
+		float maxX = std::min(a.Max.x, b.Max.x);
+		float maxY = std::min(a.Max.y, b.Max.y);
+
+		if (minX < maxX && minY < maxY) {
+			return AABB({ minX, minY }, { maxX, maxY }); // intersection exists
+		}
+
+		return AABB(); // empty / invalid
+	}
+
 };
 
 } // Engine

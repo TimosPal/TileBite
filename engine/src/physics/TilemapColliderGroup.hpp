@@ -16,7 +16,7 @@ public:
 		tilemapSize(tilemapSize), tileSize(tileSize), m_id(tilemapID)
 	{}
 
-	std::vector<CollisionData> query(const AABB& collider, ID excludeID) const;
+	std::vector<CollisionData> query(const AABB& collider) const;
 private:
 	AABB m_bounds; // The bounding box of the tilemap collider group
 	glm::vec2 tilemapSize, tileSize;
