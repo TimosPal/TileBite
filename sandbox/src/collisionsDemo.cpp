@@ -54,11 +54,11 @@ public:
             glm::vec2 max = aabb->getMax() * transform->Size + transform->Position;
 			AABB WorldSpaceAABBComponent{ min, max };
 
-            auto d = physicsEngine.queryCollisions(WorldSpaceAABBComponent);
-            for (const auto& id : d)
+            auto collisionData = physicsEngine.queryCollisions(WorldSpaceAABBComponent);
+            for (const auto& data : collisionData)
             {
-                if (id == entityID) continue;
-                auto tr = world.getComponent<TransformComponent>(id);
+                if (data.id == entityID) continue;
+                auto tr = world.getComponent<TransformComponent>(data.id);
                 if (tr->Position.y >= transform->Position.y) continue;
 
                 falling = false;

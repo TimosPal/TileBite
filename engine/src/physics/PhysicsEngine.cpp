@@ -1,10 +1,28 @@
 #include "physics/PhysicsEngine.hpp"
+#include "utilities/assertions.hpp"
 
 namespace Engine {
 
-std::vector<ID> PhysicsEngine::queryCollisions(const AABB& collider) const
+std::vector<CollisionData> PhysicsEngine::queryCollisions(const AABB& collider, ID excludeID) const
 {
-	return m_aabbTree.query(collider);
+	// Need to exclude the ID to avoid self-collision
+	auto collisionData = m_coreTree.query(collider, excludeID);
+	auto tilemapChunksCollisionData = m_tilemapColliderTree.query(collider, excludeID);
+
+	collisionData.reserve(collisionData.size() + tilemapChunksCollisionData.size());
+	for (const CollisionData& tilemapCollisionData : tilemapChunksCollisionData)
+	{
+		auto it = m_tilemapColliderGroups.find(tilemapCollisionData.id);
+		ASSERT(it != m_tilemapColliderGroups.end(), "Tilemap collider group not found in the map");
+
+		const TilemapColliderGroup& group = it->second;
+		if (group.isColliding(collider))
+		{
+			collisionData.push_back(tilemapCollisionData);
+		}
+	}
+
+	return collisionData;
 }
 
 void PhysicsEngine::addCollider(ID id, AABB* collider, TransformComponent* transform)
@@ -12,12 +30,12 @@ void PhysicsEngine::addCollider(ID id, AABB* collider, TransformComponent* trans
 	glm::vec2 min = collider->Min * transform->Size + transform->Position;
 	glm::vec2 max = collider->Max * transform->Size + transform->Position;
 	ColliderInfo info{ id, AABB{min, max} };
-	m_aabbTree.insert(info);
+	m_coreTree.insert(info);
 }
 
 void PhysicsEngine::removeCollider(ID id)
 {
-	m_aabbTree.remove(id);
+	m_coreTree.remove(id);
 }
 
 void PhysicsEngine::updateCollider(ID id, AABB* collider, TransformComponent* transform)
@@ -25,13 +43,38 @@ void PhysicsEngine::updateCollider(ID id, AABB* collider, TransformComponent* tr
 	glm::vec2 min = collider->Min * transform->Size + transform->Position;
 	glm::vec2 max = collider->Max * transform->Size + transform->Position;
 	ColliderInfo info{ id, AABB{min, max} };
-	bool updated = m_aabbTree.update(info);
-	if (!updated) m_aabbTree.insert(info);
+	bool updated = m_coreTree.update(info);
+	if (!updated) m_coreTree.insert(info);
 }
 
-const std::vector<AABB> PhysicsEngine::getAllColliders()
+void PhysicsEngine::addTilemapColliderGroup(ID id, TransformComponent* transform, float width, float height)
 {
-	return m_aabbTree.getLeafColliders();
+	glm::vec2 min = transform->Position;
+	glm::vec2 max = glm::vec2(width, height) * transform->Size + transform->Position;
+	auto bounds = AABB(min, max);
+	m_tilemapColliderGroups.emplace(id, TilemapColliderGroup(bounds));
+	
+	// Create a collider for the tilemap group
+	ColliderInfo info{ id, bounds };
+	m_tilemapColliderTree.insert(info);
+}
+
+void PhysicsEngine::updateTilemapColliderGroup(ID id, TransformComponent* transform, float width, float height)
+{
+	glm::vec2 min = transform->Position;
+	glm::vec2 max = glm::vec2(width, height) * transform->Size + transform->Position;
+	auto bounds = AABB(min, max);
+	ColliderInfo info{ id, bounds };
+	bool updated = m_tilemapColliderTree.update(info);
+	if (!updated)
+	{
+		m_tilemapColliderTree.insert(info);
+		m_tilemapColliderGroups.emplace(id, TilemapColliderGroup(bounds));
+	}
+	else
+	{
+		m_tilemapColliderGroups[id] = TilemapColliderGroup(bounds);
+	}
 }
 
 } // Engine

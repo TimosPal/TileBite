@@ -12,27 +12,37 @@ namespace Engine {
 
 class ColliderRenderSystem : public ISystem {
 public:
-	ColliderRenderSystem(std::shared_ptr<Renderer2D> renderer2D) : m_renderer2D(renderer2D) {}
-
 	virtual void update(float deltaTime) override
 	{
-		const auto& bounds = getSceneManager().getActiveScene()->getPhysicsEngine().getInternalBounds();
-		for(const auto& bound : bounds)
+		auto& renderer2D = getRenderer();
+		const auto& coreTreeBounds = getSceneManager().getActiveScene()->getPhysicsEngine().getCoreTreeInternalBounds();
+		for(const auto& bound : coreTreeBounds)
 		{
 			glm::vec4 color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f); // Red color for bounds
-			m_renderer2D->drawSquare(bound.Min, bound.Max, color);
+			renderer2D.drawSquare(bound.Min, bound.Max, color);
 		}
 
-		const auto& colliders = getSceneManager().getActiveScene()->getPhysicsEngine().getAllColliders();
-		for (const auto& collider : colliders)
+		const auto& coreTreeColliders = getSceneManager().getActiveScene()->getPhysicsEngine().getCoreTreeColliders();
+		for (const auto& collider : coreTreeColliders)
 		{
 			glm::vec4 color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f); // Green color for AABB
-			m_renderer2D->drawSquare(collider.Min, collider.Max, color);
+			renderer2D.drawSquare(collider.Min, collider.Max, color);
+		}
+
+		const auto& tilemapTreeBounds = getSceneManager().getActiveScene()->getPhysicsEngine().getTilemapTreeInternalBounds();
+		for (const auto& bound : tilemapTreeBounds)
+		{
+			glm::vec4 color = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f); // Blue color for AABB
+			renderer2D.drawSquare(bound.Min, bound.Max, color);
+		}
+
+		const auto& tilemapTreeColliders = getSceneManager().getActiveScene()->getPhysicsEngine().getTilemapTreeColliders();
+		for (const auto& collider : tilemapTreeColliders)
+		{
+			glm::vec4 color = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f); // Yellow color for AABB
+			renderer2D.drawSquare(collider.Min, collider.Max, color);
 		}
 	}
-
-private:
-	std::shared_ptr<Renderer2D> m_renderer2D;
 };
 
 } // Engine

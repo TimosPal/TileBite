@@ -1,6 +1,7 @@
 #ifndef AABB_TREE_HPP
 #define AABB_TREE_HPP
 
+#include "physics/CollisionData.hpp"
 #include "physics/AABB.hpp"
 #include "core/types.hpp"
 
@@ -17,7 +18,7 @@ public:
 	void insert(const ColliderInfo& colliderInfo);
 	bool remove(ID id);
 	bool update(const ColliderInfo& colliderInfo);
-	std::vector<ID> query(const AABB& collider) const;
+	std::vector<CollisionData> query(const AABB& collider, ID excludeID = INVALID_ID) const;
 
 	std::vector<AABB> getInternalBounds() const;
 	std::vector<AABB> getLeafColliders() const;

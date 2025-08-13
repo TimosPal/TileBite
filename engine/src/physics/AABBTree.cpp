@@ -241,12 +241,12 @@ bool AABBTree::update(const ColliderInfo& colliderInfo)
 	return true;
 }
 
-std::vector<ID> AABBTree::query(const AABB& collider) const
+std::vector<CollisionData> AABBTree::query(const AABB& collider, ID excludeID) const
 {
 	static std::vector<uint32_t> nodeStack;
 	nodeStack.clear();
 	nodeStack.reserve(256);
-	std::vector<ID> results;
+	std::vector<CollisionData> results;
 	uint32_t index = m_rootIndex;
 
 	if (index != NullIndex)
@@ -265,8 +265,8 @@ std::vector<ID> AABBTree::query(const AABB& collider) const
 			ASSERT(currNode.Value.has_value(), "Leaf node without value");
 			// If the collider intersects, add it to results (Collider may not be AABB)
 			const ColliderInfo& info = currNode.Value.value();
-			if(info.Collider.intersects(collider))
-				results.push_back(info.id);
+			if (info.id != excludeID && info.Collider.intersects(collider)) // Skip if it's the excluded ID
+				results.push_back({info.id, info.Collider});
 		}
 		else
 		{
