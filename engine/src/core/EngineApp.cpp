@@ -2,6 +2,8 @@
 
 #include "utilities/assertions.hpp"
 #include "renderer/Camera/OrthographicCamera.hpp"
+#include <events/types/KeyEvent.hpp>
+#include <window/KeyCodes.hpp>
 
 namespace Engine {
 
@@ -75,6 +77,16 @@ void EngineApp::init()
 		// Dispatch to core dispatcher.
 		m_coreEventDispatcher.dispatch(event);
 	});
+
+	// Debug layer toggle. (F1 key)
+	EventCallback<KeyPressedEvent> e([&](KeyPressedEvent& event) {
+		if(event.getKeyCode() != KeyCodes::KEY_F1) return;
+
+		auto layer = getLayer(DebugLayer::getName());
+		if (!layer->isEnabled()) layer->enable();
+		else getLayer(DebugLayer::getName())->disable();
+	});
+	m_coreEventDispatcher.subscribe(e);
 
 	LOG_INFO("############################");
 	LOG_INFO("# Engine init successfully #");
