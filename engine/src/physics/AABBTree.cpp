@@ -266,7 +266,7 @@ std::vector<CollisionData> AABBTree::query(const AABB& collider, ID excludeID) c
 			// If the collider intersects, add it to results (Collider may not be AABB)
 			const ColliderInfo& info = currNode.Value.value();
 			if (info.id != excludeID && info.Collider.intersects(collider)) // Skip if it's the excluded ID
-				results.push_back({info.id, info.Collider});
+				results.push_back(CollisionData(GenericCollisionData(info.id, info.Collider)));
 		}
 		else
 		{

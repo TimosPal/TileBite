@@ -28,7 +28,7 @@ public:
         box = world.createEntity();
         world.addComponents(
             box,
-            TransformComponent{ glm::vec2(0.0f, 0.1f), glm::vec2(0.2f, 0.2f) },
+            TransformComponent{ glm::vec2(0.0f, 0.1f), glm::vec2(0.3f, 0.3f) },
             SpriteComponent(glm::vec4(0.7f, 0.0f, 0.0f, 1.0f), 0),
             AABBComponent({ -0.5f, -0.5f }, { 0.5f, 0.5f })
         );
@@ -39,14 +39,14 @@ public:
         auto& world = getSceneManager().getActiveScene()->getWorld();
         auto tr = world.getComponent<TransformComponent>(box);
 		
-		glm::vec2 dir = ping ? glm::vec2(-1.0f, 0.0f) : glm::vec2(1.0f, 0.0f);
+		glm::vec2 dir = ping ? glm::vec2(-1.0f, -0.2f) : glm::vec2(1.0f, 0.3f);
         tr->setPosition(tr->Position + dir * deltaTime * 0.3f);
 
         if (ping && tr->Position.x < -2.5)
         {
             ping = false;
         }
-        else if (!ping && tr->Position.x > 1)
+        else if (!ping && tr->Position.x > 4)
         {
             ping = true;
         }
@@ -64,10 +64,24 @@ public:
         {
             for (auto& data : collisionData)
             {
-                glm::vec2 min = data.Collider.Min;
-				glm::vec2 max = data.Collider.Max;
-                renderer.drawLine({ min, max, glm::vec4(1.0f, 1.0f, 0.0f, 1.0f) });
-                renderer.drawLine({ glm::vec2(min.x, max.y), glm::vec2(max.x, min.y), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f) });
+                glm::vec2 min = data.Generic.Collider.Min;
+				glm::vec2 max = data.Generic.Collider.Max;
+				glm::vec4 color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+                renderer.drawLine({ min, max, color });
+                renderer.drawLine({ glm::vec2(min.x, max.y), glm::vec2(max.x, min.y), color });
+                renderer.drawSquare(min, max, color);
+
+                if (data.type == CollisionData::Type::TilemapType)
+                {
+                    Tile newTile;
+                    newTile.IsSolid = false;
+                    newTile.Color = glm::vec4(quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), 0.0f);
+                    world.getComponent<TilemapComponent>(data.Generic.id)->setTile(
+                        newTile,
+                        data.Tilemap.XTilemapIndex,
+                        data.Tilemap.YTilemapIndex
+                    );
+                }
             }
         }
     }
@@ -166,6 +180,7 @@ class MainScene : public Scene {
         auto cameraController = std::make_shared<CameraController>();
         setCameraController(cameraController);
 
+        createTilemap(0.8f, 0.0f, 25);
 		createTilemap(0.0f, 0.0f, 7);
 		createTilemap(-0.8f, 0.0f, 6);
         createTilemap(-1.6f, 0.0f, 5);
@@ -196,8 +211,8 @@ class MyApp : public Engine::EngineApp {
     void setup() override
     {     
         pushLayer(std::make_unique<GameLayer>());
-        
-        getLayer(DebugLayer::getName())->enable();
+
+        //getLayer(DebugLayer::getName())->enable();
         //getLayer(GraphicsLayer::getName())->disable();
     }
 };

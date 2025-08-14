@@ -9,6 +9,8 @@
 
 namespace Engine {
 
+// TODO: make data private and use getters/setters only.
+
 class TilemapResource;
 
 struct SpriteComponent : public BaseComponent

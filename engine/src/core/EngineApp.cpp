@@ -79,14 +79,24 @@ void EngineApp::init()
 	});
 
 	// Debug layer toggle. (F1 key)
-	EventCallback<KeyPressedEvent> e([&](KeyPressedEvent& event) {
+	EventCallback<KeyPressedEvent> debugToggleCallback([&](KeyPressedEvent& event) {
 		if(event.getKeyCode() != KeyCodes::KEY_F1) return;
 
 		auto layer = getLayer(DebugLayer::getName());
 		if (!layer->isEnabled()) layer->enable();
-		else getLayer(DebugLayer::getName())->disable();
+		else layer->disable();
 	});
-	m_coreEventDispatcher.subscribe(e);
+	m_coreEventDispatcher.subscribe(debugToggleCallback);
+
+	// Graphics layer toggle. (F2 key)
+	EventCallback<KeyPressedEvent> graphicsToggleCallback([&](KeyPressedEvent& event) {
+		if (event.getKeyCode() != KeyCodes::KEY_F2) return;
+
+		auto layer = getLayer(GraphicsLayer::getName());
+		if (!layer->isEnabled()) layer->enable();
+		else layer->disable();
+	});
+	m_coreEventDispatcher.subscribe(graphicsToggleCallback);
 
 	LOG_INFO("############################");
 	LOG_INFO("# Engine init successfully #");

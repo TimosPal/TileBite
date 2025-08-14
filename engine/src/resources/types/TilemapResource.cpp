@@ -62,7 +62,12 @@ void TilemapResource::setTile(Tile tile, uint8_t xIndex, uint8_t yIndex)
 	);
 
 	m_bytesChanges.push_back(BytesChange{ byteOffset, size });
-	m_solidTiles.set(yIndex * m_width + xIndex, tile.IsSolid);
+
+	uint32_t index = yIndex * m_width + xIndex;
+	if(tile.IsSolid)
+		m_solidTiles.set(index);
+	else
+		m_solidTiles.clear(index);
 }
 
 void TilemapResource::mergeBytesChanges()

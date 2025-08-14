@@ -41,7 +41,7 @@ std::vector<CollisionData> TilemapColliderGroup::query(const AABB& collider) con
 
             glm::vec2 tileMin = m_bounds.Min + glm::vec2(x, y) * tileSize;
             glm::vec2 tileMax = tileMin + tileSize;
-            results.emplace_back(CollisionData{ m_id, AABB(tileMin, tileMax) });
+            results.emplace_back(CollisionData(TilemapCollisionData(m_id, AABB(tileMin, tileMax), x, y)));
         }
     }
 

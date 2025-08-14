@@ -57,8 +57,8 @@ public:
             auto collisionData = physicsEngine.queryCollisions(WorldSpaceAABBComponent);
             for (const auto& data : collisionData)
             {
-                if (data.id == entityID) continue;
-                auto tr = world.getComponent<TransformComponent>(data.id);
+                if (data.Generic.id == entityID) continue;
+                auto tr = world.getComponent<TransformComponent>(data.Generic.id);
                 if (tr->Position.y >= transform->Position.y) continue;
 
                 falling = false;
