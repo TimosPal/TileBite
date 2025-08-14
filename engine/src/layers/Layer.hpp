@@ -32,6 +32,8 @@ public:
 	void enable() { m_isEnabled = true; }
 	void disable() { m_isEnabled = false; }
 
+	bool isEnabled() const { return m_isEnabled; }
+
 	const std::string& getName() const { return m_name; }
 
 	virtual void onUpdate(float deltaTime)

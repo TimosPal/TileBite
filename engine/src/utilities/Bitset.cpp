@@ -12,14 +12,14 @@ bool Bitset::isSet(size_t index) const {
 	return (m_words[index / BITS_PER_WORD] >> (index % BITS_PER_WORD)) & 1;
 }
 
-void Bitset::set(size_t index, bool value)
+void Bitset::set(size_t index)
 {
 	ASSERT(index < m_bitsSize, "Out of range");
 
 	constexpr size_t WORD_SHIFT = std::countr_zero(BITS_PER_WORD);
 	constexpr size_t WORD_MASK = BITS_PER_WORD - 1;
 
-	m_words[index >> WORD_SHIFT] |= (WordType(value) << (index & WORD_MASK));
+	m_words[index >> WORD_SHIFT] |= (WordType(1) << (index & WORD_MASK));
 }
 
 void Bitset::clear(size_t index)

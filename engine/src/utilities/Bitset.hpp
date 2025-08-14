@@ -22,7 +22,7 @@ public:
 	Bitset& operator|=(const Bitset& other);
 	bool operator==(const Bitset& other) const;
 	bool isSet(size_t index) const;
-	void set(size_t index, bool value = true);
+	void set(size_t index);
 	void clear(size_t index);
 	void clear();
 	std::vector<size_t> getSetBits() const;
