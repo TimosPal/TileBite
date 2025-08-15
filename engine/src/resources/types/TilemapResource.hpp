@@ -45,8 +45,8 @@ public:
 
 	void mergeBytesChanges();
 
-	// Setters
 	void setTile(Tile tile, uint8_t xIndex, uint8_t yIndex);
+	Tile getTile(uint8_t xIndex, uint8_t yIndex);
 
 	TilemapResource(TilemapResource&&) noexcept = default;
 	TilemapResource& operator=(TilemapResource&&) noexcept = default;

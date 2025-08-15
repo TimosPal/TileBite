@@ -41,15 +41,15 @@ public:
         auto& world = getSceneManager().getActiveScene()->getWorld();
         auto tr = world.getComponent<TransformComponent>(box);
 		
-		glm::vec2 dir = ping ? glm::vec2(-1.0f, -0.2f) : glm::vec2(1.0f, 0.3f);
+		glm::vec2 dir = ping ? glm::vec2(-1.0f, -0.1f) : glm::vec2(1.0f, 0.1f);
 		dir += glm::vec2(0.0f, sin(tr->Position.x * 7.0f) * 1.0f);
         tr->setPosition(tr->Position + dir * deltaTime * 0.3f);
 
-        if (ping && tr->Position.x < -2.5)
+        if (ping && tr->Position.x < 0)
         {
             ping = false;
         }
-        else if (!ping && tr->Position.x > 4)
+        else if (!ping && tr->Position.x > 10)
         {
             ping = true;
         }
@@ -76,9 +76,14 @@ public:
 
                 if (data.type == CollisionData::Type::TilemapType)
                 {
+                    Tile oldTile = world.getComponent<TilemapComponent>(data.Generic.id)->TilemapResourcePtr->getTile(
+                        data.Tilemap.XTilemapIndex,
+                        data.Tilemap.YTilemapIndex
+					);
+                    
                     Tile newTile;
                     newTile.IsSolid = false;
-                    newTile.Color = glm::vec4(quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), 0.0f);
+					newTile.Color = oldTile.Color - glm::vec4(0.0f, 0.0f, 0.0f, 0.8f);
                     world.getComponent<TilemapComponent>(data.Generic.id)->setTile(
                         newTile,
                         data.Tilemap.XTilemapIndex,

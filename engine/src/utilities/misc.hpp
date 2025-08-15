@@ -121,6 +121,26 @@ inline uint32_t packRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
 		(uint32_t(a) << 24);
 }
 
+inline void unpackXYIndexUV(uint32_t packed,
+	uint8_t& x, uint8_t& y,
+	uint8_t& uvx, uint8_t& uvy)
+{
+	x = static_cast<uint8_t>(packed & 0xFF);
+	y = static_cast<uint8_t>((packed >> 8) & 0xFF);
+	uvx = static_cast<uint8_t>((packed >> 16) & 0xFF);
+	uvy = static_cast<uint8_t>((packed >> 24) & 0xFF);
+}
+
+inline void unpackRGBA(uint32_t packed,
+	uint8_t& r, uint8_t& g,
+	uint8_t& b, uint8_t& a)
+{
+	r = static_cast<uint8_t>(packed & 0xFF);
+	g = static_cast<uint8_t>((packed >> 8) & 0xFF);
+	b = static_cast<uint8_t>((packed >> 16) & 0xFF);
+	a = static_cast<uint8_t>((packed >> 24) & 0xFF);
+}
+
 inline std::array<uint32_t, PACKED_TILEMAP_QUAD_BYTES> makePackedTilemapQuad(
 	uint8_t xIndex, uint8_t yIndex,
 	uint8_t uIndex, uint8_t vIndex,
@@ -129,7 +149,7 @@ inline std::array<uint32_t, PACKED_TILEMAP_QUAD_BYTES> makePackedTilemapQuad(
 	glm::u8vec4 u8Color = glm::u8vec4(color * 255.0f); // Ensure color is in [0, 255] range
 	uint32_t packedColor = packRGBA(u8Color.r, u8Color.g, u8Color.b, u8Color.a);
 
-	return std::array<uint32_t, 8>{
+	return std::array<uint32_t, PACKED_TILEMAP_QUAD_BYTES>{
 			packXYIndexUV(xIndex, yIndex, uIndex, vIndex),     // top-left
 			packedColor,
 			packXYIndexUV(xIndex + 1, yIndex, uIndex + 1, vIndex),     // top-right
@@ -139,6 +159,24 @@ inline std::array<uint32_t, PACKED_TILEMAP_QUAD_BYTES> makePackedTilemapQuad(
 			packXYIndexUV(xIndex, yIndex + 1, uIndex, vIndex + 1), // bottom-left
 			packedColor
 	};
+}
+
+inline void unpackTileData(uint32_t* packedData,
+	uint8_t& xIndex, uint8_t& yIndex,
+	uint8_t& uIndex, uint8_t& vIndex,
+	glm::vec4& color)
+{
+	uint8_t r, g, b, a;
+
+	// Unpack indices
+	unpackXYIndexUV(packedData[0], xIndex, yIndex, uIndex, vIndex);
+
+	// Unpack color
+	unpackRGBA(packedData[1], r, g, b, a);
+
+	// Normalize color to 0–1 range
+	constexpr float inv255 = 1.0f / 255.0f;
+	color = glm::vec4(r * inv255, g * inv255, b * inv255, a * inv255);
 }
 
 inline std::vector<uint32_t> makeIndices(int indicesCount, int verticesPerQuad, int indicesPerQuad, int quadCount)

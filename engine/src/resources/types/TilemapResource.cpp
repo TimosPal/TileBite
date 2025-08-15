@@ -70,6 +70,25 @@ void TilemapResource::setTile(Tile tile, uint8_t xIndex, uint8_t yIndex)
 		m_solidTiles.clear(index);
 }
 
+Tile TilemapResource::getTile(uint8_t xIndex, uint8_t yIndex)
+{
+	Tile newTile;
+	uint8_t returnedXIndex, returnedYIndex;
+	unpackTileData(
+		m_vertices.data() + (xIndex + yIndex * m_width) * PACKED_TILEMAP_QUAD_BYTES,
+		returnedXIndex,
+		returnedYIndex,
+		newTile.uIndex,
+		newTile.vIndex,
+		newTile.Color
+	);
+
+	ASSERT(xIndex == returnedXIndex, "Invalid read xIndex");
+	ASSERT(yIndex == returnedYIndex, "Invalid read yIndex");
+
+	return newTile;
+}
+
 void TilemapResource::mergeBytesChanges()
 {
 	if (m_bytesChanges.empty()) return;
