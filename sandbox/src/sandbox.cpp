@@ -15,6 +15,8 @@
 #include <events/types/KeyEvent.hpp>
 #include <window/KeyCodes.hpp>
 
+#include <FastNoiseLite.h>
+
 using namespace Engine;
 
 class MovingBoxSystem : public ISystem {
@@ -40,6 +42,7 @@ public:
         auto tr = world.getComponent<TransformComponent>(box);
 		
 		glm::vec2 dir = ping ? glm::vec2(-1.0f, -0.2f) : glm::vec2(1.0f, 0.3f);
+		dir += glm::vec2(0.0f, sin(tr->Position.x * 7.0f) * 1.0f);
         tr->setPosition(tr->Position + dir * deltaTime * 0.3f);
 
         if (ping && tr->Position.x < -2.5)
@@ -64,12 +67,12 @@ public:
         {
             for (auto& data : collisionData)
             {
-                glm::vec2 min = data.Generic.Collider.Min;
+                /*glm::vec2 min = data.Generic.Collider.Min;
 				glm::vec2 max = data.Generic.Collider.Max;
 				glm::vec4 color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
                 renderer.drawLine({ min, max, color });
                 renderer.drawLine({ glm::vec2(min.x, max.y), glm::vec2(max.x, min.y), color });
-                renderer.drawSquare(min, max, color);
+                renderer.drawSquare(min, max, color);*/
 
                 if (data.type == CollisionData::Type::TilemapType)
                 {
@@ -124,28 +127,48 @@ public:
 
 class MainScene : public Scene {
     std::vector<ResourceHandle<TilemapResource>> m_tilemapHandles;
+    FastNoiseLite baseNoise;
+    FastNoiseLite detailNoise;
+	float tileSize = 0.01f;
 
-    void createTilemap(float x, float y, int size)
+    void createTilemap(float x, float y, int size, int noiseOffset)
     {
         ID tilemap = getWorld().createEntity();
 
-        int tilemapHeight = size;
         int tilemapWidth = size;
-        std::vector<Tile> tiles;
-        tiles.resize(tilemapHeight * tilemapWidth);
-        for (size_t y = 0; y < tilemapHeight; y++)
-        {
-            for (size_t x = 0; x < tilemapWidth; x++)
-            {
-                Tile& tile = tiles[y * tilemapWidth + x];
+        int tilemapHeight = size;
+        std::vector<Tile> tiles(tilemapWidth * tilemapHeight);
 
-                auto aC = quickRandFloat(0.0f, 1.0f) < 0.5 ? 1 : 0;
-                auto rngCol = glm::vec4(quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), aC);
+        for (int tx = 0; tx < tilemapWidth; tx++)
+        {
+            // 1D terrain height for this column
+            float n = 0.7f * baseNoise.GetNoise((float)tx + noiseOffset, 0.0f) +
+                0.1f * detailNoise.GetNoise((float)tx + noiseOffset, 0.0f);
+            int terrainHeight = static_cast<int>(0.5f * (n + 1.0f) * tilemapHeight);
+
+            for (int ty = 0; ty < tilemapHeight; ty++)
+            {
+                Tile& tile = tiles[ty * tilemapWidth + tx];
+
+                glm::vec4 color;
+                bool solid = true;
+
+                if (ty > terrainHeight)
+                {
+                    solid = false;
+                    color = { 0.5f, 0.8f, 1.0f, 0.0f };
+                }
+                else
+                {
+                    if (ty > terrainHeight - 5) color = { 0.6f, 0.8f, 0.4f, 1.0f };
+                    else if (ty > terrainHeight * 0.6f) color = { 0.7f, 0.6f, 0.4f, 1.0f };
+                    else color = { 0.3f, 0.3f, 0.4f, 1.0f };
+                }
 
                 tile.uIndex = 0;
                 tile.vIndex = 0;
-                tile.Color = rngCol;
-                tile.IsSolid = aC == 1;
+                tile.Color = color;
+                tile.IsSolid = solid;
             }
         }
 
@@ -155,7 +178,7 @@ class MainScene : public Scene {
             resourceName,
             tiles,
             { tilemapWidth, tilemapHeight },
-            { 0.1, 0.1 },
+            { tileSize, tileSize },
             { 16, 16 },
             { 32, 32 },
             0
@@ -163,7 +186,6 @@ class MainScene : public Scene {
 
         m_tilemapHandles.emplace_back(std::move(tilemapHandle));
 
-        
         TilemapComponent tilemapComp;
         tilemapComp.TilemapResourcePtr = m_tilemapHandles.back().getResource();
 
@@ -180,11 +202,19 @@ class MainScene : public Scene {
         auto cameraController = std::make_shared<CameraController>();
         setCameraController(cameraController);
 
-        createTilemap(0.8f, 0.0f, 25);
-		createTilemap(0.0f, 0.0f, 7);
-		createTilemap(-0.8f, 0.0f, 6);
-        createTilemap(-1.6f, 0.0f, 5);
-        createTilemap(-2.2f, 0.0f, 4);
+        baseNoise.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+        baseNoise.SetFrequency(0.01f); // low-frequency hills
+
+        detailNoise.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+        detailNoise.SetFrequency(0.05f); // medium-frequency detail
+
+        float tilemapStartingX = 0.0f;
+        int tilemapSize = 255;
+        for (size_t i = 0; i < 3; i++)
+        {
+            createTilemap(tilemapStartingX, 0.0f, tilemapSize, tilemapSize * i);
+            tilemapStartingX += tilemapSize * tileSize;
+        }
     }
 };
 

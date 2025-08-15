@@ -54,7 +54,7 @@ else()
     message(FATAL_ERROR "OpenGL not found")
 endif()
 
-# Add spdlog
+# spdlog
 add_subdirectory(external/spdlog)
 target_link_libraries(GameEngine PUBLIC spdlog::spdlog)
 
@@ -66,5 +66,11 @@ target_link_libraries(GameEngine PUBLIC stb_image)
 # GLM (math library)
 add_subdirectory(external/glm) 
 target_link_libraries(GameEngine PUBLIC glm)
+
+# FastNoiseLite
+add_library(FastNoiseLite INTERFACE)
+target_include_directories(FastNoiseLite INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/external/FastNoiseLite/Cpp)
+target_link_libraries(GameEngine PUBLIC FastNoiseLite)
+
 
 target_compile_definitions(GameEngine PUBLIC ENGINE_ASSETS_PATH="${CMAKE_CURRENT_SOURCE_DIR}/assets")

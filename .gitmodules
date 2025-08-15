@@ -10,3 +10,6 @@
 [submodule "engine/external/glm"]
 	path = engine/external/glm
 	url = https://github.com/g-truc/glm.git
+[submodule "engine/FastNoiseLite"]
+	path = engine/external/FastNoiseLite
+	url = https://github.com/Auburn/FastNoiseLite.git
