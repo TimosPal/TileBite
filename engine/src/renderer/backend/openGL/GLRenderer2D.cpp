@@ -289,6 +289,10 @@ void GLRenderer2D::bindTextureToSlot(ID textureID, uint8_t slot)
 
 void GLRenderer2D::render(CameraController& camera)
 {
+	// TODO: currently frustum culling is done in the renderer of each type
+	// we could avoid adding it in the command list if it's not included 
+	// within a camera frustum to start with.
+
 	renderTilemaps(camera);
 	renderSpriteQuads(camera);
 	renderLines(camera);
@@ -306,6 +310,8 @@ void GLRenderer2D::renderLines(CameraController& camera)
 	int drawCalls = 0;
 	for (const auto& command : m_lineDrawCommands)
 	{
+		if (shouldCullLine(command, camera)) continue;
+
 		auto lineVertices = makeLineVerticesColored(command.Start, command.End, command.Color);
 		m_linesBatch->bind();
 		m_linesBatch->setVertexData(lineVertices.data(), lineVertices.size() * sizeof(float));
@@ -329,6 +335,8 @@ void GLRenderer2D::renderTilemaps(CameraController& camera)
 	int drawCalls = 0;
 	for (const auto& command : m_tilemapDrawCommands)
 	{
+		if (shouldCullTilemap(command, camera)) continue;
+
 		int quadsCount = command.TilemapResource->getWidth() * command.TilemapResource->getHeight();
 		
 		ID meshID = command.TilemapResource->getInstanceID();
@@ -421,6 +429,8 @@ void GLRenderer2D::renderSpriteQuads(CameraController& camera)
 	});
 	for (const auto& command : m_spriteDrawCommands)
 	{
+		if (shouldCullSpriteQuad(command, camera)) continue;
+
 		ID currentTextureID = command.SpriteComp->TextureID;
 
 		uint8_t textureSlot;

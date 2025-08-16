@@ -16,4 +16,34 @@ std::unique_ptr<Renderer2D> Renderer2D::createRenderer2D(SystemResourceHub& syst
     return std::make_unique<Renderer2DBackend>(systemResourceHub);
 }
 
+bool Renderer2D::shouldCullSpriteQuad(const SpriteQuad& quad, const CameraController& camera) const
+{
+	// Calculate sprite AABB in world space
+	glm::vec2 spriteMin = quad.TransformComp->Position;
+	glm::vec2 spriteMax = spriteMin + quad.TransformComp->Size;
+	AABB spriteAABB{ spriteMin, spriteMax };
+	return !camera.isInsideFrustum(spriteAABB);
+}
+
+bool Renderer2D::shouldCullTilemap(const TilemapMesh& mesh, const CameraController& camera) const
+{
+	// Calculate tilemap AABB in world space
+	glm::vec2 tilemapMin = mesh.TransformComp->Position;
+	glm::vec2 tilemapMax = tilemapMin + glm::vec2(
+		mesh.TilemapResource->getWidth() * mesh.TilemapResource->getWorldTileSize().x,
+		mesh.TilemapResource->getHeight() * mesh.TilemapResource->getWorldTileSize().y
+	);
+	AABB tilemapAABB{ tilemapMin, tilemapMax };
+	return !camera.isInsideFrustum(tilemapAABB);
+}
+
+bool Renderer2D::shouldCullLine(const Line& line, const CameraController& camera) const
+{
+	// Calculate line AABB in world space
+	glm::vec2 min = glm::min(line.Start, line.End);
+	glm::vec2 max = glm::max(line.Start, line.End);
+	AABB lineAABB{ min, max };
+	return !camera.isInsideFrustum(lineAABB);
+}
+
 } // Engine 

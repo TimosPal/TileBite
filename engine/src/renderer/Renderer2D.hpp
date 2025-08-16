@@ -58,6 +58,10 @@ protected:
 	std::vector<Line> m_lineDrawCommands;
 
 	TextureSlotManager m_textureSlotManager;
+
+	bool shouldCullSpriteQuad(const SpriteQuad& quad, const CameraController& camera) const;
+	bool shouldCullTilemap(const TilemapMesh& mesh, const CameraController& camera) const;
+	bool shouldCullLine(const Line& line, const CameraController& camera) const;
 };
 
 } // Engine

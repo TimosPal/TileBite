@@ -34,6 +34,7 @@ public:
 		if (m_isDirty)
 		{
 			m_camera.recalculate();
+			updateFrustum();
 			m_isDirty = false;
 		}
 	}
@@ -44,6 +45,7 @@ public:
 			m_isDirty = true;
 
 			float invZoom = 1.0f / zoomLevel;
+			appliedZoomModifier = invZoom; // Store the inverse zoom modifier for later use
 			float scaledLeft = m_left * invZoom;
 			float scaledRight = m_right * invZoom;
 			float scaledBottom = m_bottom * invZoom;
@@ -66,12 +68,25 @@ public:
 	float getZoom() const { return zoomLevel; }
 
 	const glm::mat4& getViewProjectionMatrix() const { return m_camera.getViewProjectionMatrix(); }
+
+	bool isInsideFrustum(AABB collider) const {
+		return m_cameraFrustum.intersects(collider);
+	}
 private:
 	OrthographicCamera m_camera;
+	AABB m_cameraFrustum;
 	bool m_isDirty;
 
 	float m_left, m_right, m_bottom, m_top;
 	float zoomLevel = 1.0f;
+	float appliedZoomModifier = 1.0f;
+
+	void updateFrustum() {
+		// Calculate the camera frustum based on the current position, zoom, and projection
+		glm::vec2 min = m_camera.getPosition() + glm::vec2(m_left * appliedZoomModifier, m_bottom * appliedZoomModifier);
+		glm::vec2 max = m_camera.getPosition() + glm::vec2(m_right * appliedZoomModifier, m_top * appliedZoomModifier);
+		m_cameraFrustum = AABB{ min, max };
+	}
 };
 
 } // Engine
