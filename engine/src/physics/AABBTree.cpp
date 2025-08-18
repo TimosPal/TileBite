@@ -281,6 +281,95 @@ std::vector<CollisionData> AABBTree::query(const AABB& collider, ID excludeID) c
 	return results;
 }
 
+std::vector<RayHitData> AABBTree::raycastAll(Ray2D ray) const
+{
+	static std::vector<uint32_t> nodeStack;
+	nodeStack.clear();
+	nodeStack.reserve(256);
+	std::vector<RayHitData> results;
+	uint32_t index = m_rootIndex;
+
+	if (index != NullIndex)
+		nodeStack.push_back(index);
+	while (!nodeStack.empty())
+	{
+		index = nodeStack.back();
+		nodeStack.pop_back();
+		const Node& currNode = m_nodes[index];
+
+		float tmin, tmax;
+		if (!ray.intersect(currNode.Bounds, tmin, tmax))
+			continue; // skip non-overlapping branches
+
+		if (currNode.IsLeaf)
+		{
+			ASSERT(currNode.Value.has_value(), "Leaf node without value");
+			// If the collider intersects, add it to results (Collider may not be AABB)
+			const ColliderInfo& info = currNode.Value.value();
+			bool intersects = ray.intersect(info.Collider, tmin, tmax);
+			if (intersects)
+				results.push_back(RayHitData(GenericCollisionData(info.id, info.Collider), tmin, tmax));
+		}
+		else
+		{
+			// Traverse children
+			if (currNode.RightIndex != NullIndex)
+				nodeStack.push_back(currNode.RightIndex);
+			if (currNode.LeftIndex != NullIndex)
+				nodeStack.push_back(currNode.LeftIndex);
+		}
+	}
+
+	return results;
+}
+
+std::vector<RayHitData> AABBTree::raycastClosest(Ray2D ray) const
+{
+	return {};
+
+	//static std::vector<uint32_t> nodeStack;
+	//nodeStack.clear();
+	//nodeStack.reserve(256);
+	//std::vector<RayHitData> results;
+	//uint32_t index = m_rootIndex;
+
+	//if (index != NullIndex)
+	//	nodeStack.push_back(index);
+	//while (!nodeStack.empty())
+	//{
+	//	index = nodeStack.back();
+	//	nodeStack.pop_back();
+	//	const Node& currNode = m_nodes[index];
+
+	//	if (currNode.IsLeaf)
+	//	{
+	//		ASSERT(currNode.Value.has_value(), "Leaf node without value");
+	//		// If the collider intersects, add it to results (Collider may not be AABB)
+	//		const ColliderInfo& info = currNode.Value.value();
+	//		if (info.id != excludeID && info.Collider.intersects(collider)) // Skip if it's the excluded ID
+	//			results.push_back(CollisionData(GenericCollisionData(info.id, info.Collider)));
+	//	}
+	//	else
+	//	{
+	//		float tmin, tmax;
+	//		bool rightIntersects =
+	//			currNode.RightIndex != NullIndex &&
+	//			ray.intersect(m_nodes[currNode.RightIndex].Bounds, tmin, tmax);
+	//		bool leftIntersects =
+	//			currNode.LeftIndex != NullIndex &&
+	//			ray.intersect(m_nodes[currNode.LeftIndex].Bounds, tmin, tmax);
+
+	//		// Traverse children
+	//		if (rightIntersects)
+	//			nodeStack.push_back(currNode.RightIndex);
+	//		if (leftIntersects)
+	//			nodeStack.push_back(currNode.LeftIndex);
+	//	}
+	//}
+
+	//return results;
+}
+
 std::vector<AABB> AABBTree::getInternalBounds() const
 {
 	std::vector<uint32_t> nodeStack;

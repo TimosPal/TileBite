@@ -58,39 +58,32 @@ public:
                 glm::vec4(1.0f)
         });
 
-        getSceneManager().getActiveScene()->getWorld().query<TransformComponent, AABBComponent>().each(
-            [&](ID entity, TransformComponent* transform, AABBComponent* aabb) {
-                AABB transformedAABB(
-                    aabb->Collider.Min * transform->Size + transform->Position,
-                    aabb->Collider.Max * transform->Size + transform->Position
+		PhysicsEngine& physicsEngine = getSceneManager().getActiveScene()->getPhysicsEngine();
+		std::vector<RayHitData> hits = physicsEngine.raycastAll(ray);
+        for (const RayHitData& hit : hits)
+        {
+            if (hit.type == CollisionData::GenericType)
+            {
+                const GenericCollisionData& data = hit.Generic;
+                getRenderer().drawLine(
+                    Line{
+                        ray.at(hit.tmin),
+                        ray.at(hit.tmax),
+                        glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)
+                    }
+				);
+                getRenderer().drawSquare(
+                    ray.at(hit.tmin) - 0.01f,
+                    ray.at(hit.tmin) + 0.01f,
+                    glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)
                 );
-
-                float minT, maxT;
-                bool intersectes = ray.intersect(transformedAABB, minT, maxT);
-                if (intersectes)
-                {
-                    getRenderer().drawLine(
-                        Line{
-                            ray.at(minT),
-                            ray.at(maxT),
-                            glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)
-                        }
-                    );
-
-                    getRenderer().drawSquare(
-                        ray.at(minT) - 0.01f,
-                        ray.at(minT) + 0.01f,
-                        glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)
-                    );
-
-                    getRenderer().drawSquare(
-                        ray.at(maxT) - 0.01f,
-                        ray.at(maxT) + 0.01f,
-                        glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)
-                    );
-                }
+                getRenderer().drawSquare(
+                    ray.at(hit.tmax) - 0.01f,
+                    ray.at(hit.tmax) + 0.01f,
+                    glm::vec4(1.0f, 1.0f, 0.0f, 1.0f)
+                );
             }
-		);
+		}
     }
 };
 

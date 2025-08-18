@@ -47,6 +47,19 @@ struct CollisionData {
     ~CollisionData() {}
 };
 
+struct RayHitData : public CollisionData {
+    float tmin;
+    float tmax;
+
+    RayHitData(const GenericCollisionData& data, float tmin_, float tmax_)
+        : CollisionData(data), tmin(tmin_), tmax(tmax_) {
+    }
+
+    RayHitData(const TilemapCollisionData& data, float tmin_, float tmax_)
+        : CollisionData(data), tmin(tmin_), tmax(tmax_) {
+    }
+};
+
 } // Engine
 
 #endif // !COLLISION_DATA_HPP

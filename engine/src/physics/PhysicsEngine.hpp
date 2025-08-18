@@ -7,13 +7,18 @@
 #include "physics/AABBTree.hpp"
 #include "physics/TilemapColliderGroup.hpp"
 #include "physics/CollisionData.hpp"
+#include "physics/Ray2D.hpp"
 
 namespace Engine {
+
+// TODO: layers mask, for filtering collisions.
 
 class PhysicsEngine {
 public:
 	// Return all colliders overlapping with the given one
 	std::vector<CollisionData> queryCollisions(const AABB& collider, ID excludeID = INVALID_ID) const;
+	std::vector<RayHitData> raycastAll(const Ray2D& ray) const;
+	std::vector<RayHitData> raycastClosest(const Ray2D& ray) const;
 
 	void addCollider(ID id, AABB* collider, TransformComponent* transform);
 	void addTilemapColliderGroup(ID id, TransformComponent* transform, glm::vec2 tilemapSize, glm::vec2 tileSize, Bitset solidTiles);

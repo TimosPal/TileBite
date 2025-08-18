@@ -25,6 +25,18 @@ std::vector<CollisionData> PhysicsEngine::queryCollisions(const AABB& collider, 
 	return collisionData;
 }
 
+std::vector<RayHitData> PhysicsEngine::raycastAll(const Ray2D& ray) const
+{
+	auto rayHits = m_coreTree.raycastAll(ray);
+	return rayHits;
+}
+
+std::vector<RayHitData> PhysicsEngine::raycastClosest(const Ray2D& ray) const
+{
+	auto rayHits = m_coreTree.raycastClosest(ray);
+	return rayHits;
+}
+
 void PhysicsEngine::addCollider(ID id, AABB* collider, TransformComponent* transform)
 {
 	glm::vec2 min = collider->Min * transform->Size + transform->Position;
