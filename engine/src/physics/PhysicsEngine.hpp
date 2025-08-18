@@ -18,7 +18,7 @@ public:
 	// Return all colliders overlapping with the given one
 	std::vector<CollisionData> queryCollisions(const AABB& collider, ID excludeID = INVALID_ID) const;
 	std::vector<RayHitData> raycastAll(const Ray2D& ray) const;
-	std::vector<RayHitData> raycastClosest(const Ray2D& ray) const;
+	std::optional<RayHitData> raycastClosest(const Ray2D& ray) const;
 
 	void addCollider(ID id, AABB* collider, TransformComponent* transform);
 	void addTilemapColliderGroup(ID id, TransformComponent* transform, glm::vec2 tilemapSize, glm::vec2 tileSize, Bitset solidTiles);

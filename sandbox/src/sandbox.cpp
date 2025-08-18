@@ -56,33 +56,31 @@ public:
                 ray.at(0.0f),
                 ray.at(10.0f),
                 glm::vec4(1.0f)
-        });
+            }
+        );
 
 		PhysicsEngine& physicsEngine = getSceneManager().getActiveScene()->getPhysicsEngine();
-		std::vector<RayHitData> hits = physicsEngine.raycastAll(ray);
-        for (const RayHitData& hit : hits)
+        std::optional<RayHitData> hit = physicsEngine.raycastClosest(ray);
+        if(hit.has_value())
         {
-            if (hit.type == CollisionData::GenericType)
-            {
-                const GenericCollisionData& data = hit.Generic;
-                getRenderer().drawLine(
-                    Line{
-                        ray.at(hit.tmin),
-                        ray.at(hit.tmax),
-                        glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)
-                    }
-				);
-                getRenderer().drawSquare(
-                    ray.at(hit.tmin) - 0.01f,
-                    ray.at(hit.tmin) + 0.01f,
+            const RayHitData& hitData = hit.value();
+            getRenderer().drawLine(
+                Line{
+                    ray.at(hitData.tmin),
+                    ray.at(hitData.tmax),
                     glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)
-                );
-                getRenderer().drawSquare(
-                    ray.at(hit.tmax) - 0.01f,
-                    ray.at(hit.tmax) + 0.01f,
-                    glm::vec4(1.0f, 1.0f, 0.0f, 1.0f)
-                );
-            }
+                }
+			);
+            getRenderer().drawSquare(
+                ray.at(hitData.tmin) - 0.01f,
+                ray.at(hitData.tmin) + 0.01f,
+                glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)
+            );
+            getRenderer().drawSquare(
+                ray.at(hitData.tmax) - 0.01f,
+                ray.at(hitData.tmax) + 0.01f,
+                glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)
+            );
 		}
     }
 };

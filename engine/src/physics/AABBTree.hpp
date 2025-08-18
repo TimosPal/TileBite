@@ -20,8 +20,8 @@ public:
 	bool remove(ID id);
 	bool update(const ColliderInfo& colliderInfo);
 	std::vector<CollisionData> query(const AABB& collider, ID excludeID = INVALID_ID) const;
-	std::vector<RayHitData> raycastAll(Ray2D ray) const;
-	std::vector<RayHitData> raycastClosest(Ray2D ray) const;
+	std::vector<RayHitData> raycastAll(const Ray2D& ray) const;
+	std::optional<RayHitData> raycastClosest(const Ray2D& ray) const;
 
 	std::vector<AABB> getInternalBounds() const;
 	std::vector<AABB> getLeafColliders() const;
