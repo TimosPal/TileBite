@@ -8,8 +8,8 @@ namespace Engine {
 class Ray2D {
 public:
 
-    Ray2D(const glm::vec2& origin, const glm::vec2& dir)
-        : o(origin), d(dir), invD(1.0f / dir) {
+    Ray2D(const glm::vec2& origin, const glm::vec2& dir, float maxT = 10)
+        : o(origin), d(dir), invD(1.0f / dir), maxT(maxT) {
     }
 
     glm::vec2 at(float t) const {
@@ -27,8 +27,13 @@ public:
         return tmax >= tmin;
     }
 
+    float getMaxT() const {
+        return maxT;
+	}
+
 private:
     glm::vec2 o, d, invD;
+    float maxT;
 };
 
 } // Engine

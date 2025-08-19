@@ -6,6 +6,7 @@ namespace Engine {
 std::vector<CollisionData> PhysicsEngine::queryCollisions(const AABB& collider, ID excludeID) const
 {
 	// TODO: maybe use a different tree for static colliders
+	// tilemaps could be simpified to use global settings so they are grid alligned always.
 
 	// Need to exclude the ID to avoid self-collision
 	auto collisionData = m_coreTree.query(collider, excludeID);

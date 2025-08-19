@@ -7,7 +7,7 @@ namespace Engine {
 
 void AABBTree::insert(const ColliderInfo& colliderInfo)
 {
-	// TODO: tree rebalancing
+	// TODO: tree rebalancing !!!!!!!!!
 
 	uint32_t newNodeIndex = createLeafNode(colliderInfo);
 	m_leafNodesIndices[colliderInfo.id] = newNodeIndex;
@@ -298,7 +298,7 @@ std::vector<RayHitData> AABBTree::raycastAll(const Ray2D& ray) const
 		const Node& currNode = m_nodes[index];
 
 		float tmin, tmax;
-		if (!ray.intersect(currNode.Bounds, tmin, tmax))
+		if (!ray.intersect(currNode.Bounds, tmin, tmax) || ray.getMaxT() < tmin)
 			continue; // skip non-overlapping branches
 
 		if (currNode.IsLeaf)
@@ -307,7 +307,7 @@ std::vector<RayHitData> AABBTree::raycastAll(const Ray2D& ray) const
 			// If the collider intersects, add it to results (Collider may not be AABB)
 			const ColliderInfo& info = currNode.Value.value();
 			bool intersects = ray.intersect(info.Collider, tmin, tmax);
-			if (intersects)
+			if (intersects && ray.getMaxT() >= tmin)
 				results.push_back(RayHitData(GenericCollisionData(info.id, info.Collider), tmin, tmax));
 		}
 		else
@@ -345,7 +345,8 @@ std::optional<RayHitData> AABBTree::raycastClosest(const Ray2D& ray) const
 			ASSERT(info.Collider.isValid(), "Leaf node without valid collider");
 
 			float tmin, tmax;
-			if (ray.intersect(info.Collider, tmin, tmax) && tmin <= bestT)
+			// New tmin is new cloest hist, and not bigger than maxT of the ray
+			if (ray.intersect(info.Collider, tmin, tmax) && tmin <= ray.getMaxT() && tmin <= bestT)
 			{
 				bestT = tmin;
 				closestHit = RayHitData(GenericCollisionData(info.id, info.Collider), tmin, tmax);
@@ -358,10 +359,12 @@ std::optional<RayHitData> AABBTree::raycastClosest(const Ray2D& ray) const
 
 			bool hitL = node.LeftIndex != NullIndex &&
 				ray.intersect(m_nodes[node.LeftIndex].Bounds, tminL, tmaxL) &&
+				tminL <= ray.getMaxT() &&
 				tminL <= bestT;
 
 			bool hitR = node.RightIndex != NullIndex &&
 				ray.intersect(m_nodes[node.RightIndex].Bounds, tminR, tmaxR) &&
+				tminR <= ray.getMaxT() &&
 				tminR <= bestT;
 
 			// Push closer child last so it's popped first

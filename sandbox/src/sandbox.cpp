@@ -28,7 +28,7 @@ public:
     {
         auto& world = getSceneManager().getActiveScene()->getWorld();
 
-        for (size_t i = 0; i < 30; i++)
+        for (size_t i = 0; i < 15; i++)
         {
             ID box = world.createEntity();
 
@@ -49,12 +49,12 @@ public:
     {
 		timer += deltaTime;
 
-        Ray2D ray(glm::vec2(-2.0f, 0.0f), glm::vec2(1.0f, sin(timer) * 0.1f));
+        Ray2D ray(glm::vec2(-2.0f, 0.0f), glm::vec2(1.0f, sin(timer * 0.3f) * 0.6f), 1.5f);
 
         getRenderer().drawLine(
             Line{
                 ray.at(0.0f),
-                ray.at(10.0f),
+                ray.at(ray.getMaxT()),
                 glm::vec4(1.0f)
             }
         );
@@ -71,6 +71,13 @@ public:
                     glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)
                 }
 			);
+            getRenderer().drawLine(
+                Line{
+                    ray.at(0),
+                    ray.at(hitData.tmin),
+                    glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)
+                }
+            );
             getRenderer().drawSquare(
                 ray.at(hitData.tmin) - 0.01f,
                 ray.at(hitData.tmin) + 0.01f,
