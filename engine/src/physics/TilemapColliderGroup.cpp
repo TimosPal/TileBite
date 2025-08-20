@@ -66,7 +66,8 @@ std::vector<RayHitData> TilemapColliderGroup::ADDSearch(const Ray2D& ray, bool s
 
     glm::vec2 rayDir = ray.getDirection();
     glm::vec2 rayDirLocal = rayDir / tileSize;
-    glm::vec2 rayStart = ray.at(tmin - 0.01f); // Slightly offset to avoid missing first tile
+	float startingT = std::max(0.0f, tmin); // If tmin is negative we are inside the tilemap so we start at 0
+    glm::vec2 rayStart = ray.at(startingT - 0.01f); // Slightly offset to avoid missing first tile
     glm::vec2 rayStartLocal = (rayStart - m_bounds.Min) / tileSize;
     glm::vec2 rayEnd = ray.at(ray.getMaxT());
     glm::vec2 rayEndLocal = (rayEnd - m_bounds.Min) / tileSize;
@@ -100,7 +101,8 @@ std::vector<RayHitData> TilemapColliderGroup::ADDSearch(const Ray2D& ray, bool s
     }
 
     float tileDistance = 0.0f;
-    while (currentTile.x < rayEndLocal.x && currentTile.y < rayEndLocal.y) {
+	float maxLength = glm::length(rayEnd - rayStart);
+    while (tileDistance < maxLength) {
         if (sideDist.x < sideDist.y) {
             tileDistance = sideDist.x;
             sideDist.x += deltaDist.x;
