@@ -9,7 +9,7 @@ class Ray2D {
 public:
 
     Ray2D(const glm::vec2& origin, const glm::vec2& dir, float maxT = 10)
-        : o(origin), d(dir), invD(1.0f / dir), maxT(maxT) {
+        : o(origin), d(glm::normalize(dir)), invD(1.0f / glm::normalize(dir)), maxT(maxT) {
     }
 
     glm::vec2 at(float t) const {

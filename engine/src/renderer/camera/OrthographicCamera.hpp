@@ -11,9 +11,9 @@ public:
 	OrthographicCamera(float left, float right, float bottom, float top)
 		: m_position(0.0f, 0.0f), m_rotation(0.0f),
 		m_projectionMatrix(glm::ortho(left, right, bottom, top)),
-		m_viewMatrix(1.0f), m_viewProjectionMatrix(m_projectionMatrix* m_viewMatrix)
-	{
-	}
+		m_viewMatrix(1.0f), m_viewProjectionMatrix(m_projectionMatrix * m_viewMatrix),
+		m_inverseViewProjectionMatrix(glm::inverse(m_viewProjectionMatrix))
+	{}
 
 	void setPosition(const glm::vec2& position) { m_position = position; }
 	const glm::vec2& getPosition() const { return m_position; }
@@ -28,6 +28,7 @@ public:
 
 	// Retrieve this for rendering.
 	const glm::mat4& getViewProjectionMatrix() const { return m_viewProjectionMatrix; }
+	const glm::mat4& getInverseViewProjectionMatrix() const { return m_inverseViewProjectionMatrix; }
 
 	// Recalculate if position or rotation changes.
 	void recalculate()
@@ -40,6 +41,7 @@ public:
 
 		// Update the view projection matrix with the new view
 		m_viewProjectionMatrix = m_projectionMatrix * m_viewMatrix;
+		m_inverseViewProjectionMatrix = glm::inverse(m_viewProjectionMatrix);
 	}
 
 private:
@@ -49,6 +51,7 @@ private:
 	glm::mat4 m_projectionMatrix;
 	glm::mat4 m_viewMatrix;
 	glm::mat4 m_viewProjectionMatrix;
+	glm::mat4 m_inverseViewProjectionMatrix;
 };
 
 } // Engine

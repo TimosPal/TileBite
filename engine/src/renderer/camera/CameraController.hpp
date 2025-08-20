@@ -72,6 +72,18 @@ public:
 	bool isInsideFrustum(AABB collider) const {
 		return m_cameraFrustum.intersects(collider);
 	}
+
+	glm::vec2 screenToWorld(const glm::vec2& screenPos, float screenWidth, float screenHeight) const {
+		// Convert screen coordinates to clip space coordinates
+		glm::vec2 ndx = glm::vec2(
+			(screenPos.x / screenWidth) * 2.0f - 1.0f,
+			1.0f - (screenPos.y / screenHeight) * 2.0f
+		);
+		// Apply inverse view projection to convert to world coordinates
+		glm::vec4 clipSpacePos(ndx, 0.0f, 1.0f);
+		glm::vec4 worldSpacePos = m_camera.getInverseViewProjectionMatrix() * clipSpacePos;
+		return glm::vec2(worldSpacePos);
+	}
 private:
 	OrthographicCamera m_camera;
 	AABB m_cameraFrustum;

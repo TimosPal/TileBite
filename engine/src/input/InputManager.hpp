@@ -3,6 +3,7 @@
 
 #include "core/pch.hpp"
 #include "utilities/assertions.hpp"
+#include <glm/glm.hpp>
 
 namespace Engine {
 
@@ -22,6 +23,9 @@ public:
 	void setMousePosition(float x, float y) {
 		m_mouseX = x;
 		m_mouseY = y;
+	}
+	glm::vec2 getMousePosition() const {
+		return glm::vec2(m_mouseX, m_mouseY);
 	}
 	
 	// Mouse scroll
