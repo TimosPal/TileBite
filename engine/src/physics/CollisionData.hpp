@@ -44,6 +44,7 @@ struct CollisionData {
         : type(TilemapType), Tilemap(data) {
     }
 
+    CollisionData() : type(GenericType), Generic(GenericCollisionData(ID(0), AABB())) {} // dummy default
     ~CollisionData() {}
 };
 
@@ -58,6 +59,8 @@ struct RayHitData : public CollisionData {
     RayHitData(const TilemapCollisionData& data, float tmin_, float tmax_)
         : CollisionData(data), tmin(tmin_), tmax(tmax_) {
     }
+
+	RayHitData() : CollisionData(), tmin(0.0f), tmax(0.0f) {} // dummy default
 };
 
 } // Engine

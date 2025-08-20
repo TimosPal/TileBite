@@ -23,6 +23,7 @@ class MovingBoxSystem : public ISystem {
 private:
     ID box;
     bool ping = false;
+	float timer = 0.0f;
 public:
     void onAttach() override
     {
@@ -38,6 +39,8 @@ public:
 
     void update(float deltaTime) override
     {
+        timer += deltaTime;
+
         auto& world = getSceneManager().getActiveScene()->getWorld();
         auto tr = world.getComponent<TransformComponent>(box);
 		
@@ -91,6 +94,46 @@ public:
                     );
                 }
             }
+        }
+
+
+        Ray2D ray(glm::vec2(-2.0f, -0.3f), glm::vec2(1.0f, sin(timer * 0.1f) * 0.6f), 2.5f);
+        auto hits = physicsEngine.raycastAll(ray);
+
+        renderer.drawLine(
+            Line{
+                ray.at(0.0f),
+                ray.at(ray.getMaxT()),
+                glm::vec4(1.0f)
+            }
+		);
+
+        for (auto hit : hits) {
+            const RayHitData& hitData = hit;
+            getRenderer().drawLine(
+                Line{
+                    ray.at(hitData.tmin),
+                    ray.at(hitData.tmax),
+                    glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)
+                }
+            );
+            getRenderer().drawLine(
+                Line{
+                    ray.at(0),
+                    ray.at(hitData.tmin),
+                    glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)
+                }
+            );
+            getRenderer().drawSquare(
+                ray.at(hitData.tmin) - 0.01f,
+                ray.at(hitData.tmin) + 0.01f,
+                glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)
+            );
+            getRenderer().drawSquare(
+                ray.at(hitData.tmax) - 0.01f,
+                ray.at(hitData.tmax) + 0.01f,
+                glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)
+            );
         }
     }
 };

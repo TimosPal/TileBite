@@ -31,6 +31,16 @@ public:
         return maxT;
 	}
 
+    glm::vec2 getOrigin() const {
+        return o;
+    }
+    glm::vec2 getDirection() const {
+        return d;
+    }
+    glm::vec2 getInvDirection() const {
+        return invD;
+	}
+
 private:
     glm::vec2 o, d, invD;
     float maxT;
