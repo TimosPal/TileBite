@@ -6,8 +6,8 @@
 #ifndef DEBUG_MODE
 
 // No-op in release mode
-#define ASSERT(condition) ((void)0)
-#define ASSERT_FALSE() ((void)0)
+#define ASSERT(condition, msg) ((void)0)
+#define ASSERT_FALSE(msg) ((void)0)
 #define STATIC_ASSERT(condition, message) ((void)0)
 #define STATIC_ASSERT_FALSE(condition, message) ((void)0)
 

@@ -174,7 +174,7 @@ inline void unpackTileData(uint32_t* packedData,
 	// Unpack color
 	unpackRGBA(packedData[1], r, g, b, a);
 
-	// Normalize color to 0–1 range
+	// Normalize color to 0-1 range
 	constexpr float inv255 = 1.0f / 255.0f;
 	color = glm::vec4(r * inv255, g * inv255, b * inv255, a * inv255);
 }
