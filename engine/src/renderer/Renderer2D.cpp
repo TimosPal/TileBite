@@ -11,6 +11,8 @@
 
 namespace Engine {
 
+// TODO: culling not considering rotations
+
 std::unique_ptr<Renderer2D> Renderer2D::createRenderer2D(SystemResourceHub& systemResourceHub)
 {
     return std::make_unique<Renderer2DBackend>(systemResourceHub);
@@ -19,8 +21,9 @@ std::unique_ptr<Renderer2D> Renderer2D::createRenderer2D(SystemResourceHub& syst
 bool Renderer2D::shouldCullSpriteQuad(const SpriteQuad& quad, const CameraController& camera) const
 {
 	// Calculate sprite AABB in world space
-	glm::vec2 spriteMin = quad.TransformComp->Position;
-	glm::vec2 spriteMax = spriteMin + quad.TransformComp->Size;
+	// NOTE: quads are centered arround 0,0 with original size 0.5 per side.
+	glm::vec2 spriteMin = quad.TransformComp->Position - glm::vec2(0.5) * quad.TransformComp->Size;
+	glm::vec2 spriteMax = quad.TransformComp->Position + glm::vec2(0.5) * quad.TransformComp->Size;
 	AABB spriteAABB{ spriteMin, spriteMax };
 	return !camera.isInsideFrustum(spriteAABB);
 }
