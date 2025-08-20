@@ -121,7 +121,10 @@ std::vector<RayHitData> TilemapColliderGroup::ADDSearch(const Ray2D& ray, bool s
                 );
                 float tileTmin, tileTmax;
                 ray.intersect(tileBounds, tileTmin, tileTmax);
-                results.push_back(RayHitData(GenericCollisionData(m_id, tileBounds), tileTmin, tileTmax));
+                results.push_back(RayHitData(
+                    TilemapCollisionData(m_id, tileBounds, currentTile.x, currentTile.y),
+                    tileTmin, tileTmax)
+                );
 
                 if (stopAtFirst) break;
             }
