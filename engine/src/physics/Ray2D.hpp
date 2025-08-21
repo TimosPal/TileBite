@@ -2,6 +2,8 @@
 #define RAY2D_HPP
 
 #include "physics/AABB.hpp"
+#include "physics/OBB.hpp"
+#include "physics/Collider.hpp"
 
 namespace Engine {
 
@@ -25,6 +27,19 @@ public:
         // t when exiting slab
         tmax = std::min(glm::max(t0.x, t1.x), glm::max(t0.y, t1.y));
         return tmax >= tmin;
+    }
+
+    bool intersect(const OBB& b, float& tmin, float& tmax) const {
+        // TODO: 
+        return false;
+    }
+
+    bool intersect(const Collider& other, float& tmin, float& tmax) const {
+        switch (other.Type) {
+        case Collider::ColliderType::AABBType: return intersect(other.AABBCollider, tmin, tmax);
+        case Collider::ColliderType::OBBType:  return intersect(other.OBBCollider, tmin, tmax);
+        default: return false;
+        }
     }
 
     float getMaxT() const {
