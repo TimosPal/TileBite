@@ -5,6 +5,8 @@
 
 namespace Engine {
 
+class OBB; // Forward declaration to avoid circular dependency
+
 struct AABB {
 	glm::vec2 Min; // Minimum point (bottom-left corner)
 	glm::vec2 Max; // Maximum point (top-right corner)
@@ -42,12 +44,16 @@ struct AABB {
 	{
 		return contains(other.Min) && contains(other.Max);
 	}
-	
+
+	bool contains(const OBB& other) const;
+
 	inline bool intersects(const AABB& other) const noexcept
 	{
 		return (Min.x <= other.Max.x && Max.x >= other.Min.x &&
 				Min.y <= other.Max.y && Max.y >= other.Min.y);
 	}
+
+	bool intersects(const OBB& other) const;
 
 	inline void setSize(const glm::vec2& min, const glm::vec2& max) noexcept
 	{

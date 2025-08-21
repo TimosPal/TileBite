@@ -3,6 +3,7 @@
 
 #include "physics/CollisionData.hpp"
 #include "physics/AABB.hpp"
+#include "physics/OBB.hpp"
 #include "physics/Ray2D.hpp"
 #include "core/types.hpp"
 
