@@ -28,7 +28,7 @@ public:
     {
         auto& world = getSceneManager().getActiveScene()->getWorld();
 
-        for (size_t i = 0; i < 15; i++)
+        for (size_t i = 0; i < 10; i++)
         {
             ID box = world.createEntity();
 
@@ -40,7 +40,7 @@ public:
                 box,
                 TransformComponent{ randomPos, glm::vec2(0.1f, 0.1f) },
                 SpriteComponent(glm::vec4(0.7f, 0.0f, 0.0f, 1.0f), 0),
-                AABBComponent({ -0.5f, -0.5f }, { 0.5f, 0.5f })
+                AABBComponent({ 1.0f, 1.0f }, { 2.0f, 2.0f })
             );
         }
 	}
@@ -49,7 +49,13 @@ public:
     {
 		timer += deltaTime;
 
-        Ray2D ray(glm::vec2(-2.0f, 0.0f), glm::vec2(1.0f, sin(timer * 0.3f) * 0.6f), 1.5f);
+        auto& world = getSceneManager().getActiveScene()->getWorld();
+
+        world.query<TransformComponent, SpriteComponent>().each([&](ID id, TransformComponent* tr, SpriteComponent* spr) {
+            tr->setRotation(tr->getRotation() + 1.2f * deltaTime);
+        });
+
+        Ray2D ray(glm::vec2(-2.0f, 0.0f), glm::vec2(1.0f, sin(timer * 0.3f) * 0.6f), 2.0f);
 
         getRenderer().drawLine(
             Line{

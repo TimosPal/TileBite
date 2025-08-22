@@ -118,8 +118,7 @@ class MainScene : public Scene {
                 );
 
                 ID tilemap = getWorld().createEntity();
-                TilemapComponent tilemapComp;
-                tilemapComp.TilemapResourcePtr = m_tilemapHandle.getResource();
+                TilemapComponent tilemapComp(m_tilemapHandle.getResource());
 
                 getWorld().addComponents(
                     tilemap,

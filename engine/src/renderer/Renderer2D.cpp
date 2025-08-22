@@ -22,8 +22,8 @@ bool Renderer2D::shouldCullSpriteQuad(const SpriteQuad& quad, const CameraContro
 {
 	// Calculate sprite AABB in world space
 	// NOTE: quads are centered arround 0,0 with original size 0.5 per side.
-	glm::vec2 spriteMin = quad.TransformComp->Position - glm::vec2(0.5) * quad.TransformComp->Size;
-	glm::vec2 spriteMax = quad.TransformComp->Position + glm::vec2(0.5) * quad.TransformComp->Size;
+	glm::vec2 spriteMin = quad.TransformComp->getPosition() - glm::vec2(0.5) * quad.TransformComp->getSize();
+	glm::vec2 spriteMax = quad.TransformComp->getPosition() + glm::vec2(0.5) * quad.TransformComp->getSize();
 	AABB spriteAABB{ spriteMin, spriteMax };
 	return !camera.isInsideFrustum(spriteAABB);
 }
@@ -31,7 +31,7 @@ bool Renderer2D::shouldCullSpriteQuad(const SpriteQuad& quad, const CameraContro
 bool Renderer2D::shouldCullTilemap(const TilemapMesh& mesh, const CameraController& camera) const
 {
 	// Calculate tilemap AABB in world space
-	glm::vec2 tilemapMin = mesh.TransformComp->Position;
+	glm::vec2 tilemapMin = mesh.TransformComp->getPosition();
 	glm::vec2 tilemapMax = tilemapMin + glm::vec2(
 		mesh.TilemapResource->getWidth() * mesh.TilemapResource->getWorldTileSize().x,
 		mesh.TilemapResource->getHeight() * mesh.TilemapResource->getWorldTileSize().y

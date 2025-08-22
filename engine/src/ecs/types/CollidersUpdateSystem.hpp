@@ -17,7 +17,7 @@ public:
 		m_world.query<AABBComponent,TransformComponent>().each([&](ID entityID, AABBComponent* aabb, TransformComponent* transform) {
 			if (transform->isDirty() || aabb->isDirty())
 			{
-				m_physicsEngine.updateCollider(entityID, &aabb->Collider, transform);
+				m_physicsEngine.updateCollider(entityID, &aabb->getCollider(), transform);
 				transform->resetDirty();
 				aabb->resetDirty();
 			}
@@ -29,9 +29,9 @@ public:
 				m_physicsEngine.updateTilemapColliderGroup(
 					entityID,
 					transform,
-					glm::vec2(tilemap->TilemapResourcePtr->getWidth(), tilemap->TilemapResourcePtr->getHeight()),
-					tilemap->TilemapResourcePtr->getWorldTileSize(),
-					tilemap->TilemapResourcePtr->getSolidTiles()
+					glm::vec2(tilemap->getResource()->getWidth(), tilemap->getResource()->getHeight()),
+					tilemap->getResource()->getWorldTileSize(),
+					tilemap->getResource()->getSolidTiles()
 				);
 				transform->resetDirty();
 				tilemap->resetDirty();

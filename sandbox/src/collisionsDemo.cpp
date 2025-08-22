@@ -50,8 +50,8 @@ public:
         world.query<AABBComponent, TransformComponent, SpriteComponent, RigidBody>().each([&](ID entityID, AABBComponent* aabb, TransformComponent* transform, SpriteComponent* sprite, RigidBody* rb) {
             bool falling = true;
             
-            glm::vec2 min = aabb->getMin() * transform->Size + transform->Position;
-            glm::vec2 max = aabb->getMax() * transform->Size + transform->Position;
+            glm::vec2 min = aabb->getMin() * transform->getSize() + transform->getPosition();
+            glm::vec2 max = aabb->getMax() * transform->getSize() + transform->getPosition();
 			AABB WorldSpaceAABBComponent{ min, max };
 
             auto collisionData = physicsEngine.queryCollisions(WorldSpaceAABBComponent);
@@ -59,7 +59,7 @@ public:
             {
                 if (data.Generic.id == entityID) continue;
                 auto tr = world.getComponent<TransformComponent>(data.Generic.id);
-                if (tr->Position.y >= transform->Position.y) continue;
+                if (tr->getPosition().y >= transform->getPosition().y) continue;
 
                 falling = false;
                 break;
@@ -67,12 +67,12 @@ public:
 
             if(falling)
             {
-				transform->setPosition(transform->Position + glm::vec2(0.0f, -0.9f * deltaTime));
+				transform->setPosition(transform->getPosition() + glm::vec2(0.0f, -0.9f * deltaTime));
 			}
             else
             {
 				rb->currLife -= 20.0f * deltaTime;
-                transform->Size = glm::vec2(0.02, 0.02) * (rb->currLife / rb->life);
+                transform->setSize(glm::vec2(0.02, 0.02) * (rb->currLife / rb->life));
                 if (rb->currLife <= 0.0f)
                 {
 					world.removeEntity(entityID);

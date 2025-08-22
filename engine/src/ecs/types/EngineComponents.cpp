@@ -6,9 +6,9 @@ namespace Engine {
 // Needs to be in CPP file to avoid circular dependency issues
 void TilemapComponent::setTile(Tile tile, uint8_t xIndex, uint8_t yIndex)
 {
-	if (TilemapResourcePtr)
+	if (m_tilemapResource)
 	{
-		TilemapResourcePtr->setTile(tile, xIndex, yIndex);
+		m_tilemapResource->setTile(tile, xIndex, yIndex);
 		BaseComponent::setDirty(true);
 	}
 }

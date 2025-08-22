@@ -28,31 +28,36 @@ struct SpriteComponent : public BaseComponent
 };
 
 struct TransformComponent : public BaseComponent {
-	glm::vec2 Position;
-	glm::vec2 Size;
-	float Rotation;
-
 	TransformComponent(
 		const glm::vec2& position = { 0.0f, 0.0f },
 		const glm::vec2& size = { 1.0f, 1.0f },
 		float rotation = 0.0f)
-		: Position(position), Size(size), Rotation(rotation) {
+		: m_position(position), m_size(size), m_rotation(rotation) {
 	}
 
+	const glm::vec2& getPosition() const { return m_position; }
+	const glm::vec2& getSize() const { return m_size; }
+	const float getRotation() const { return m_rotation; }
+
 	void setPosition(const glm::vec2& position) {
-		Position = position;
+		m_position = position;
 		BaseComponent::setDirty(true);
 	}
 
 	void setSize(const glm::vec2& size) {
-		Size = size;
+		m_size = size;
 		BaseComponent::setDirty(true);
 	}
 
 	void setRotation(float rotation) {
-		Rotation = rotation;
+		m_rotation = rotation;
 		BaseComponent::setDirty(true);
 	}
+
+private:
+	glm::vec2 m_position;
+	glm::vec2 m_size;
+	float m_rotation;
 };
 
 struct Tile : public BaseComponent {
@@ -71,47 +76,52 @@ struct Tile : public BaseComponent {
 };
 
 struct TilemapComponent : public BaseComponent {
-	TilemapResource* TilemapResourcePtr;
-
 	void setTile(Tile tile, uint8_t xIndex, uint8_t yIndex);
 
 	TilemapComponent(TilemapResource* ptr = nullptr)
-		: TilemapResourcePtr(ptr) {
+		: m_tilemapResource(ptr) {
 	}
+
+	TilemapResource* getResource() { return m_tilemapResource; }
+
+private:
+	TilemapResource* m_tilemapResource;
 };
 
 struct AABBComponent : public BaseComponent {
-	AABB Collider;
+	AABBComponent() : m_collider(glm::vec2(0.0f), glm::vec2(0.0f)) {}
+	AABBComponent(const glm::vec2& min, const glm::vec2& max) : m_collider(min, max) {}
 
-	AABBComponent() : Collider(glm::vec2(0.0f), glm::vec2(0.0f)) {}
-	AABBComponent(const glm::vec2& min, const glm::vec2& max) : Collider(min, max) {}
+	const AABB& getCollider() { return m_collider; }
 
 	bool contains(const glm::vec2& point) const
 	{
-		Collider.contains(point);
+		m_collider.contains(point);
 	}
 
 	bool intersects(const AABB& other) const
 	{
-		return Collider.intersects(other);
+		return m_collider.intersects(other);
 	}
 
 	void setSize(const glm::vec2& min, const glm::vec2& max)
 	{
-		Collider.setSize(min, max);
+		m_collider.setSize(min, max);
 		BaseComponent::setDirty(true);
 	}
 
 	const glm::vec2& getMin() const
 	{
-		return Collider.Min;
+		return m_collider.Min;
 	}
 
 	const glm::vec2& getMax() const
 	{
-		return Collider.Max;
+		return m_collider.Max;
 	}
 
+private:
+	AABB m_collider;
 };
 
 } // Engine

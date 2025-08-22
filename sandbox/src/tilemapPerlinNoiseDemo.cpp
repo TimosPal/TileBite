@@ -45,22 +45,22 @@ public:
         auto tr = world.getComponent<TransformComponent>(box);
 		
 		glm::vec2 dir = ping ? glm::vec2(-1.0f, -0.1f) : glm::vec2(1.0f, 0.1f);
-		dir += glm::vec2(0.0f, sin(tr->Position.x * 7.0f) * 1.0f);
-        tr->setPosition(tr->Position + dir * deltaTime * 0.3f);
+		dir += glm::vec2(0.0f, sin(tr->getPosition().x * 7.0f) * 1.0f);
+        tr->setPosition(tr->getPosition() + dir * deltaTime * 0.3f);
 
-        if (ping && tr->Position.x < 0)
+        if (ping && tr->getPosition().x < 0)
         {
             ping = false;
         }
-        else if (!ping && tr->Position.x > 10)
+        else if (!ping && tr->getPosition().x > 10)
         {
             ping = true;
         }
 
 		AABBComponent* aabb = world.getComponent<AABBComponent>(box);
 
-        glm::vec2 min = aabb->getMin() * tr->Size + tr->Position;
-        glm::vec2 max = aabb->getMax() * tr->Size + tr->Position;
+        glm::vec2 min = aabb->getMin() * tr->getSize() + tr->getPosition();
+        glm::vec2 max = aabb->getMax() * tr->getSize() + tr->getPosition();
         AABB WorldSpaceAABBComponent{ min, max };
 		PhysicsEngine& physicsEngine = getSceneManager().getActiveScene()->getPhysicsEngine();
         auto collisionData = physicsEngine.queryCollisions(WorldSpaceAABBComponent, box);
@@ -79,7 +79,7 @@ public:
 
                 if (data.type == CollisionData::Type::TilemapType)
                 {
-                    Tile oldTile = world.getComponent<TilemapComponent>(data.Generic.id)->TilemapResourcePtr->getTile(
+                    Tile oldTile = world.getComponent<TilemapComponent>(data.Generic.id)->getResource()->getTile(
                         data.Tilemap.XTilemapIndex,
                         data.Tilemap.YTilemapIndex
 					);
@@ -102,7 +102,7 @@ public:
             getWindow().getHeight()
 		);
 
-        glm::vec2 startPos = tr->Position;
+        glm::vec2 startPos = tr->getPosition();
 		glm::vec2 rayDir = mouseWorldPos - startPos;
         Ray2D ray(startPos, rayDir, glm::length(rayDir));
         auto hits = physicsEngine.raycastAll(ray);
@@ -253,8 +253,7 @@ class MainScene : public Scene {
 
         m_tilemapHandles.emplace_back(std::move(tilemapHandle));
 
-        TilemapComponent tilemapComp;
-        tilemapComp.TilemapResourcePtr = m_tilemapHandles.back().getResource();
+        TilemapComponent tilemapComp(m_tilemapHandles.back().getResource());
 
         getWorld().addComponents(
             tilemap,

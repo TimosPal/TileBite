@@ -69,13 +69,16 @@ public:
 
                     TransformComponent* foodTransform = world.getComponent<TransformComponent>(l->target);
 
-                    float dx = foodTransform->Position.x - t->Position.x;
-                    float dy = foodTransform->Position.y - t->Position.y;
+                    float dx = foodTransform->getPosition().x - t->getPosition().x;
+                    float dy = foodTransform->getPosition().y - t->getPosition().y;
                     float distance = std::sqrt(dx * dx + dy * dy);
-                    if (distance > foodTransform->Size.x) {
-                        t->Position.x += (dx / distance) * v->v * deltaTime;
-                        t->Position.y += (dy / distance) * v->v * deltaTime;
-                        t->Rotation = std::atan2(dy, dx);
+                    if (distance > foodTransform->getSize().x) {
+                        glm::vec2 newOffset = glm::vec2(
+                            (dx / distance) * v->v * deltaTime,
+                            (dy / distance) * v->v* deltaTime
+                        );
+                        t->setPosition(t->getPosition() + newOffset);
+                        t->setRotation(std::atan2(dy, dx));
                     }
                     else
                     {
@@ -94,7 +97,7 @@ public:
                         l->lastBodyPart = followerEntity;
                         world.addComponents(
                             followerEntity,
-                            TransformComponent{ glm::vec2(foodTransform->Position.x, foodTransform->Position.y), glm::vec2(0.01, 0.01) },
+                            TransformComponent{ glm::vec2(foodTransform->getPosition().x, foodTransform->getPosition().y), glm::vec2(0.01, 0.01) },
                             SpriteComponent{ color, 0 },
                             VelocityComponent{ 2, 2 },
                             Follower{ lastBodyPart }
@@ -112,8 +115,8 @@ public:
                     world.query<TransformComponent, Food>().each([&](ID entityID, TransformComponent* foodTransform, Food* f) {
                         if (f->isTargeted) return; // Skip if food is already targeted
 
-                        float dx = foodTransform->Position.x - t->Position.x;
-                        float dy = foodTransform->Position.y - t->Position.y;
+                        float dx = foodTransform->getPosition().x - t->getPosition().x;
+                        float dy = foodTransform->getPosition().y - t->getPosition().y;
                         float distance = std::sqrt(dx * dx + dy * dy);
                         if (distance < closestDistance) {
                             closestDistance = distance;
@@ -151,13 +154,16 @@ public:
                 auto it = transformCache.find(f->target);
 
                 TransformComponent* target = it->second;
-                float dx = target->Position.x - t->Position.x;
-                float dy = target->Position.y - t->Position.y;
+                float dx = target->getPosition().x - t->getPosition().x;
+                float dy = target->getPosition().y - t->getPosition().y;
                 float distance = std::sqrt(dx * dx + dy * dy);
-                if (distance > target->Size.x + 0.01f) {
-                    t->Position.x += (dx / distance) * v->v * deltaTime;
-                    t->Position.y += (dy / distance) * v->v * deltaTime;
-                    t->Rotation = std::atan2(dy, dx);
+                if (distance > target->getSize().x + 0.01f) {
+                    glm::vec2 newOffset = glm::vec2(
+                        (dx / distance) * v->v * deltaTime,
+                        (dy / distance) * v->v * deltaTime
+                    );
+                    t->setPosition(t->getPosition() + newOffset);
+                    t->setRotation(std::atan2(dy, dx));
                 }
             }
         );
@@ -173,18 +179,19 @@ public:
 
         world.query<TransformComponent, VelocityComponent, Food>().each(
             [&](ID id, TransformComponent* t, VelocityComponent* v, Food* f) {
-                t->Position += glm::vec2(std::cos(t->Rotation), std::sin(t->Rotation)) * v->v * deltaTime;
+                glm::vec2 newOffset = glm::vec2(std::cos(t->getRotation()), std::sin(t->getRotation())) * v->v * deltaTime;
+                t->setPosition(t->getPosition() + newOffset);
 
                 // Bounce off X edges
-                if (t->Position.x < -1.0f || t->Position.x > 1.0f) {
-                    t->Rotation = glm::pi<float>() - t->Rotation;
-                    t->Position.x = glm::clamp(t->Position.x, -1.0f, 1.0f);
+                if (t->getPosition().x < -1.0f || t->getPosition().x > 1.0f) {
+                    t->setRotation(glm::pi<float>() - t->getRotation());
+                    t->setPosition(t->getPosition() + glm::vec2(glm::clamp(t->getPosition().x, -1.0f, 1.0f), 0));
                 }
 
                 // Bounce off Y edges
-                if (t->Position.y < -1.0f || t->Position.y > 1.0f) {
-                    t->Rotation = -t->Rotation;
-                    t->Position.y = glm::clamp(t->Position.y, -1.0f, 1.0f);
+                if (t->getPosition().y < -1.0f || t->getPosition().y > 1.0f) {
+                    t->setRotation(-t->getRotation());
+                    t->setPosition(t->getPosition() + glm::vec2(0, glm::clamp(t->getPosition().y, -1.0f, 1.0f)));
                 }
             }
         );

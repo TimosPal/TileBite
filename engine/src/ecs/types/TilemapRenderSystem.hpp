@@ -16,7 +16,7 @@ public:
 		auto& activeWorld = getSceneManager().getActiveScene()->getWorld();
 		activeWorld.query<TilemapComponent, TransformComponent>().each([&](ID entityID, TilemapComponent* tilemapComp, TransformComponent* transformComp) {
 			// TODO: Assumes resource is always loaded and valid, might need to retrieve a handle instead.
-			auto resource = tilemapComp->TilemapResourcePtr;
+			auto resource = tilemapComp->getResource();
 			uint8_t quadsCount = resource->getWidth() * resource->getHeight();
 			renderer2D.drawTilemap(TilemapMesh{
 				resource,

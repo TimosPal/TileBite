@@ -54,9 +54,9 @@ inline std::array<float, 12> makeLineVerticesColored(glm::vec2 start, glm::vec2 
 // TODO: move elsewhere (More appropriate file)
 inline std::array<float, 36> makeSpriteQuadVertices(TransformComponent* t, SpriteComponent* spr)
 {
-	auto& pos = t->Position;
-	auto& size = t->Size;
-	float angle = t->Rotation;
+	auto& pos = t->getPosition();
+	auto& size = t->getSize();
+	float angle = t->getRotation();
 
 	// Small explanaiton of the following math:
 	// We apply transformations in the following order
