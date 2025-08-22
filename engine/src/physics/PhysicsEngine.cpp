@@ -81,7 +81,7 @@ void PhysicsEngine::addCollider(ID id, AABB* collider, TransformComponent* trans
 {
 	glm::vec2 min = collider->Min * transform->Size + transform->Position;
 	glm::vec2 max = collider->Max * transform->Size + transform->Position;
-	ColliderInfo info{ id, AABB{min, max} };
+	ColliderInfo info(id, AABB{min, max});
 	m_coreTree.insert(info);
 }
 
@@ -94,7 +94,7 @@ void PhysicsEngine::updateCollider(ID id, AABB* collider, TransformComponent* tr
 {
 	glm::vec2 min = collider->Min * transform->Size + transform->Position;
 	glm::vec2 max = collider->Max * transform->Size + transform->Position;
-	ColliderInfo info{ id, AABB{min, max} };
+	ColliderInfo info(id, AABB{min, max});
 	bool updated = m_coreTree.update(info);
 	if (!updated) m_coreTree.insert(info);
 }
@@ -107,7 +107,7 @@ void PhysicsEngine::addTilemapColliderGroup(ID id, TransformComponent* transform
 	m_tilemapColliderGroups.emplace(id, TilemapColliderGroup(id, bounds, tilemapSize, tileSize, solidTiles));
 	
 	// Create a collider for the tilemap group
-	ColliderInfo info{ id, bounds };
+	ColliderInfo info(id, bounds);
 	m_tilemapColliderTree.insert(info);
 }
 
@@ -116,7 +116,7 @@ void PhysicsEngine::updateTilemapColliderGroup(ID id, TransformComponent* transf
 	glm::vec2 min = transform->Position;
 	glm::vec2 max = glm::vec2(tilemapSize.x * tileSize.x, tilemapSize.y * tileSize.y) * transform->Size + transform->Position;
 	auto bounds = AABB(min, max);
-	ColliderInfo info{ id, bounds };
+	ColliderInfo info(id, bounds);
 	bool updated = m_tilemapColliderTree.update(info);
 	if (!updated)
 	{

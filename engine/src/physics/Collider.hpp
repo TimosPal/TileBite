@@ -2,11 +2,10 @@
 #define COLLIDER_HPP
 
 #include <glm/glm.hpp>
+#include "core/Types.hpp"
 
 #include "physics/AABB.hpp"
 #include "physics/OBB.hpp"
-
-#include "core/Types.hpp"
 
 namespace Engine {
 
@@ -21,6 +20,9 @@ struct Collider {
 		OBB OBBCollider;
 	};
 
+    Collider(const AABB& aabb) : Type(ColliderType::AABBType), AABBCollider(aabb) {}
+    Collider(const OBB& obb) : Type(ColliderType::OBBType), OBBCollider(obb) {}
+
 	AABB getAABBBounds() const {
 		switch (Type) {
 		case ColliderType::AABBType:
@@ -31,6 +33,14 @@ struct Collider {
 			return AABB(); // Return an empty AABB if type is unknown
 		}
 	}
+
+    bool isValid() const {
+        switch (Type) {
+        case ColliderType::AABBType: return AABBCollider.isValid();
+        case ColliderType::OBBType:  return OBBCollider.isValid();
+        default: return false;
+        }
+    }
 
     template<typename T>
     bool contains(const T& other) const {
@@ -66,10 +76,6 @@ struct Collider {
         }
     }
 
-};
-
-struct ColliderInfo : public Collider {
-	ID id;
 };
 
 } // Engine

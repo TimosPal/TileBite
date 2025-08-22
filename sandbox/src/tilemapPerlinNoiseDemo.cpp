@@ -96,8 +96,15 @@ public:
             }
         }
 
+        glm::vec2 mouseWorldPos = getSceneManager().getActiveScene()->getCameraController()->screenToWorld(
+            getInputManager().getMousePosition(),
+            getWindow().getWidth(),
+            getWindow().getHeight()
+		);
 
-        Ray2D ray(glm::vec2(-2.0f, -0.3f), glm::vec2(1.0f, sin(timer * 0.1f) * 0.6f), 2.5f);
+        glm::vec2 startPos = tr->Position;
+		glm::vec2 rayDir = mouseWorldPos - startPos;
+        Ray2D ray(startPos, rayDir, glm::length(rayDir));
         auto hits = physicsEngine.raycastAll(ray);
 
         renderer.drawLine(
@@ -110,6 +117,14 @@ public:
 
         for (auto hit : hits) {
             const RayHitData& hitData = hit;
+            if (hitData.tmin < 0) continue;
+            
+            getRenderer().drawSquare(
+                hitData.Generic.GenericCollider.AABBCollider.Min,
+                hitData.Generic.GenericCollider.AABBCollider.Max,
+                glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)
+			);
+
             getRenderer().drawLine(
                 Line{
                     ray.at(hitData.tmin),
@@ -179,7 +194,7 @@ class MainScene : public Scene {
 
     FastNoiseLite baseNoise;
     FastNoiseLite detailNoise;
-	float tileSize = 0.05f;
+	float tileSize = 0.1f;
 
     void createTilemap(float x, float y, int size, int noiseOffset)
     {

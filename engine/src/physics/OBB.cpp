@@ -43,4 +43,16 @@ bool OBB::intersects(const AABB& other) const {
 	return CollisionUtilities::intersects(other, *this);
 }
 
+bool OBB::contains(const Collider& other) const
+{
+    // TODO:
+    return false;
+}
+
+bool OBB::intersects(const Collider& other) const
+{
+    // TODO:
+    return false;
+}
+
 } // Engine

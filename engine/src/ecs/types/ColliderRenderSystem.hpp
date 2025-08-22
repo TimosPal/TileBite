@@ -25,8 +25,10 @@ public:
 		const auto& coreTreeColliders = getSceneManager().getActiveScene()->getPhysicsEngine().getCoreTreeColliders();
 		for (const auto& collider : coreTreeColliders)
 		{
+			if (collider.Type != Collider::ColliderType::AABBType) continue; // TODO: add support for more
+
 			glm::vec4 color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f); // Green color for AABB
-			renderer2D.drawSquare(collider.Min, collider.Max, color);
+			renderer2D.drawSquare(collider.AABBCollider.Min, collider.AABBCollider.Max, color);
 		}
 
 		const auto& tilemapTreeBounds = getSceneManager().getActiveScene()->getPhysicsEngine().getTilemapTreeInternalBounds();
@@ -40,7 +42,7 @@ public:
 		for (const auto& collider : tilemapTreeColliders)
 		{
 			glm::vec4 color = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f); // Yellow color for AABB
-			renderer2D.drawSquare(collider.Min, collider.Max, color);
+			renderer2D.drawSquare(collider.AABBCollider.Min, collider.AABBCollider.Max, color);
 		}
 	}
 };

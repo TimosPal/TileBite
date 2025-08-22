@@ -73,7 +73,7 @@ uint32_t AABBTree::createLeafNode(const ColliderInfo& colliderInfo)
 	uint32_t newNodeIndex = createNode(true);
 	Node& newNode = m_nodes[newNodeIndex];
 	// TODO: find AABB from generic collider, now we only have AABB so this isnt relevant
-	newNode.Bounds = AABB::inflate(colliderInfo.Collider);
+	newNode.Bounds = AABB::inflate(colliderInfo.getAABBBounds());
 	newNode.Value = colliderInfo;
 
 	return newNodeIndex;
@@ -228,7 +228,7 @@ bool AABBTree::update(const ColliderInfo& colliderInfo)
 	if (it == m_leafNodesIndices.end()) return false;
 
 	Node& node = m_nodes[it->second];
-	if (node.Bounds.contains(colliderInfo.Collider))
+	if (node.Bounds.contains(colliderInfo))
 	{
 		// No need to update if the collider is still within the bounds
 		node.Value = colliderInfo;
@@ -265,8 +265,8 @@ std::vector<CollisionData> AABBTree::query(const AABB& collider, ID excludeID) c
 			ASSERT(currNode.Value.has_value(), "Leaf node without value");
 			// If the collider intersects, add it to results (Collider may not be AABB)
 			const ColliderInfo& info = currNode.Value.value();
-			if (info.id != excludeID && info.Collider.intersects(collider)) // Skip if it's the excluded ID
-				results.push_back(CollisionData(GenericCollisionData(info.id, info.Collider)));
+			if (info.id != excludeID && info.intersects(collider)) // Skip if it's the excluded ID
+				results.push_back(CollisionData(GenericCollisionData(info.id, info)));
 		}
 		else
 		{
@@ -306,9 +306,9 @@ std::vector<RayHitData> AABBTree::raycastAll(const Ray2D& ray) const
 			ASSERT(currNode.Value.has_value(), "Leaf node without value");
 			// If the collider intersects, add it to results (Collider may not be AABB)
 			const ColliderInfo& info = currNode.Value.value();
-			bool intersects = ray.intersect(info.Collider, tmin, tmax);
+			bool intersects = ray.intersect(info, tmin, tmax);
 			if (intersects && ray.getMaxT() >= tmin)
-				results.push_back(RayHitData(GenericCollisionData(info.id, info.Collider), tmin, tmax));
+				results.push_back(RayHitData(GenericCollisionData(info.id, info), tmin, tmax));
 		}
 		else
 		{
@@ -342,14 +342,14 @@ std::optional<RayHitData> AABBTree::raycastClosest(const Ray2D& ray) const
 		if (node.IsLeaf)
 		{
 			const auto& info = node.Value.value();
-			ASSERT(info.Collider.isValid(), "Leaf node without valid collider");
+			ASSERT(info.isValid(), "Leaf node without valid collider");
 
 			float tmin, tmax;
 			// New tmin is new cloest hist, and not bigger than maxT of the ray
-			if (ray.intersect(info.Collider, tmin, tmax) && tmin <= ray.getMaxT() && tmin <= bestT)
+			if (ray.intersect(info, tmin, tmax) && tmin <= ray.getMaxT() && tmin <= bestT)
 			{
 				bestT = tmin;
-				closestHit = RayHitData(GenericCollisionData(info.id, info.Collider), tmin, tmax);
+				closestHit = RayHitData(GenericCollisionData(info.id, info), tmin, tmax);
 			}
 		}
 		else
@@ -418,14 +418,14 @@ std::vector<AABB> AABBTree::getInternalBounds() const
 	return results;
 }
 
-std::vector<AABB> AABBTree::getLeafColliders() const
+std::vector<Collider> AABBTree::getLeafColliders() const
 {
-	std::vector<AABB> colliders;
+	std::vector<Collider> colliders;
 	for (auto& pair : m_leafNodesIndices)
 	{
 		uint32_t index = pair.second;
 		const Node& node = m_nodes[index];
-		colliders.push_back(node.Value.value().Collider);
+		colliders.push_back(node.Value.value());
 	}
 
 	return colliders;

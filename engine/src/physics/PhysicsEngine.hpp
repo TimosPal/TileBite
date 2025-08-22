@@ -3,11 +3,11 @@
 
 #include "core/pch.hpp"
 #include "utilities/Identifiable.hpp"
-#include "physics/AABB.hpp"
 #include "physics/AABBTree.hpp"
 #include "physics/TilemapColliderGroup.hpp"
 #include "physics/CollisionData.hpp"
 #include "physics/Ray2D.hpp"
+#include "physics/Collider.hpp"
 
 namespace Engine {
 
@@ -26,10 +26,10 @@ public:
 	void removeCollider(ID id);
 	void updateCollider(ID id, AABB* collider, TransformComponent* transform);
 
-	const std::vector<AABB> getCoreTreeColliders() { return m_coreTree.getLeafColliders(); }
+	const std::vector<Collider> getCoreTreeColliders() { return m_coreTree.getLeafColliders(); }
 	const std::vector<AABB> getCoreTreeInternalBounds() const { return m_coreTree.getInternalBounds(); }
 	const std::vector<AABB> getTilemapTreeInternalBounds() const { return m_tilemapColliderTree.getInternalBounds(); }
-	const std::vector<AABB> getTilemapTreeColliders() { return m_tilemapColliderTree.getLeafColliders(); }
+	const std::vector<Collider> getTilemapTreeColliders() { return m_tilemapColliderTree.getLeafColliders(); }
 
 private:
 	AABBTree m_coreTree;

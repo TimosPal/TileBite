@@ -3,10 +3,10 @@
 
 #include <glm/glm.hpp>
 
-
 namespace Engine {
 
 struct AABB; // Forward declaration to avoid circular dependency
+struct Collider;
 
 struct OBB {
 	glm::vec2 Center; // Center of the OBB
@@ -18,9 +18,16 @@ struct OBB {
 		: Center(center), Size(size), Rotation(rotation)
 	{}
 
+    inline bool isValid() const noexcept
+    {
+        // TODO:
+        return false;
+    }
+
     AABB getAABB() const;
 
     bool contains(const AABB& other) const;
+    bool contains(const Collider& other) const;
 
     inline bool contains(const OBB& other) const noexcept {
 		// TODO: Implement OBB contains OBB logic
@@ -28,6 +35,7 @@ struct OBB {
     }
 
     bool intersects(const AABB& other) const;
+    bool intersects(const Collider& other) const;
 
     inline bool intersects(const OBB& other) const noexcept {
         // TODO: Implement OBB intersects OBB logic

@@ -2,16 +2,17 @@
 #define AABB_TREE_HPP
 
 #include "physics/CollisionData.hpp"
-#include "physics/AABB.hpp"
-#include "physics/OBB.hpp"
+#include "physics/Collider.hpp"
 #include "physics/Ray2D.hpp"
 #include "core/types.hpp"
 
 namespace Engine {
 
-struct ColliderInfo {
+struct ColliderInfo : public Collider {
 	ID id;
-	AABB Collider;
+
+	ColliderInfo(ID id, const AABB& aabb) : id(id), Collider(aabb) {}
+	ColliderInfo(ID id, const OBB& obb) : id(id), Collider(obb) {}
 };
 
 // https://box2d.org/files/ErinCatto_DynamicBVH_GDC2019.pdf
@@ -25,7 +26,7 @@ public:
 	std::optional<RayHitData> raycastClosest(const Ray2D& ray) const;
 
 	std::vector<AABB> getInternalBounds() const;
-	std::vector<AABB> getLeafColliders() const;
+	std::vector<Collider> getLeafColliders() const;
 private:
 	constexpr static uint32_t NullIndex = UINT32_MAX;
 
