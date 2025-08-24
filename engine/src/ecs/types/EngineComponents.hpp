@@ -6,10 +6,10 @@
 #include "utilities/IDGenerator.hpp"
 #include "ecs/types/BaseComponent.hpp"
 #include "physics/AABB.hpp"
+#include "physics/OBB.hpp"
+
 
 namespace Engine {
-
-// TODO: make data private and use getters/setters only.
 
 class TilemapResource;
 
@@ -94,34 +94,40 @@ struct AABBComponent : public BaseComponent {
 
 	const AABB& getCollider() { return m_collider; }
 
-	bool contains(const glm::vec2& point) const
-	{
-		m_collider.contains(point);
-	}
-
-	bool intersects(const AABB& other) const
-	{
-		return m_collider.intersects(other);
-	}
-
 	void setSize(const glm::vec2& min, const glm::vec2& max)
 	{
 		m_collider.setSize(min, max);
 		BaseComponent::setDirty(true);
 	}
 
-	const glm::vec2& getMin() const
-	{
-		return m_collider.Min;
+private:
+	AABB m_collider;
+};
+
+struct OBBComponent : public BaseComponent {
+	OBBComponent() : m_collider() {}
+	OBBComponent(glm::vec2 center, glm::vec2 size, float rotation) 
+		: m_collider(center, size, rotation) {}
+
+	const OBB& getCollider() { return m_collider; }
+
+	void setCenter(const glm::vec2& center) {
+		m_collider.Center = center;
+		BaseComponent::setDirty(true);
 	}
 
-	const glm::vec2& getMax() const
-	{
-		return m_collider.Max;
+	void setSize(const glm::vec2& size) {
+		m_collider.Size = size;
+		BaseComponent::setDirty(true);
+	}
+
+	void setRotation(float rotation) {
+		m_collider.Rotation = rotation;
+		BaseComponent::setDirty(true);
 	}
 
 private:
-	AABB m_collider;
+	OBB m_collider;
 };
 
 } // Engine

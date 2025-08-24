@@ -12,6 +12,7 @@
 namespace Engine {
 
 // TODO: layers mask, for filtering collisions.
+// TODO: add remove for tilemaps
 
 class PhysicsEngine {
 public:
@@ -20,11 +21,13 @@ public:
 	std::vector<RayHitData> raycastAll(const Ray2D& ray) const;
 	std::optional<RayHitData> raycastClosest(const Ray2D& ray) const;
 
-	void addCollider(ID id, AABB* collider, TransformComponent* transform);
-	void addTilemapColliderGroup(ID id, TransformComponent* transform, glm::vec2 tilemapSize, glm::vec2 tileSize, Bitset solidTiles);
+	// NOTE: updates also used for additions
 	void updateTilemapColliderGroup(ID id, TransformComponent* transform, glm::vec2 tilemapSize, glm::vec2 tileSize, Bitset solidTiles);
+	void addTilemapColliderGroup(ID id, TransformComponent* transform, glm::vec2 tilemapSize, glm::vec2 tileSize, Bitset solidTiles);
+	
+	void updateCollider(ID id, const AABB* collider, TransformComponent* transform);
+	void updateCollider(ID id, const OBB* collider, TransformComponent* transform);
 	void removeCollider(ID id);
-	void updateCollider(ID id, AABB* collider, TransformComponent* transform);
 
 	const std::vector<Collider> getCoreTreeColliders() { return m_coreTree.getLeafColliders(); }
 	const std::vector<AABB> getCoreTreeInternalBounds() const { return m_coreTree.getInternalBounds(); }

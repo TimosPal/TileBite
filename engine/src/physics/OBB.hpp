@@ -42,6 +42,8 @@ struct OBB {
         return false;
     }
 
+    std::array<glm::vec2, 4> getCorners() const;
+
 };
 
 } // Engine

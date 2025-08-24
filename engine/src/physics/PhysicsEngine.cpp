@@ -28,7 +28,6 @@ std::vector<CollisionData> PhysicsEngine::queryCollisions(const AABB& collider, 
 
 std::vector<RayHitData> PhysicsEngine::raycastAll(const Ray2D& ray) const
 {
-
 	auto rayHits = m_coreTree.raycastAll(ray);
 	auto tilemapHits = m_tilemapColliderTree.raycastAll(ray);
 
@@ -77,44 +76,59 @@ std::optional<RayHitData> PhysicsEngine::raycastClosest(const Ray2D& ray) const
 		return rayHit.has_value() ? rayHit : closestTileHit;
 }
 
-void PhysicsEngine::addCollider(ID id, AABB* collider, TransformComponent* transform)
-{
-	glm::vec2 min = collider->Min * transform->Size + transform->Position;
-	glm::vec2 max = collider->Max * transform->Size + transform->Position;
-	ColliderInfo info(id, AABB{min, max});
-	m_coreTree.insert(info);
-}
-
 void PhysicsEngine::removeCollider(ID id)
 {
 	m_coreTree.remove(id);
 }
 
-void PhysicsEngine::updateCollider(ID id, AABB* collider, TransformComponent* transform)
+void PhysicsEngine::updateCollider(ID id, const AABB* collider, TransformComponent* transform)
 {
-	glm::vec2 min = collider->Min * transform->Size + transform->Position;
-	glm::vec2 max = collider->Max * transform->Size + transform->Position;
+	// TODO: rotation utility math func
+	float c = cos(transform->getRotation());
+	float s = sin(transform->getRotation());
+
+	glm::vec2 centerPoint = (collider->Max + collider->Min) * 0.5f;
+	glm::vec2 rotatedCenter(
+		centerPoint.x * c - centerPoint.y * s,
+		centerPoint.x * s + centerPoint.y * c
+	);
+
+	glm::vec2 localMin = rotatedCenter - (collider->Max - collider->Min) * 0.5f;
+	glm::vec2 localMax = rotatedCenter + (collider->Max - collider->Min) * 0.5f;
+
+	glm::vec2 min = localMin * transform->getSize() + transform->getPosition();
+	glm::vec2 max = localMax * transform->getSize() + transform->getPosition();
 	ColliderInfo info(id, AABB{min, max});
 	bool updated = m_coreTree.update(info);
 	if (!updated) m_coreTree.insert(info);
 }
 
-void PhysicsEngine::addTilemapColliderGroup(ID id, TransformComponent* transform, glm::vec2 tilemapSize, glm::vec2 tileSize, Bitset solidTiles)
+void PhysicsEngine::updateCollider(ID id, const OBB* collider, TransformComponent* transform)
 {
-	glm::vec2 min = transform->Position;
-	glm::vec2 max = glm::vec2(tilemapSize.x * tileSize.x, tilemapSize.y * tileSize.y) * transform->Size + transform->Position;
-	auto bounds = AABB(min, max);
-	m_tilemapColliderGroups.emplace(id, TilemapColliderGroup(id, bounds, tilemapSize, tileSize, solidTiles));
-	
-	// Create a collider for the tilemap group
-	ColliderInfo info(id, bounds);
-	m_tilemapColliderTree.insert(info);
+	// TODO: rotation utility math func
+	float c = cos(transform->getRotation());
+	float s = sin(transform->getRotation());
+
+	glm::vec2 localCenter = collider->Center * transform->getSize();
+	glm::vec2 rotatedCenter(
+		localCenter.x * c - localCenter.y * s,
+		localCenter.x * s + localCenter.y * c
+	);
+
+	OBB worldSpaceOBB(
+		rotatedCenter + transform->getPosition(),
+		collider->Size * transform->getSize(),
+		collider->Rotation + transform->getRotation()
+	);
+	ColliderInfo info(id, worldSpaceOBB);
+	bool updated = m_coreTree.update(info);
+	if (!updated) m_coreTree.insert(info);
 }
 
 void PhysicsEngine::updateTilemapColliderGroup(ID id, TransformComponent* transform, glm::vec2 tilemapSize, glm::vec2 tileSize, Bitset solidTiles)
 {
-	glm::vec2 min = transform->Position;
-	glm::vec2 max = glm::vec2(tilemapSize.x * tileSize.x, tilemapSize.y * tileSize.y) * transform->Size + transform->Position;
+	glm::vec2 min = transform->getPosition();
+	glm::vec2 max = glm::vec2(tilemapSize.x * tileSize.x, tilemapSize.y * tileSize.y) * transform->getSize() + transform->getPosition();
 	auto bounds = AABB(min, max);
 	ColliderInfo info(id, bounds);
 	bool updated = m_tilemapColliderTree.update(info);

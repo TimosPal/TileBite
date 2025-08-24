@@ -5,31 +5,40 @@
 
 namespace Engine {
 
-AABB OBB::getAABB() const {
+std::array<glm::vec2, 4> OBB::getCorners() const
+{
     glm::vec2 half = Size * 0.5f;
 
-    // Corners relative to center
-    glm::vec2 corners[4] = {
-        {-half.x, -half.y},
-        { half.x, -half.y},
-        { half.x,  half.y},
-        {-half.x,  half.y}
-    };
-
-    // Rotation matrix
+    // Precompute rotation matrix components
     float cosR = cos(Rotation);
     float sinR = sin(Rotation);
 
-    glm::vec2 minPt(FLT_MAX), maxPt(-FLT_MAX);
+    // Local-space corners relative to center (CCW order)
+    std::array<glm::vec2, 4> corners = {
+        glm::vec2(-half.x, -half.y),
+        glm::vec2(half.x, -half.y),
+        glm::vec2(half.x,  half.y),
+        glm::vec2(-half.x,  half.y)
+    };
 
+    // Apply rotation (around center) and translation
     for (auto& c : corners) {
-        glm::vec2 rotated = {
+        glm::vec2 rotated(
             c.x * cosR - c.y * sinR,
             c.x * sinR + c.y * cosR
-        };
-        glm::vec2 world = rotated + Center;
-        minPt = glm::min(minPt, world);
-        maxPt = glm::max(maxPt, world);
+        );
+        c = rotated + Center;
+    }
+
+    return corners;
+}
+
+AABB OBB::getAABB() const {
+    glm::vec2 minPt(FLT_MAX), maxPt(-FLT_MAX);
+
+    for (auto& c : getCorners()) {
+        minPt = glm::min(minPt, c);
+        maxPt = glm::max(maxPt, c);
     }
 
     return AABB(minPt, maxPt);

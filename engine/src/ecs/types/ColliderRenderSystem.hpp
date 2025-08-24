@@ -14,35 +14,44 @@ class ColliderRenderSystem : public ISystem {
 public:
 	virtual void update(float deltaTime) override
 	{
+		glm::vec4 boundsColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f); // Red color for bounds
+		glm::vec4 collidersColor = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f); // Green color for colliders
+		glm::vec4 tilemapBoundsColor = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f); // Blue color for tilemap bounds
+		glm::vec4 tilemapColliderGroupColor = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f); // Yellow color for tilemap group
+		
 		auto& renderer2D = getRenderer();
 		const auto& coreTreeBounds = getSceneManager().getActiveScene()->getPhysicsEngine().getCoreTreeInternalBounds();
 		for(const auto& bound : coreTreeBounds)
 		{
-			glm::vec4 color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f); // Red color for bounds
-			renderer2D.drawSquare(bound.Min, bound.Max, color);
+			renderer2D.drawSquare(bound.Min, bound.Max, boundsColor);
 		}
 
 		const auto& coreTreeColliders = getSceneManager().getActiveScene()->getPhysicsEngine().getCoreTreeColliders();
 		for (const auto& collider : coreTreeColliders)
 		{
-			if (collider.Type != Collider::ColliderType::AABBType) continue; // TODO: add support for more
-
-			glm::vec4 color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f); // Green color for AABB
-			renderer2D.drawSquare(collider.AABBCollider.Min, collider.AABBCollider.Max, color);
+			switch (collider.Type)
+			{
+			case Collider::ColliderType::AABBType:
+				renderer2D.drawSquare(collider.AABBCollider.Min, collider.AABBCollider.Max, collidersColor);
+				break;
+			case Collider::ColliderType::OBBType:
+				renderer2D.drawSquare(collider.OBBCollider.getCorners(), collidersColor);
+				break;
+			default:
+				break;
+			}
 		}
 
 		const auto& tilemapTreeBounds = getSceneManager().getActiveScene()->getPhysicsEngine().getTilemapTreeInternalBounds();
 		for (const auto& bound : tilemapTreeBounds)
 		{
-			glm::vec4 color = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f); // Blue color for AABB
-			renderer2D.drawSquare(bound.Min, bound.Max, color);
+			renderer2D.drawSquare(bound.Min, bound.Max, tilemapBoundsColor);
 		}
 
 		const auto& tilemapTreeColliders = getSceneManager().getActiveScene()->getPhysicsEngine().getTilemapTreeColliders();
 		for (const auto& collider : tilemapTreeColliders)
 		{
-			glm::vec4 color = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f); // Yellow color for AABB
-			renderer2D.drawSquare(collider.AABBCollider.Min, collider.AABBCollider.Max, color);
+			renderer2D.drawSquare(collider.AABBCollider.Min, collider.AABBCollider.Max, tilemapColliderGroupColor);
 		}
 	}
 };

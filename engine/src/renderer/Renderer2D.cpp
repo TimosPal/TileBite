@@ -49,4 +49,25 @@ bool Renderer2D::shouldCullLine(const Line& line, const CameraController& camera
 	return !camera.isInsideFrustum(lineAABB);
 }
 
+void Renderer2D::drawSquare(glm::vec2 min, glm::vec2 max, const glm::vec4& color)
+{
+	glm::vec2 topLeft = { min.x, max.y };
+	glm::vec2 topRight = { max.x, max.y };
+	glm::vec2 bottomLeft = { min.x, min.y };
+	glm::vec2 bottomRight = { max.x, min.y };
+	drawLine({ topLeft, topRight, color });
+	drawLine({ topRight, bottomRight, color });
+	drawLine({ bottomRight, bottomLeft, color });
+	drawLine({ bottomLeft, topLeft, color });
+}
+
+void Renderer2D::drawSquare(const std::array<glm::vec2, 4>& corners, const glm::vec4& color)
+{
+	// corners order: bottom-left, bottom-right, top-right, top-left
+	drawLine({ corners[0], corners[1], color });
+	drawLine({ corners[1], corners[2], color });
+	drawLine({ corners[2], corners[3], color });
+	drawLine({ corners[3], corners[0], color });
+}
+
 } // Engine 

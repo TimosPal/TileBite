@@ -36,17 +36,8 @@ public:
 		m_lineDrawCommands.emplace_back(std::move(line));
 	}
 
-	void drawSquare(glm::vec2 min, glm::vec2 max, const glm::vec4& color)
-	{
-		glm::vec2 topLeft = { min.x, max.y };
-		glm::vec2 topRight = { max.x, max.y };
-		glm::vec2 bottomLeft = { min.x, min.y };
-		glm::vec2 bottomRight = { max.x, min.y };
-		drawLine({ topLeft, topRight, color });
-		drawLine({ topRight, bottomRight, color });
-		drawLine({ bottomRight, bottomLeft, color });
-		drawLine({ bottomLeft, topLeft, color });
-	}
+	void drawSquare(glm::vec2 min, glm::vec2 max, const glm::vec4& color);
+	void drawSquare(const std::array<glm::vec2, 4>& corners, const glm::vec4& color);
 
 	virtual void setViewportSize(uint32_t width, uint32_t height) {}
 
