@@ -18,10 +18,8 @@ struct OBB {
 		: Center(center), Size(size), Rotation(rotation)
 	{}
 
-    inline bool isValid() const noexcept
-    {
-        // TODO:
-        return false;
+    inline bool isValid() const noexcept {
+        return Size.x >= 0.0f && Size.y >= 0.0f;
     }
 
     AABB getAABB() const;

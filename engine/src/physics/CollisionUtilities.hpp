@@ -5,15 +5,28 @@
 
 #include "physics/AABB.hpp"
 #include "physics/OBB.hpp"
+#include "physics/Collider.hpp"
 
 namespace Engine {
 namespace CollisionUtilities {
 
+// TODO: template refactoring possible (?)
+
 bool contains(const AABB& a, const OBB& b);
 bool contains(const OBB& a, const AABB& b);
 
+bool contains(const Collider& a, const OBB& b);
+bool contains(const OBB& a, const Collider& b);
+bool contains(const Collider& a, const AABB& b);
+bool contains(const AABB& a, const Collider& b);
+
 bool intersects(const AABB& a, const OBB& b);
 bool intersects(const OBB& a, const AABB& b);
+
+bool intersects(const Collider& a, const OBB& b);
+bool intersects(const OBB& a, const Collider& b);
+bool intersects(const Collider& a, const AABB& b);
+bool intersects(const AABB& a, const Collider& b);
 
 } // CollisionUtilities
 } // Engine

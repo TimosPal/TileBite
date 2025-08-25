@@ -11,7 +11,7 @@ std::vector<CollisionData> TilemapColliderGroup::query(const AABB& collider) con
     std::vector<CollisionData> results;
 
     // Compute intersection with tilemap bounds
-    AABB intersectionArea = AABB::intersectAABB(collider, m_bounds);
+    AABB intersectionArea = AABB::intersectionBound(collider, m_bounds);
     if (intersectionArea.isEmpty()) return results;
 
     glm::vec2 tl = intersectionArea.Min;

@@ -6,6 +6,7 @@
 
 #include "physics/AABB.hpp"
 #include "physics/OBB.hpp"
+#include "physics/CollisionUtilities.hpp"
 
 namespace Engine {
 

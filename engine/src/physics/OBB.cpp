@@ -1,6 +1,7 @@
 #include "physics/OBB.hpp"
 
 #include "physics/AABB.hpp"
+#include "physics/Collider.hpp"
 #include "physics/CollisionUtilities.hpp"
 
 namespace Engine {
@@ -54,14 +55,12 @@ bool OBB::intersects(const AABB& other) const {
 
 bool OBB::contains(const Collider& other) const
 {
-    // TODO:
-    return false;
+    return CollisionUtilities::contains(other, *this);
 }
 
 bool OBB::intersects(const Collider& other) const
 {
-    // TODO:
-    return false;
+    return CollisionUtilities::intersects(other, *this);
 }
 
 } // Engine

@@ -18,29 +18,9 @@ public:
         return o + t * d;
     }
 
-    bool intersect(const AABB& b, float& tmin, float& tmax) const {
-        // Intersection with slabs in each axis
-        glm::vec2 t0 = (b.Min - o) * invD;
-        glm::vec2 t1 = (b.Max - o) * invD;
-        // t when entering slab
-        tmin = std::max(glm::min(t0.x, t1.x), glm::min(t0.y, t1.y));
-        // t when exiting slab
-        tmax = std::min(glm::max(t0.x, t1.x), glm::max(t0.y, t1.y));
-        return tmax >= tmin;
-    }
-
-    bool intersect(const OBB& b, float& tmin, float& tmax) const {
-        // TODO: 
-        return false;
-    }
-
-    bool intersect(const Collider& other, float& tmin, float& tmax) const {
-        switch (other.Type) {
-        case Collider::ColliderType::AABBType: return intersect(other.AABBCollider, tmin, tmax);
-        case Collider::ColliderType::OBBType:  return intersect(other.OBBCollider, tmin, tmax);
-        default: return false;
-        }
-    }
+    bool intersect(const AABB& b, float& tmin, float& tmax) const;
+    bool intersect(const OBB& b, float& tmin, float& tmax) const;
+    bool intersect(const Collider& other, float& tmin, float& tmax) const;
 
     float getMaxT() const {
         return maxT;
