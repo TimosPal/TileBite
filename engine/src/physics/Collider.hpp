@@ -35,6 +35,14 @@ struct Collider {
 		}
 	}
 
+    float getArea() const {
+        switch (Type) {
+        case ColliderType::AABBType: return AABBCollider.getArea();
+        case ColliderType::OBBType:  return OBBCollider.getArea();
+        default: return 0.0f;
+        }
+    }
+
     bool isValid() const {
         switch (Type) {
         case ColliderType::AABBType: return AABBCollider.isValid();

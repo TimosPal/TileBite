@@ -22,6 +22,10 @@ struct OBB {
         return Size.x >= 0.0f && Size.y >= 0.0f;
     }
 
+    inline float getArea() const {
+        return Size.x * Size.y;
+    }
+
     AABB getAABB() const;
 
     bool contains(const AABB& other) const;

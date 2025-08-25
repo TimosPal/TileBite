@@ -228,7 +228,8 @@ bool AABBTree::update(const ColliderInfo& colliderInfo)
 	if (it == m_leafNodesIndices.end()) return false;
 
 	Node& node = m_nodes[it->second];
-	if (node.Bounds.contains(colliderInfo))
+	const float shrinkThreshold = 0.5f;
+	if (node.Bounds.contains(colliderInfo) && colliderInfo.getArea() / node.Bounds.getArea() > shrinkThreshold)
 	{
 		// No need to update if the collider is still within the bounds
 		node.Value = colliderInfo;
