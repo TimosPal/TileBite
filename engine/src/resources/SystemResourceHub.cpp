@@ -2,7 +2,7 @@
 #include "core/ResourceRegistry.hpp"
 #include "utilities/misc.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 bool SystemResourceHub::init()
 {
@@ -60,4 +60,4 @@ bool SystemResourceHub::destroy()
 	return true;
 }
 
-} // Engine
+} // TileBite

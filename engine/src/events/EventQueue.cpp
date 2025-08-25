@@ -1,6 +1,6 @@
 #include "events/EventQueue.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 void EventQueue::addEventHandler(std::function<void(Event&)> handler)
 {
@@ -32,4 +32,4 @@ void EventQueue::dispatchAll(LayerStack& layers)
 	}
 }
 
-} // Engine
+} // TileBite

@@ -4,7 +4,7 @@
 #include "core/pch.hpp"
 #include "layers/Layer.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 // Overlays are above layers, order is enforced.
 class LayerStack {
@@ -26,6 +26,6 @@ private:
 	uint32_t m_overlaysIndex;
 };
 
-} // Engine
+} // TileBite
 
 #endif // LAYER_STACK_HPP

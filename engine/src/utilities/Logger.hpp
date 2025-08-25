@@ -18,7 +18,7 @@
 #define LOG_WARNING(msg, ...) Logger::getInstance().logWarning(msg, ##__VA_ARGS__)
 #define LOG_CRITICAL(msg, ...) Logger::getInstance().logCritical(msg, ##__VA_ARGS__)
 
-namespace Engine {
+namespace TileBite {
 
 class Logger {
 public:
@@ -67,7 +67,7 @@ private:
 
 };
 
-} // Engine
+} // TileBite
 
 #endif // DEBUG_MODE
 

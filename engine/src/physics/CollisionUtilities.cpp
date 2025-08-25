@@ -1,6 +1,6 @@
 #include "physics/CollisionUtilities.hpp"
 
-namespace Engine {
+namespace TileBite {
 namespace CollisionUtilities {
 
 bool contains(const AABB& a, const OBB& b)
@@ -87,4 +87,4 @@ bool intersects(const AABB& a, const Collider& b) {
 }
 
 } // CollisionUtilities
-} // Engine
+} // TileBite

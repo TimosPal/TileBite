@@ -6,21 +6,21 @@
 #include "utilities/IDGenerator.hpp"
 #include "utilities/misc.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 // Use this macro to setup ids in a given class
 #define SETUP_ID(Base, Sub)                                        \
 public:                                                            \
-    const Engine::ID getInstanceID() override					   \
+    const TileBite::ID getInstanceID() override					   \
 	{                                                              \
         return m_id;                                               \
     }                                                              \
-    const Engine::ID getTypeID() override						   \
+    const TileBite::ID getTypeID() override						   \
 	{                                                              \
         return GET_TYPE_ID(Base, Sub);                             \
     }                                                              \
 private:                                                           \
-    const Engine::ID m_id = GET_INSTANCE_ID(Base, Sub);            \
+    const TileBite::ID m_id = GET_INSTANCE_ID(Base, Sub);            \
 
 // Use this interface if you want an item to be identified by an ID.
 // Methods should be implemented by macro SETUP_ID
@@ -37,6 +37,6 @@ public:
     }
 };
 
-} // Engine
+} // TileBite
 
 #endif // !IDENTIFIABLE_HPP

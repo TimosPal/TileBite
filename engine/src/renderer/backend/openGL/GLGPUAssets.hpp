@@ -4,7 +4,7 @@
 #include "renderer/IGPUAssets.hpp"
 #include "renderer/backend/openGL/GLResourceHub.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 class GLGPUAssets : public IGPUAssets {
 public:
@@ -25,6 +25,6 @@ private:
 	std::vector<ResourceHandle<GLTexture>> m_persistentTextureHandles;
 };
 
-} // Engine
+} // TileBite
 
 #endif // !GLGPU_ASSETS_HPP

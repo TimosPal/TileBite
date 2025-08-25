@@ -5,7 +5,7 @@
 
 #include "utilities/IDGenerator.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 class BaseComponent
 {
@@ -20,6 +20,6 @@ private:
 	bool m_isDirty = true;
 };
 
-} // Engine
+} // TileBite
 
 #endif // !BASE_COMPONENT_HPP

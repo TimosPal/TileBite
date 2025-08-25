@@ -1,6 +1,6 @@
 #include "resources/types/TextFileResource.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 TextFileResource::TextFileResource(const std::string& resourceName, const std::string& filePath)
 	: 
@@ -38,4 +38,4 @@ bool TextFileResource::isValid()
 	return exists;
 }
 
-} // Engine
+} // TileBite

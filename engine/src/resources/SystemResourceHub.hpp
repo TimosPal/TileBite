@@ -6,7 +6,7 @@
 #include "resources/types/TextFileResource.hpp"
 #include "resources/types/TilemapResource.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 class SystemResourceHub {
 public:
@@ -30,6 +30,6 @@ private:
 	ResourceManager<TilemapResource> m_tilemapResourceManager;
 };
 
-} // Engine
+} // TileBite
 
 #endif // !SYSTEM_RESOURCE_HUB_HPP

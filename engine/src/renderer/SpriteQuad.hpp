@@ -7,7 +7,7 @@
 #include "utilities/Bitset.hpp"
 #include "resources/types/TilemapResource.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 struct SpriteQuad {
 	TransformComponent* TransformComp;
@@ -25,6 +25,6 @@ struct Line {
 	glm::vec4 Color;
 };
 
-} // Engine
+} // TileBite
 
 #endif // !SPRITE_QUAD_HPP

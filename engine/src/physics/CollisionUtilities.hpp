@@ -7,7 +7,7 @@
 #include "physics/OBB.hpp"
 #include "physics/Collider.hpp"
 
-namespace Engine {
+namespace TileBite {
 namespace CollisionUtilities {
 
 // TODO: template refactoring possible (?)
@@ -29,6 +29,6 @@ bool intersects(const Collider& a, const AABB& b);
 bool intersects(const AABB& a, const Collider& b);
 
 } // CollisionUtilities
-} // Engine
+} // TileBite
 
 #endif // !COLLISION_UTILITIES_HPP

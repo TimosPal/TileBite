@@ -8,7 +8,7 @@
 #include "physics/OBB.hpp"
 #include "physics/CollisionUtilities.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 struct Collider {
 	enum class ColliderType {
@@ -87,6 +87,6 @@ struct Collider {
 
 };
 
-} // Engine
+} // TileBite
 
 #endif // !COLLIDER_HPP

@@ -2,7 +2,7 @@
 
 #include "ecs/SystemManager.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 void World::executeDeferredActions()
 {
@@ -141,4 +141,4 @@ std::shared_ptr<Archetype> World::getArchetype(Signature& sig)
 	return archetypeIt->second;
 }
 
-} // Engine
+} // TileBite

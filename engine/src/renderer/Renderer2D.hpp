@@ -9,7 +9,7 @@
 #include "renderer/TextureSlotManager.hpp"
 #include "renderer/camera/CameraController.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 class Renderer2D {
 public:
@@ -55,6 +55,6 @@ protected:
 	bool shouldCullLine(const Line& line, const CameraController& camera) const;
 };
 
-} // Engine
+} // TileBite
 
 #endif // !RENDERER_2D_HPP

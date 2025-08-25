@@ -5,7 +5,7 @@
 #include "ecs/types/EngineComponents.hpp"
 #include "renderer/Renderer2D.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 class SpriteRenderSystem : public ISystem {
 public:
@@ -19,6 +19,6 @@ public:
 	}
 };
 
-} // Engine
+} // TileBite
 
 #endif // !SPRITE_RENDER_SYSTEM_HPP

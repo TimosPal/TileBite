@@ -4,7 +4,7 @@
 #include "core/pch.hpp"
 #include "resources/Resource.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 class TextFileResource : public Resource<TextFileResource> {
 	SETUP_ID(Resource, TextFileResource)
@@ -26,6 +26,6 @@ private:
 	std::string m_fileContent;
 };
 
-} // Engine
+} // TileBite
 
 #endif // !TEXT_FILE_RESOURCE_HPP

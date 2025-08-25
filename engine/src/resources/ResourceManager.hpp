@@ -8,7 +8,7 @@
 #include "resources/ResourceHandle.hpp"
 #include "resources/ControlBlock.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 template<typename ResourceType>
 requires 
@@ -65,6 +65,6 @@ private:
 	std::unordered_map<std::string, ID> m_nameToID;
 };
 
-} // Engine
+} // TileBite
 
 #endif // !RESOURCE_MANAGER_HPP

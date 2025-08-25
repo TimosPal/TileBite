@@ -12,7 +12,7 @@
 #include <core/ResourceRegistry.hpp>
 #include "ecs/types/BaseComponent.hpp"
 
-using namespace Engine;
+using namespace TileBite;
 
 struct VelocityComponent : public BaseComponent {
     float v = 0.0f;
@@ -273,7 +273,7 @@ public:
     }
 };
 
-class MyApp : public Engine::EngineApp {
+class MyApp : public TileBite::EngineApp {
     AppConfig config() override { return AppConfig(800, 600, "Snake demo"); }
 
     void setup() override

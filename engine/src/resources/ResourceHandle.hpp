@@ -7,7 +7,7 @@
 #include "resources/ControlBlock.hpp"
 #include "core/Types.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 class IResourceHandle {
 	public:
@@ -168,6 +168,6 @@ private:
 	}
 };
 
-} // Engine
+} // TileBite
 
 #endif // !RESOURCE_HANDLE_HPP

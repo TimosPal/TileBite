@@ -3,7 +3,7 @@
 
 #include "renderer/SpriteQuad.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 // [UNSUED]
 
@@ -19,6 +19,6 @@ struct DrawCommand2D {
     };
 };
 
-} // Engine
+} // TileBite
 
 #endif // !DRAW_COMMAND_2D_HPP

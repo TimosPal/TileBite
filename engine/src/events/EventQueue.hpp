@@ -6,7 +6,7 @@
 #include "events/EventDispatcher.hpp"
 #include "layers/LayerStack.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 class EventQueue {
 public:
@@ -19,6 +19,6 @@ private:
 	std::vector<std::function<void(Event&)>> m_eventHandlers;
 };
 
-} // Engine
+} // TileBite
 
 #endif // !EVENT_QUEUE_HPP

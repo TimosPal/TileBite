@@ -5,7 +5,7 @@
 #include "layers/Layer.hpp"
 #include "renderer/Renderer2D.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 class DebugLayer : public Layer {
 public:
@@ -16,6 +16,6 @@ public:
 	static std::string getName() { return "DebugLayer"; }
 };
 
-} // Engine
+} // TileBite
 
 #endif // !DEBUG_LAYER_HPP

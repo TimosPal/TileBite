@@ -1,7 +1,7 @@
 #include "physics/PhysicsEngine.hpp"
 #include "utilities/assertions.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 std::vector<CollisionData> PhysicsEngine::queryCollisions(const AABB& collider, ID excludeID) const
 {
@@ -143,4 +143,4 @@ void PhysicsEngine::updateTilemapColliderGroup(ID id, TransformComponent* transf
 	}
 }
 
-} // Engine
+} // TileBite

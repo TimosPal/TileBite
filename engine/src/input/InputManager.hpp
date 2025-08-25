@@ -5,7 +5,7 @@
 #include "utilities/assertions.hpp"
 #include <glm/glm.hpp>
 
-namespace Engine {
+namespace TileBite {
 
 class InputManager {
 public:
@@ -97,6 +97,6 @@ private:
 	std::unordered_map<int, KeyState> m_states;
 };
 
-} // Engine
+} // TileBite
 
 #endif // !INPUT_MANAGER_HPP

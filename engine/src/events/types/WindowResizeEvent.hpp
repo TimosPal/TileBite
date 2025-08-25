@@ -3,12 +3,12 @@
 
 #include "events/Event.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 class WindowResizeEvent : public Event {
 	SETUP_ID(Event, WindowResizeEvent)
 public:
-	WindowResizeEvent(int width, int height) : Engine::Event(true), m_width(width), m_height(height) {}
+	WindowResizeEvent(int width, int height) : TileBite::Event(true), m_width(width), m_height(height) {}
 
 	unsigned int getWidth() const { return m_width; }
 	unsigned int getHeight() const { return m_height; }
@@ -16,6 +16,6 @@ private:
 	unsigned int m_width, m_height;
 };
 
-} // Engine
+} // TileBite
 
 #endif // !WINDOW_RESIZE_EVENT_HPP

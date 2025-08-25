@@ -2,7 +2,7 @@
 
 #include "utilities/misc.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 Archetype::Archetype(Signature& sig, std::vector<std::tuple<ID, size_t>>&& componentSizes)
     : m_signature(sig)
@@ -56,4 +56,4 @@ ID* Archetype::removeEntity(uint32_t index)
 	return (index < m_entitiesCount) ? &m_entityIDs[index] : nullptr;
 }
 
-} // Engine
+} // TileBite

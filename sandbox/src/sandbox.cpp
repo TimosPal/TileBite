@@ -18,7 +18,7 @@
 #include <physics/Ray2D.hpp>
 #include <FastNoiseLite.h>
 
-using namespace Engine;
+using namespace TileBite;
 
 class MovingBoxSystem : public ISystem {
 private:
@@ -155,7 +155,7 @@ public:
     }
 };
 
-class MyApp : public Engine::EngineApp {
+class MyApp : public TileBite::EngineApp {
     AppConfig config() override { return AppConfig(800, 600, "sandbox"); }
 
     void setup() override

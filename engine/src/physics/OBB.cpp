@@ -4,7 +4,7 @@
 #include "physics/Collider.hpp"
 #include "physics/CollisionUtilities.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 std::array<glm::vec2, 4> OBB::getCorners() const
 {
@@ -63,4 +63,4 @@ bool OBB::intersects(const Collider& other) const
     return CollisionUtilities::intersects(other, *this);
 }
 
-} // Engine
+} // TileBite

@@ -5,7 +5,7 @@
 #include "physics/OBB.hpp"
 #include "physics/Collider.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 class Ray2D {
 public:
@@ -41,6 +41,6 @@ private:
     float maxT;
 };
 
-} // Engine
+} // TileBite
 
 #endif // RAY2D_HPP

@@ -10,7 +10,7 @@
 #include "events/EventCallback.hpp"
 #include "events/types/WindowResizeEvent.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 class Scene : public InjectEngineContext {
 public:
@@ -38,6 +38,6 @@ private:
 	SystemManager m_systemManager;
 };
 
-} // Engine
+} // TileBite
 
 #endif // !SCENE_HPP

@@ -8,7 +8,7 @@
 
 #include "physics/aabb.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 class ColliderRenderSystem : public ISystem {
 public:
@@ -56,6 +56,6 @@ public:
 	}
 };
 
-} // Engine
+} // TileBite
 
 #endif // !COLLIDER_RENDER_SYSTEM_HPP

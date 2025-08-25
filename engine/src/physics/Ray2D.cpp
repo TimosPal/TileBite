@@ -1,6 +1,6 @@
 #include "physics/Ray2D.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 bool Ray2D::intersect(const AABB& b, float& tmin, float& tmax) const {
     // Intersection with slabs in each axis
@@ -42,4 +42,4 @@ bool Ray2D::intersect(const Collider& other, float& tmin, float& tmax) const {
     }
 }
 
-} // Engine
+} // TileBite

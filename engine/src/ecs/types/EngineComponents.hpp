@@ -9,7 +9,7 @@
 #include "physics/OBB.hpp"
 
 
-namespace Engine {
+namespace TileBite {
 
 class TilemapResource;
 
@@ -130,6 +130,6 @@ private:
 	OBB m_collider;
 };
 
-} // Engine
+} // TileBite
 
 #endif // !ENGINE_COMPONENTS_HPP

@@ -1,7 +1,7 @@
 #ifndef RESOURCE_REGISTRY_HPP
 #define RESOURCE_REGISTRY_HPP
 
-namespace Engine {
+namespace TileBite {
 
 namespace ResourceNames {
 // Text Files
@@ -49,6 +49,6 @@ inline std::string MissingImageFile() { return ImagesDir + std::string("missingT
 inline std::string WhiteImageFile() { return ImagesDir + std::string("defaultSprite.png"); }
 } // ResourcePaths
 
-} // Engine
+} // TileBite
 
 #endif // !RESOURCE_REGISTRY_HPP

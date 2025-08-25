@@ -6,7 +6,7 @@
 #include "resources/ResourceHandle.hpp"
 #include "resources/types/TextFileResource.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 enum class ShaderType {
 	Vertex,
@@ -34,6 +34,6 @@ private:
 	GLuint m_glShader;
 };
 
-} // Engine
+} // TileBite
 
 #endif // !GL_SHADER_HPP

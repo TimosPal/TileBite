@@ -6,7 +6,7 @@
 #include "events/types/KeyEvent.hpp"
 #include "events/types/MouseEvent.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 GlfwWindow::GlfwWindow(const Data& data) : Window(data) {}
 
@@ -137,4 +137,4 @@ void GlfwWindow::swapBuffers()
 }
 
 
-} // Engine
+} // TileBite

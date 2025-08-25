@@ -5,7 +5,7 @@
 #include "renderer/Renderer2D.hpp"
 #include "events/types/WindowResizeEvent.hpp"
 
-namespace Engine
+namespace TileBite
 {
 
 GraphicsLayer::GraphicsLayer()
@@ -25,4 +25,4 @@ void GraphicsLayer::onAttach()
 	getSystemManager().addSystem(std::make_unique<TilemapRenderSystem>());
 }
 
-} // Engine
+} // TileBite

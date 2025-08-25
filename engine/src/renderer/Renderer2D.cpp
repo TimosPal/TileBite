@@ -4,12 +4,12 @@
 // NOTE: Using OpenGL as the current rendering backend.
 #if defined(RENDERER_OPENGL)
     #include "renderer/backend/openGL/GLRenderer2D.hpp"
-    using Renderer2DBackend = Engine::GLRenderer2D;
+    using Renderer2DBackend = TileBite::GLRenderer2D;
 #else
     #error Unsupported Rendering API
 #endif
 
-namespace Engine {
+namespace TileBite {
 
 // TODO: culling not considering rotations
 
@@ -70,4 +70,4 @@ void Renderer2D::drawSquare(const std::array<glm::vec2, 4>& corners, const glm::
 	drawLine({ corners[3], corners[0], color });
 }
 
-} // Engine 
+} // TileBite 

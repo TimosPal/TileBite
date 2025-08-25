@@ -4,7 +4,7 @@
 #include "core/pch.hpp"
 #include "events/Event.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 class Window {
 public:
@@ -33,6 +33,6 @@ protected:
 	Data m_data;
 };
 
-} // Engine
+} // TileBite
 
 #endif // !WINDOW_HPP

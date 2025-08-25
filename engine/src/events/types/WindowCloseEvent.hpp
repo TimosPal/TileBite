@@ -3,14 +3,14 @@
 
 #include "events/Event.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 class WindowCloseEvent : public Event {
 	SETUP_ID(Event, WindowCloseEvent)
 public:
-	WindowCloseEvent() : Engine::Event(true) {}
+	WindowCloseEvent() : TileBite::Event(true) {}
 };
 
-} // Engine
+} // TileBite
 
 #endif // !WINDOW_CLOSE_EVENT_HPP

@@ -5,7 +5,7 @@
 #include "ecs/types/EngineComponents.hpp"
 #include "utilities/misc.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 class ColliderUpdateSystem : public ISystem {
 public:
@@ -50,6 +50,6 @@ public:
 	}
 };
 
-} // Engine
+} // TileBite
 
 #endif // !COLLIDER_UPDATE_SYSTEM_HPP

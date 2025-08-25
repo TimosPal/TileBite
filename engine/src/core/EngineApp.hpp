@@ -18,7 +18,7 @@
 #include "events/EventDispatcher.hpp"
 #include "input/InputManager.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 class EngineApp {
 public:
@@ -71,6 +71,6 @@ private:
 	bool m_isRunning;
 };
 
-} // Engine
+} // TileBite
 
 #endif // !ENGINE_APP_HPP

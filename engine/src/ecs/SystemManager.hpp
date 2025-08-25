@@ -6,7 +6,7 @@
 #include "physics/PhysicsEngine.hpp"
 #include "core/EngineContext.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 class SystemManager : public InjectEngineContext {
 public:
@@ -34,6 +34,6 @@ private:
     std::vector<std::unique_ptr<ISystem>> m_systems;
 };
 
-} // Engine
+} // TileBite
 
 #endif // !SYSTEM_MANAGER_HPP

@@ -2,7 +2,7 @@
 
 #include "utilities/assertions.hpp"
 
-namespace Engine {
+namespace TileBite {
 
     ComponentStorage::ComponentStorage(size_t elementSize) : m_elementSize(elementSize) {}
 
@@ -37,4 +37,4 @@ namespace Engine {
     }
 
 
-} // Engine
+} // TileBite

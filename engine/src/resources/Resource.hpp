@@ -6,7 +6,7 @@
 #include "utilities/Identifiable.hpp"
 #include "utilities/misc.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 // ResourceType must be derived from Resource for this to compile.
 template<typename ResourceType>
@@ -66,6 +66,6 @@ private:
 	bool m_isCreated;
 };
 
-} // Engine
+} // TileBite
 
 #endif // !RESOURCE_HPP

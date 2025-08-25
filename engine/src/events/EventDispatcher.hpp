@@ -6,7 +6,7 @@
 #include "events/EventCallback.hpp"
 #include "utilities/assertions.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 class EventDispatcher {
 public:
@@ -55,6 +55,6 @@ private:
 	std::unordered_map<ID, registeredCallbacks> m_listeners;
 };
 
-} // Engine
+} // TileBite
 
 #endif !EVENT_DISPATCHER_HPP

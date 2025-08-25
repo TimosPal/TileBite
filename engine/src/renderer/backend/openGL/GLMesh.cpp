@@ -1,6 +1,6 @@
 #include "renderer/backend/openGL/GLMesh.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 GLenum GLMesh::getOpenGLBaseType(ShaderAttributeType type) {
 	switch (type) {
@@ -126,4 +126,4 @@ void GLMesh::drawLines(uint32_t verticesCount)
 	GL(glDrawArrays(GL_LINES, 0, verticesCount));
 }
 
-} // Engine
+} // TileBite

@@ -4,7 +4,7 @@
 #include "core/pch.hpp"
 #include "renderer/VertexAttribute.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 class VertexLayout {
 public:
@@ -22,6 +22,6 @@ private:
 	uint32_t m_stride = 0;
 };
 
-} // Engine
+} // TileBite
 
 #endif // !VERTEX_LAYOUT_HPP

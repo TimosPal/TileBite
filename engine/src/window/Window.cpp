@@ -3,7 +3,7 @@
 #if defined(WINDOW_BACKEND_GLFW)
     #include "window/backend/glfw/GlfwWindow.hpp"
     #include "window/backend/glfw/GlfwKeyCodes.hpp"
-    using WindowBackend = Engine::GlfwWindow;
+    using WindowBackend = TileBite::GlfwWindow;
 #elif defined(WINDOW_BACKEND_NATIVE)
     #if defined(PLATFORM_WINDOWS)
         #error Windows native not supported
@@ -18,11 +18,11 @@
     #error Unknown or unsupported window backend
 #endif
 
-namespace Engine {
+namespace TileBite {
 
 std::shared_ptr<Window> Window::createWindow(const Data& data)
 {
     return std::make_shared<WindowBackend>(data);
 }
 
-} // Engine
+} // TileBite

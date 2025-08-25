@@ -3,7 +3,7 @@
 
 #include "core/pch.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 class ComponentStorage {
 public:
@@ -45,6 +45,6 @@ private:
     std::vector<std::byte> m_data;
 };
 
-} // Engine
+} // TileBite
 
 #endif // !COMPONENT_STORAGE_HPP

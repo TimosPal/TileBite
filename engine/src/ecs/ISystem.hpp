@@ -5,7 +5,7 @@
 #include "events/Event.hpp"
 #include "core/EngineContext.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 class ISystem : public InjectEngineContext {
 public:
@@ -15,6 +15,6 @@ public:
 private:
 };
 
-} // Engine
+} // TileBite
 
 #endif // !ISYSTEM_HPP

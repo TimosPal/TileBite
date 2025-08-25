@@ -1,6 +1,6 @@
 #include "events/EventDispatcher.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 void EventDispatcher::dispatch(Event& event)
 {
@@ -17,4 +17,4 @@ void EventDispatcher::dispatch(Event& event)
     }
 }
 
-} // Engine 
+} // TileBite 

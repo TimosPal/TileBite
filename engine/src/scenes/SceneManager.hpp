@@ -5,7 +5,7 @@
 #include "scenes/Scene.hpp"
 #include "core/EngineContext.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 class SceneManager : public InjectEngineContext {
 public:
@@ -34,6 +34,6 @@ private:
 	std::unordered_map<std::string, std::shared_ptr<Scene>> m_scenes;
 };
 
-} // Engine
+} // TileBite
 
 #endif // !SCENE_MANAGER_HPP

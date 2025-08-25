@@ -22,7 +22,7 @@ bool loadFunctions()
 }
 #endif
 
-namespace Engine {
+namespace TileBite {
 
 static void APIENTRY glDebugOutput(GLenum source,
 	GLenum type,
@@ -495,4 +495,4 @@ void GLRenderer2D::setViewportSize(uint32_t width, uint32_t height)
 	GL(glViewport(0, 0, width, height));
 }
 
-} // Engine
+} // TileBite

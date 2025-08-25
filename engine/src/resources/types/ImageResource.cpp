@@ -3,7 +3,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-namespace Engine {
+namespace TileBite {
 
 ImageResource::ImageResource(const std::string& resourceName, const std::string& filePath)
 	: Resource<ImageResource>(resourceName, false)
@@ -42,4 +42,4 @@ bool ImageResource::isValid()
 	return m_fileExists;
 }
 
-} // Engine
+} // TileBite

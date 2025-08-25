@@ -1,6 +1,6 @@
 #include "utilities/Bitset.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 Bitset::Bitset(size_t numBits, bool filled)
 	: m_bitsSize(numBits),
@@ -165,4 +165,4 @@ bool Bitset::operator==(const Bitset& other) const
 	return true;
 }
 
-} // Engine 
+} // TileBite 

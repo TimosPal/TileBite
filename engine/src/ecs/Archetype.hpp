@@ -7,7 +7,7 @@
 #include "core/Types.hpp"
 #include "utilities/Identifiable.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 class Archetype : public Identifiable {
 	SETUP_ID(Archetype, Archetype)
@@ -52,6 +52,6 @@ private:
     uint32_t m_entitiesCount = 0;
 };
 
-} // Engine
+} // TileBite
 
 #endif // !ARCHETYPE_HPP

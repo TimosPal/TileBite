@@ -11,7 +11,7 @@
 #include <ecs/types/EngineComponents.hpp>
 #include <core/ResourceRegistry.hpp>
 
-using namespace Engine;
+using namespace TileBite;
 
 class CameraSystem : public ISystem {
 public:
@@ -145,7 +145,7 @@ public:
     }
 };
 
-class MyApp : public Engine::EngineApp {
+class MyApp : public TileBite::EngineApp {
     AppConfig config() override { return AppConfig(800, 600, "Tilemap demo"); }
 
     void setup() override

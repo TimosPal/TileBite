@@ -6,7 +6,7 @@
 #include "input/InputManager.hpp"
 #include "window/Window.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 EventDispatcher& InjectEngineContext::getCoreEventDispatcher()
 {
@@ -57,4 +57,4 @@ Renderer2D& InjectEngineContext::getRenderer()
 	return *m_engineContext->RendererPtr;
 }
 
-} // Engine
+} // TileBite

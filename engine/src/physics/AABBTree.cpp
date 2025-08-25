@@ -3,7 +3,7 @@
 
 #include "core/pch.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 void AABBTree::insert(const ColliderInfo& colliderInfo)
 {
@@ -432,4 +432,4 @@ std::vector<Collider> AABBTree::getLeafColliders() const
 	return colliders;
 }
 
-} // Engine
+} // TileBite

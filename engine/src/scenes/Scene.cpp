@@ -3,7 +3,7 @@
 #include "events/EventDispatcher.hpp"
 #include "window/Window.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 void Scene::init()
 {
@@ -31,4 +31,4 @@ void Scene::setCameraController(std::shared_ptr<CameraController> cameraControll
 	pushEvent(std::make_unique<WindowResizeEvent>(WindowResizeEvent(width, height)));
 }
 
-} // Engine
+} // TileBite

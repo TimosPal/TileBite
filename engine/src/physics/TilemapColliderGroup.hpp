@@ -7,7 +7,7 @@
 #include "ecs/types/EngineComponents.hpp"
 #include "utilities/Bitset.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 class TilemapColliderGroup {
 public:
@@ -30,6 +30,6 @@ private:
 	std::vector<RayHitData> ADDSearch(const Ray2D& ray, bool stopAtFirst) const;
 };
 
-} // Engine
+} // TileBite
 
 #endif // TILEMAP_COLLIDER_GROUP_HPP

@@ -4,7 +4,7 @@
 #include "core/pch.hpp"
 #include "resources/Resource.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 class ImageResource : public Resource<ImageResource> {
 	SETUP_ID(Resource, ImageResource)
@@ -32,6 +32,6 @@ private:
 	bool m_fileExists;
 };
 
-} // Engine
+} // TileBite
 
 #endif // !IMAGE_RESOURCE_HPP

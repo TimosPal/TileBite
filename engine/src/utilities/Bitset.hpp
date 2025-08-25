@@ -5,11 +5,11 @@
 #include "utilities/misc.hpp"
 #include "utilities/assertions.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 class Bitset {
 public:
-	// Friend declaration for std::hash<Engine::Signature<N>>
+	// Friend declaration for std::hash<TileBite::Signature<N>>
 	friend struct std::hash<Bitset>;
 
 	using WordType = uint32_t;
@@ -36,23 +36,23 @@ private:
 	size_t m_bitsSize;
 };
 
-} // Engine
+} // TileBite
 
 // Hash function for Bitset
 namespace std {
 template<>
-struct hash<Engine::Bitset> {
-	size_t operator()(const Engine::Bitset& b) const
+struct hash<TileBite::Bitset> {
+	size_t operator()(const TileBite::Bitset& b) const
 	{
 		size_t seed = 0;
 		for (auto word : b.m_words)
 		{
-			seed ^= std::hash<Engine::Bitset::WordType>()(word)
+			seed ^= std::hash<TileBite::Bitset::WordType>()(word)
 				+ 0x9e3779b9 + (seed << 6) + (seed >> 2);
 		}
 		return seed;
 	}
 };
-} // namespace std
+} // std
 
 #endif // BITSET_HPP

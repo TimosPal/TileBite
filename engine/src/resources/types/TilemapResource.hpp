@@ -7,7 +7,7 @@
 #include "ecs/types/EngineComponents.hpp"
 #include "utilities/Bitset.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 struct BytesChange {
 	uint32_t Offset;
@@ -71,6 +71,6 @@ private:
 	Bitset m_solidTiles; // Bitset representing solid tiles in the tilemap
 };
 
-} // Engine
+} // TileBite
 
 #endif // !TILE_MAP_RESOURCE_HPP

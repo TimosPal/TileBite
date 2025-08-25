@@ -5,7 +5,7 @@
 
 // TODO: refactor into camera interface (Usefull if we need a perspective camera later on)
 
-namespace Engine {
+namespace TileBite {
 
 class CameraController {
 public:
@@ -101,6 +101,6 @@ private:
 	}
 };
 
-} // Engine
+} // TileBite
 
 #endif // !CAMERA_CONTROLLER_HPP

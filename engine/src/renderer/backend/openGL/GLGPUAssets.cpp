@@ -1,7 +1,7 @@
 #include "GLGPUAssets.hpp"
 #include "renderer/backend/openGL/GLGPUAssets.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 GLGPUAssets::GLGPUAssets(GLResourceHub& resourceHub) : m_resourceHub(resourceHub) {}
 
@@ -39,4 +39,4 @@ void GLGPUAssets::clear()
 	}
 }
 
-} // Engine
+} // TileBite

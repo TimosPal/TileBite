@@ -7,13 +7,13 @@
 #include "utilities/assertions.hpp"
 #include "utilities/Bitset.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 constexpr uint32_t DEFAULT_SIGNATURE_LENGTH = 128;
 
 class Signature {
 public:
-	// Friend declaration for std::hash<Engine::Signature<N>>
+	// Friend declaration for std::hash<TileBite::Signature<N>>
 	friend struct std::hash<Signature>;
 
 	Signature();
@@ -28,20 +28,20 @@ public:
 	std::string toString() const;
 
 private:
-	Engine::Bitset m_bitset;
+	TileBite::Bitset m_bitset;
 	std::vector<ID> m_typeIDs;
 	std::unordered_map<ID, int32_t> m_mapping;
 	size_t m_count;
 };
 
-} // Engine
+} // TileBite
 
 namespace std {
 template<>
-struct hash<Engine::Signature> {
-	std::size_t operator()(const Engine::Signature& sig) const 
+struct hash<TileBite::Signature> {
+	std::size_t operator()(const TileBite::Signature& sig) const 
 	{
-		return std::hash<Engine::Bitset>{}(sig.m_bitset);
+		return std::hash<TileBite::Bitset>{}(sig.m_bitset);
 	}
 };
 

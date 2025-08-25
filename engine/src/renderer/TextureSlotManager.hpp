@@ -4,7 +4,7 @@
 #include "core/pch.hpp"
 #include "utilities/IDGenerator.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 struct SlotData {
 	uint32_t Counter = 0;
@@ -39,6 +39,6 @@ private:
 	std::unordered_map<ID, uint8_t> m_textureIDToSlot;
 };
 
-} // Engine
+} // TileBite
 
 #endif // !TEXTURE_SLOT_MANAGER_HPP

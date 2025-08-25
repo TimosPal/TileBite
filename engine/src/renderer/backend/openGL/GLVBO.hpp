@@ -4,7 +4,7 @@
 #include "core/Types.hpp"
 #include "renderer/backend/openGL/GLWrapper.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 // OpenGL Vertex Buffer Object (vertices)
 class GLVBO {
@@ -23,6 +23,6 @@ private:
 	uint32_t m_size;
 };
 
-} // Engine
+} // TileBite
 
 #endif // !GL_VBO_HPP

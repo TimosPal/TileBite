@@ -1,6 +1,6 @@
 #include "layers/LayerStack.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 std::shared_ptr<Layer> LayerStack::getLayerByName(const std::string& name) const {
 	for (const auto& layer : m_layers)
@@ -68,4 +68,4 @@ void LayerStack::onUpdate(float deltaTime)
 	}
 }
 
-} // Engine
+} // TileBite

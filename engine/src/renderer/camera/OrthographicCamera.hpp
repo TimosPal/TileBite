@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-namespace Engine {
+namespace TileBite {
 
 class OrthographicCamera {
 public:
@@ -54,6 +54,6 @@ private:
 	glm::mat4 m_inverseViewProjectionMatrix;
 };
 
-} // Engine
+} // TileBite
 
 #endif // !ORTHOGRAPHIC_CAMERA_HPP

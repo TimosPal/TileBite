@@ -10,7 +10,7 @@
 
 #include "events/Event.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 class Scene; // Forward declaration for friendship.
 
@@ -187,6 +187,6 @@ private:
 	std::function<void(ID entityID)> m_removeEntityCallback;
 };
 
-} // Engine
+} // TileBite
 
 #endif // !WORLD_HPP

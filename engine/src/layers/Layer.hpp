@@ -9,7 +9,7 @@
 #include "scenes/SceneManager.hpp"
 #include "core/EngineContext.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 // Each layer holds its own event dispatcher.
 // Event listeners subscribe to layers.
@@ -65,6 +65,6 @@ private:
 	std::string m_name;
 };
 
-} // Engine
+} // TileBite
 
 #endif // !LAYER_HPP

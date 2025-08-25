@@ -4,12 +4,12 @@
 #include "core/Types.hpp"
 #include "core/pch.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 // Helper macros for easier syntax (template keyword can be accidentaly ommited)
-#define GET_TYPE_ID(Base, Sub) (Engine::IDGenerator<Base>::template getTypeID<Sub>())
-#define GET_INSTANCE_ID(Base, Sub) (Engine::IDGenerator<Base>::template getInstanceID<Sub>())
-#define GET_TYPE_NAME(Base, ID) (Engine::IDGenerator<Base>::getTypeName(ID))
+#define GET_TYPE_ID(Base, Sub) (TileBite::IDGenerator<Base>::template getTypeID<Sub>())
+#define GET_INSTANCE_ID(Base, Sub) (TileBite::IDGenerator<Base>::template getInstanceID<Sub>())
+#define GET_TYPE_NAME(Base, ID) (TileBite::IDGenerator<Base>::getTypeName(ID))
 
 /*
 Generator used to produce unique or instance based IDs.
@@ -63,6 +63,6 @@ private:
     inline static std::unordered_map<ID, std::string> s_idToNameMap = {};
 };
 
-} // Engine
+} // TileBite
 
 #endif // !ID_GENERATOR_HPP

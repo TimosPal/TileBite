@@ -7,7 +7,7 @@
 #include "renderer/backend/openGL/GLTexture.hpp"
 #include "resources/SystemResourceHub.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 class GLResourceHub {
 public:
@@ -37,6 +37,6 @@ private:
 	SystemResourceHub& m_systemResourceHub;
 };
 
-} // Engine
+} // TileBite
 
 #endif // !GL_RESOURCE_HUB_HPP

@@ -2,7 +2,7 @@
 
 #include "utilities/misc.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 TilemapResource::TilemapResource(
 	const std::string& resourceName,
@@ -141,4 +141,4 @@ bool TilemapResource::isValid()
 	return true;
 }
 
-} // Engine
+} // TileBite

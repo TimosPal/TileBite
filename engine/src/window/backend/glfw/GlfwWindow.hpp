@@ -5,7 +5,7 @@
 
 #include "window/Window.hpp"
 
-namespace Engine {  
+namespace TileBite {  
 
 class GlfwWindow : public Window {  
 public:  
@@ -20,6 +20,6 @@ private:
    GLFWwindow* m_glfwWindow = nullptr;  
 };  
 
-} // Engine  
+} // TileBite  
 
 #endif // !GLFW_WINDOW_HPP

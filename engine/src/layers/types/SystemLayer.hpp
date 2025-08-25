@@ -4,7 +4,7 @@
 #include "core/pch.hpp"
 #include "layers/Layer.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 // Layer for handling system level events (eg window callbacks)
 class SystemLayer : public Layer {
@@ -18,6 +18,6 @@ public:
 private:
 	std::function<void()> m_stopAppCallback;
 };
-} // Engine
+} // TileBite
 
 #endif // !SYSTEM_LAYER_HPP

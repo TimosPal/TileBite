@@ -5,9 +5,9 @@
 
 #include "utilities/Logger.hpp"
 
-namespace Engine {
+namespace TileBite {
 
-#define GL_CHECK_ERROR() Engine::GLCheckError(__FILE__, __LINE__)
+#define GL_CHECK_ERROR() TileBite::GLCheckError(__FILE__, __LINE__)
 
 #ifndef DEBUG_MODE
     // No error checking in release mode
@@ -58,6 +58,6 @@ inline void GLCheckError(const char* file, int line) {
     }
 }
 
-} // Engine
+} // TileBite
 
 #endif // !GL_WRAPPER_HPP

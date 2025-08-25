@@ -3,7 +3,7 @@
 #include "renderer/Renderer2D.hpp"
 #include "ecs/types/ColliderRenderSystem.hpp"
 
-namespace Engine
+namespace TileBite
 {
 
 DebugLayer::DebugLayer()
@@ -14,4 +14,4 @@ void DebugLayer::onAttach()
 	getSystemManager().addSystem(std::make_unique<ColliderRenderSystem>());
 }
 
-} // Engine
+} // TileBite

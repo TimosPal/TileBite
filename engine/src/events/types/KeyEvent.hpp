@@ -3,12 +3,12 @@
 
 #include "events/Event.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 class KeyEvent : public Event {
 public:
 	KeyEvent(int keyCode) 
-		: m_keyCode(keyCode), Engine::Event(false)
+		: m_keyCode(keyCode), TileBite::Event(false)
 	{}
 
 	int getKeyCode() const { return m_keyCode; }
@@ -40,6 +40,6 @@ public:
 	{}
 };
 
-} // Engine
+} // TileBite
 
 #endif // !KEY_EVENT_HPP

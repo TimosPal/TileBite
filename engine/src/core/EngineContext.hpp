@@ -4,7 +4,7 @@
 #include "core/pch.hpp"
 #include "events/Event.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 // Forward declarations
 class SceneManager;
@@ -50,6 +50,6 @@ private:
 	EngineContext* m_engineContext = nullptr;
 };
 
-} // namespace Engine
+} // TileBite
 
 #endif // ENGINE_CONTEXT_HPP

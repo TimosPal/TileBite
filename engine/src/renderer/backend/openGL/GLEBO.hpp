@@ -4,7 +4,7 @@
 #include "core/Types.hpp"
 #include "renderer/backend/openGL/GLWrapper.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 // OpenGL Element Buffer Object (Indices)
 class GLEBO {
@@ -24,6 +24,6 @@ private:
 	uint32_t m_count;
 };
 
-} // Engine
+} // TileBite
 
 #endif // !GL_EBO_HPP

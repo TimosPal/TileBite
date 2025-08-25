@@ -4,7 +4,7 @@
 #include "core/pch.hpp"
 #include "window/Window.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 struct AppConfig {
 	uint32_t width = 800;
@@ -16,6 +16,6 @@ struct AppConfig {
 	}
 };
 
-} // Engine
+} // TileBite
 
 #endif // !APP_CONFIG_HPP

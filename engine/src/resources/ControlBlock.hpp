@@ -1,7 +1,7 @@
 #ifndef CONTROL_BLOCK_HPP
 #define CONTROL_BLOCK_HPP
 
-namespace Engine {
+namespace TileBite {
 
 // Must be defautl constructible
 template<typename ResourceType>
@@ -43,6 +43,6 @@ private:
 	int m_watchers = 0;
 };
 
-} // Engine
+} // TileBite
 
 #endif // !CONTROL_BLOCK_HPP

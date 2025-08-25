@@ -4,7 +4,7 @@
 
 #include "physics/CollisionUtilities.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 std::array<glm::vec2, 4> AABB::getCorners() const
 {
@@ -37,4 +37,4 @@ bool AABB::intersects(const Collider& other) const
 	return CollisionUtilities::intersects(*this, other);
 }
 
-} // Engine
+} // TileBite

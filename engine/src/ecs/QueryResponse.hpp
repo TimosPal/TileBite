@@ -5,7 +5,7 @@
 #include "ecs/World.hpp"
 #include "utilities/Bitset.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 template <typename ...ComponentTypes>
 class QueryResponse {
@@ -59,6 +59,6 @@ private:
 	std::vector<std::shared_ptr<Archetype>> m_archetypes;
 };
 
-} // namespace Engine
+} // TileBite
 
 #endif // QUERY_RESPONSE_HPP

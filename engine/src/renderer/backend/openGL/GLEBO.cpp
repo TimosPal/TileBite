@@ -2,7 +2,7 @@
 
 #include "utilities/assertions.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 GLEBO::GLEBO(const uint32_t* data, uint32_t count)
 	: m_count(count)
@@ -37,4 +37,4 @@ void GLEBO::setData(const uint32_t* data, uint32_t count)
 	GL(glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, count * sizeof(uint32_t), data));
 }
 
-} // Engine
+} // TileBite

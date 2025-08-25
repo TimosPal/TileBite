@@ -3,7 +3,7 @@
 #include "renderer/backend/openGL/GLWrapper.hpp"
 #include "utilities/Logger.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 GLProgram::GLProgram(
 	const std::string& resourceName,
@@ -141,4 +141,4 @@ void GLProgram::unuse()
 	GL(glUseProgram(0));
 }
 
-} // Engine
+} // TileBite

@@ -10,7 +10,7 @@
 #include "renderer/IGPUAssets.hpp"
 #include "ecs/types/EngineComponents.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 // IResourceHandle is used for platform specific implementations.
 // eg: Textures can be GLTextures or any custom graphics API implementation
@@ -71,6 +71,6 @@ private:
 	IGPUAssets* m_gpuAssets = nullptr;
 };
 
-} // Engine
+} // TileBite
 
 #endif // !ASSETS_MANAGER_HPP

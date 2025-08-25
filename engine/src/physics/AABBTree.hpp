@@ -6,7 +6,7 @@
 #include "physics/Ray2D.hpp"
 #include "core/types.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 struct ColliderInfo : public Collider {
 	ID id;
@@ -54,6 +54,6 @@ private:
 	uint32_t createLeafNode(const ColliderInfo& colliderInfo);
 };
 
-} // Engine
+} // TileBite
 
 #endif // !AABB_TREE_HPP

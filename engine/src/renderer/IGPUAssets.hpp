@@ -6,7 +6,7 @@
 #include "resources/ResourceHandle.hpp"
 #include "resources/types/ImageResource.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 // Bridge communication between AssetsManager and GPU (API specific) resource management
 // Used for client side asset creation, not for internal use. Returns IDs not ResourceHandles.
@@ -17,6 +17,6 @@ public:
 	virtual std::unique_ptr<IResourceHandle> createTextureResource(std::string resourceName, ResourceHandle<ImageResource>&& imageHandle) = 0;
 };
 
-} // Engine
+} // TileBite
 
 #endif // !IGPU_ASSETS_HPP

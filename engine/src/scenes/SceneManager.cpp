@@ -1,6 +1,6 @@
 #include "scenes/SceneManager.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 // Set the active scene by name.
 bool SceneManager::setActiveScene(const std::string& name)
@@ -29,4 +29,4 @@ std::shared_ptr<Scene> SceneManager::getActiveScene() const
 	return m_activeScene;
 }
 
-} // Engine
+} // TileBite

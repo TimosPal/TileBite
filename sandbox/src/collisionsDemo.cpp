@@ -14,7 +14,7 @@
 
 #include <events/types/MouseEvent.hpp>
 
-using namespace Engine;
+using namespace TileBite;
 
 struct RigidBody : public BaseComponent {
     float life = 0.0f;
@@ -28,7 +28,7 @@ struct RigidBody : public BaseComponent {
 class TestEvent : public Event {
     SETUP_ID(Event, TestEvent)
 public:
-    TestEvent() : Engine::Event(true) {}
+    TestEvent() : TileBite::Event(true) {}
 };
 
 class GravitySystem : public ISystem {
@@ -217,7 +217,7 @@ public:
     }
 };
 
-class MyApp : public Engine::EngineApp {
+class MyApp : public TileBite::EngineApp {
     AppConfig config() override { return AppConfig(800, 600, "Collisions demo"); }
 
     void setup() override

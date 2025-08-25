@@ -2,7 +2,7 @@
 
 #include "utilities/assertions.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 void TextureSlotManager::setNumberOfSlots(uint8_t numberOfSlots)
 {
@@ -105,4 +105,4 @@ std::vector<int> TextureSlotManager::createTextureMapping(int numberOfTextures)
 }
 
 
-} // Engine
+} // TileBite

@@ -4,7 +4,7 @@
 #include "physics/Collider.hpp"
 #include "core/types.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 // Stores data about a collision, including the ID of the collider and its AABB in world space.
 struct GenericCollisionData {
@@ -63,6 +63,6 @@ struct RayHitData : public CollisionData {
 	RayHitData() : CollisionData(), tmin(0.0f), tmax(0.0f) {} // dummy default
 };
 
-} // Engine
+} // TileBite
 
 #endif // !COLLISION_DATA_HPP

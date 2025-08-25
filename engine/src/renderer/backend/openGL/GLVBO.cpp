@@ -2,7 +2,7 @@
 
 #include "utilities/assertions.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 GLVBO::GLVBO(const float* data, uint32_t size)
 	: m_size(size)

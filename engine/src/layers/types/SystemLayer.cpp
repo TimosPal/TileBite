@@ -9,7 +9,7 @@
 #include "input/InputManager.hpp"
 #include "ecs/types/CollidersUpdateSystem.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 SystemLayer::SystemLayer(std::function<void()> stopAppCallback)
 	: Layer(getName()),
@@ -79,4 +79,4 @@ void SystemLayer::onAttach()
 	getSystemManager().addSystem(std::make_unique<ColliderUpdateSystem>());
 }
 
-} // Engine
+} // TileBite

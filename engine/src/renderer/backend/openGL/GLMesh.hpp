@@ -7,7 +7,7 @@
 #include "renderer/backend/openGL/GLEBO.hpp"
 #include "renderer/VertexLayout.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 // OpenGL Mesh is a VAO holding VBOs and EBOs
 class GLMesh {
@@ -34,6 +34,6 @@ private:
 	static GLenum getOpenGLBaseType(ShaderAttributeType type);
 };
 
-} // Engine
+} // TileBite
 
 #endif // !GL_MESH_HPP

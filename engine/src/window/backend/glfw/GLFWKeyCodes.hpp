@@ -4,7 +4,7 @@
 #include <GLFW/glfw3.h>
 #include "window/KeyCodes.hpp"
 
-namespace Engine {
+namespace TileBite {
 namespace KeyCodes {
 
 // Keyboard keys
@@ -147,6 +147,6 @@ const int MOUSE_BUTTON_RIGHT = GLFW_MOUSE_BUTTON_2;
 const int MOUSE_BUTTON_MIDDLE    = GLFW_MOUSE_BUTTON_3;
 
 } // KeyCodes
-} // Engine
+} // TileBite
 
 #endif // !GLFW_KEYCODES_HPP

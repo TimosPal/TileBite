@@ -4,7 +4,7 @@
 #include "core/pch.hpp"
 #include "layers/Layer.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 class GraphicsLayer : public Layer {
 public:
@@ -15,6 +15,6 @@ public:
 	static std::string getName() { return "GraphicsLayer"; }
 };
 
-} // Engine
+} // TileBite
 
 #endif // !GRAPHICS_LAYER_HPP

@@ -3,7 +3,7 @@
 
 #include "utilities/Identifiable.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 class Event : public Identifiable {
 public:
@@ -17,6 +17,6 @@ private:
 	bool m_isHandled = false;
 };
 
-} // Engine
+} // TileBite
 
 #endif // !EVENT_HPP

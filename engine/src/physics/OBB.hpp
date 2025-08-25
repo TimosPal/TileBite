@@ -3,7 +3,7 @@
 
 #include <glm/glm.hpp>
 
-namespace Engine {
+namespace TileBite {
 
 struct AABB; // Forward declaration to avoid circular dependency
 struct Collider;
@@ -48,6 +48,6 @@ struct OBB {
 
 };
 
-} // Engine
+} // TileBite
 
 #endif // !OBB_HPP

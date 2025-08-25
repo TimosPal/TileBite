@@ -2,7 +2,7 @@
 
 #include "utilities/Logger.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 GLShader::GLShader(const std::string& resourceName, ResourceHandle<TextFileResource>&& handle, ShaderType type)
 	: Resource<GLShader>(resourceName, false),
@@ -61,4 +61,4 @@ bool GLShader::isValid()
 	return true;
 }
 
-} // Engine
+} // TileBite

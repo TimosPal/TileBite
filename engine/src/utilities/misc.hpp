@@ -5,7 +5,7 @@
 #include "utilities/Logger.hpp"
 #include "ecs/types/EngineComponents.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 constexpr int PACKED_TILEMAP_QUAD_BYTES = 8;
 
@@ -202,6 +202,6 @@ inline float quickRandFloat(float min = -1.0f, float max = 1.0f) {
 	return min + (max - min) * (rand() / float(RAND_MAX));
 }
 
-} // Engine
+} // TileBite
 
 #endif // !MISC_HPP

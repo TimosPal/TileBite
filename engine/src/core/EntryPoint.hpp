@@ -5,9 +5,9 @@
 
 // Call this in your EngineApp to declare the extern function.
 #define CREATE_ENGINE_APPLICATION(EngineAppClass) \
-    std::unique_ptr<Engine::EngineApp> createEngineApp() { return std::make_unique<EngineAppClass>(); }
+    std::unique_ptr<TileBite::EngineApp> createEngineApp() { return std::make_unique<EngineAppClass>(); }
 
-extern std::unique_ptr<Engine::EngineApp> createEngineApp();
+extern std::unique_ptr<TileBite::EngineApp> createEngineApp();
 
 int main()
 {

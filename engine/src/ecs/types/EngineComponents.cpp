@@ -1,7 +1,7 @@
 #include "ecs/types/EngineComponents.hpp"
 #include "resources/types/TilemapResource.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 // Needs to be in CPP file to avoid circular dependency issues
 void TilemapComponent::setTile(Tile tile, uint8_t xIndex, uint8_t yIndex)
@@ -13,4 +13,4 @@ void TilemapComponent::setTile(Tile tile, uint8_t xIndex, uint8_t yIndex)
 	}
 }
 
-} // Engine
+} // TileBite

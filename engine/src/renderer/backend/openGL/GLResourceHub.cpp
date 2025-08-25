@@ -4,7 +4,7 @@
 #include "core/ResourceRegistry.hpp"
 #include "utilities/misc.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 bool GLResourceHub::init()
 {
@@ -85,4 +85,4 @@ bool GLResourceHub::destroy()
 	return true;
 }
 
-} // Engine
+} // TileBite

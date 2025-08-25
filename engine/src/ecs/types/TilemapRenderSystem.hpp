@@ -6,7 +6,7 @@
 #include "renderer/Renderer2D.hpp"
 #include "utilities/misc.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 class TilemapRenderSystem : public ISystem {
 public:
@@ -26,6 +26,6 @@ public:
 	}
 };
 
-} // Engine
+} // TileBite
 
 #endif // !TILE_MAP_RENDER_SYSTEM_HPP

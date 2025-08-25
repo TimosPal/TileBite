@@ -9,7 +9,7 @@
 #include "physics/Ray2D.hpp"
 #include "physics/Collider.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 // TODO: layers mask, for filtering collisions.
 // TODO: add remove for tilemaps
@@ -41,6 +41,6 @@ private:
 	AABBTree m_tilemapColliderTree;
 };
 
-} // Engine
+} // TileBite
 
 #endif // PHYSICS_ENGINE_HPP

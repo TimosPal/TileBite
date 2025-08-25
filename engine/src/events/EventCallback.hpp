@@ -4,7 +4,7 @@
 #include "events/Event.hpp"
 #include "utilities/Identifiable.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 template<typename EventType>
 requires DerivedFrom<EventType, Event>
@@ -22,6 +22,6 @@ private:
 	Callback m_callback;
 };
 
-} // Engine
+} // TileBite
 
 #endif // !EVENT_CALLBACK_HPP

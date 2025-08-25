@@ -5,7 +5,7 @@
 #include <events/types/KeyEvent.hpp>
 #include <window/KeyCodes.hpp>
 
-namespace Engine {
+namespace TileBite {
 
 EngineApp* EngineApp::s_instance;
 
@@ -212,4 +212,4 @@ void EngineApp::pushOverlay(std::shared_ptr<Layer> layer)
 	m_layers.pushOverlay(layer);
 }
 
-} // Engine
+} // TileBite

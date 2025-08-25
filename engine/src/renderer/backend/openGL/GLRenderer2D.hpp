@@ -7,7 +7,7 @@
 #include "renderer/backend/openGL/GLMesh.hpp"
 #include "renderer/backend/openGL/GLGPUAssets.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 // TODO: Make frag shader have same value by meta programming (?)
 constexpr uint32_t maxTextures = 128; // Should match fragment shader texture array size
@@ -61,6 +61,6 @@ private:
 	void renderLines(CameraController& camera);
 };
 
-} // Engine
+} // TileBite
 
 #endif // !GL_RENDERER_2D_HPP

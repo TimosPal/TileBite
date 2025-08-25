@@ -1,6 +1,6 @@
 #include "GLTexture.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 GLTexture::GLTexture(const std::string& resourceName, ResourceHandle<ImageResource>&& handle)
 	: Resource<GLTexture>(resourceName, false),
@@ -72,4 +72,4 @@ bool GLTexture::destroyImplementation()
 	return true;
 }
 
-} // Engine
+} // TileBite

@@ -4,7 +4,7 @@
 #include "core/pch.hpp"
 #include "utilities/assertions.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 enum class ShaderAttributeType {
     None = 0,
@@ -81,6 +81,6 @@ inline uint32_t VertexAttribute::getComponentCount(ShaderAttributeType type) {
     }
 }
 
-} // Engine
+} // TileBite
 
 #endif // !VERTEX_ATTRIBUTE_HPP

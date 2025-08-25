@@ -1,6 +1,6 @@
 #include "ecs/Signature.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 Signature::Signature() : m_bitset(DEFAULT_SIGNATURE_LENGTH), m_count(0), m_typeIDs({}) {};
 
@@ -82,4 +82,4 @@ std::string Signature::toString() const
 	return m_bitset.toString();
 }
 
-} // Engine
+} // TileBite

@@ -3,12 +3,12 @@
 
 #include "events/Event.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 class MouseKeyEvent : public Event {
 public:
 	MouseKeyEvent(int keyCode)
-		: m_keyCode(keyCode), Engine::Event(false)
+		: m_keyCode(keyCode), TileBite::Event(false)
 	{}
 
 	int getKeyCode() const { return m_keyCode; }
@@ -60,6 +60,6 @@ private:
 	float m_yOffset;
 };
 
-} // Engine
+} // TileBite
 
 #endif // !MOUSE_EVENT_HPP

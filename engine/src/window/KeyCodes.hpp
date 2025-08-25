@@ -1,7 +1,7 @@
 #ifndef KEYCODES_HPP
 #define KEYCODES_HPP
 
-namespace Engine {
+namespace TileBite {
 namespace KeyCodes {
 
 // Keyboard keys
@@ -144,6 +144,6 @@ extern const int MOUSE_BUTTON_RIGHT;
 extern const int MOUSE_BUTTON_MIDDLE;
 
 } // KeyCodes
-} // Engine
+} // TileBite
 
 #endif // !KEYCODES_HPP

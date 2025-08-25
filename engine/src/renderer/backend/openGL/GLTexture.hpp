@@ -7,7 +7,7 @@
 #include "resources/ResourceHandle.hpp"
 #include "resources/types/ImageResource.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 class GLTexture : public Resource<GLTexture> {
 	SETUP_ID(Resource, GLTexture)
@@ -33,6 +33,6 @@ private:
 	ResourceHandle<ImageResource> m_imageHandle;
 };
 
-} // Engine
+} // TileBite
 
 #endif // !GL_TEXTURE_HPP

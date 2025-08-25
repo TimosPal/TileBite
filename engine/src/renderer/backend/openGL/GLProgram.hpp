@@ -7,7 +7,7 @@
 #include "resources/ResourceHandle.hpp"
 #include "renderer/backend/openGL/GLShader.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 class GLProgram : public Resource<GLProgram> {
 	SETUP_ID(Resource, GLShader)
@@ -46,6 +46,6 @@ private:
 	std::unordered_map<std::string, GLint> m_cachedUniformLocations;
 };
 
-} // Engine
+} // TileBite
 
 #endif // !GL_PROGRAM_HPP

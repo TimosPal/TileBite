@@ -2,7 +2,7 @@
 
 #include "core/pch.hpp"
 
-namespace Engine {
+namespace TileBite {
 
 std::vector<CollisionData> TilemapColliderGroup::query(const AABB& collider) const
 {
@@ -136,4 +136,4 @@ std::vector<RayHitData> TilemapColliderGroup::ADDSearch(const Ray2D& ray, bool s
     return results;
 }
 
-} // Engine
+} // TileBite
