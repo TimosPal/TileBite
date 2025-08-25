@@ -6,17 +6,29 @@ A modular 2D game engine written in C++ using an archetype-based ECS (Entity Com
 
 ## Features
 
+- Input support (Mouse / Keyboard)
+- Event based communication (Engine and custom types)
+- Layer stack
 - 2D rendering pipeline (OpenGL)
-- Archetype ECS for fast iteration
+- Debugging graphics
+- Archetype based ECS for fast entity / component iteration
+- Collision detection system
+- Resource management
+- Tilemaps
 
 ## Dependencies
 
-Included as Git submodules:
+- [GLFW](https://www.glfw.org/) - Window/context/input
+- [Glad](https://glad.dav1d.de/) - OpenGL loader
+- [SpdLog](https://github.com/gabime/spdlog) - Logging
+- [stb](https://github.com/nothings/stb) - Image loading
+- [glm](https://github.com/g-truc/glm) - Math library
+- [FastNoiseLite](https://github.com/Auburn/FastNoiseLite) - Noise generation
 
-- [GLFW](https://www.glfw.org/)
-- [Glad](https://glad.dav1d.de/)
-- [SpdLog](https://github.com/gabime/spdlog)
-- [stb](https://github.com/nothings/stb)
+## Getting Started
+
+- All dependencies are included as submodules.
+- See `sandbox/src` for sample projects.
 
 ## Build
 
@@ -26,3 +38,4 @@ cd GameEngine
 mkdir build && cd build
 cmake ..
 make
+```
