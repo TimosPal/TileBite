@@ -1,6 +1,7 @@
-# GameEngine
+# TileBite
 
-A modular 2D game engine written in C++ using an archetype-based ECS (Entity Component System) architecture.
+TileBite is a modular 2D game engine written in C++ using an archetype-based ECS (Entity Component System).  
+It’s designed for creating tilemap-based games, offering flexibility and performance
 
 ![Demo1](./demoImages/snakesDemo.gif)
 
