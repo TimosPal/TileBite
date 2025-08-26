@@ -5,6 +5,8 @@
 #include "physics/Collider.hpp"
 #include "physics/Ray2D.hpp"
 #include "core/types.hpp"
+#include "utilities/assertions.hpp"
+
 
 namespace TileBite {
 
@@ -18,10 +20,49 @@ struct ColliderInfo : public Collider {
 // https://box2d.org/files/ErinCatto_DynamicBVH_GDC2019.pdf
 class AABBTree {
 public:
+    // Templated internal query for every collider type
+    // (Assumes ColliderT is supported by AABB and ColliderInfo)
+    template<typename ColliderT>
+    std::vector<CollisionData> query(const ColliderT& collider, ID excludeID) const {
+        static std::vector<uint32_t> nodeStack;
+        nodeStack.clear();
+        nodeStack.reserve(256);
+        std::vector<CollisionData> results;
+        uint32_t index = m_rootIndex;
+
+        if (index != NullIndex)
+            nodeStack.push_back(index);
+
+        while (!nodeStack.empty()) {
+            index = nodeStack.back();
+            nodeStack.pop_back();
+            const Node& currNode = m_nodes[index];
+
+            if (!currNode.Bounds.intersects(collider))
+                continue;
+
+            if (currNode.IsLeaf) {
+                ASSERT(currNode.Value.has_value(), "Leaf node without value");
+                const ColliderInfo& info = currNode.Value.value();
+                if (info.id != excludeID && info.intersects(collider))
+                    results.push_back(CollisionData(GenericCollisionData(info.id, info)));
+            }
+            else {
+                if (currNode.RightIndex != NullIndex)
+                    nodeStack.push_back(currNode.RightIndex);
+                if (currNode.LeftIndex != NullIndex)
+                    nodeStack.push_back(currNode.LeftIndex);
+            }
+        }
+
+        return results;
+    }
+
+    std::vector<CollisionData> query(const Collider& collider, ID excludeID) const;
+
 	void insert(const ColliderInfo& colliderInfo);
 	bool remove(ID id);
 	bool update(const ColliderInfo& colliderInfo);
-	std::vector<CollisionData> query(const AABB& collider, ID excludeID = INVALID_ID) const;
 	std::vector<RayHitData> raycastAll(const Ray2D& ray) const;
 	std::optional<RayHitData> raycastClosest(const Ray2D& ray) const;
 

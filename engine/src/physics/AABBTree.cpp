@@ -1,5 +1,4 @@
 #include "physics/AABBTree.hpp"
-#include "utilities/assertions.hpp"
 
 #include "core/pch.hpp"
 
@@ -242,44 +241,15 @@ bool AABBTree::update(const ColliderInfo& colliderInfo)
 	return true;
 }
 
-std::vector<CollisionData> AABBTree::query(const AABB& collider, ID excludeID) const
-{
-	static std::vector<uint32_t> nodeStack;
-	nodeStack.clear();
-	nodeStack.reserve(256);
-	std::vector<CollisionData> results;
-	uint32_t index = m_rootIndex;
-
-	if (index != NullIndex)
-		nodeStack.push_back(index);
-	while (!nodeStack.empty())
-	{
-		index = nodeStack.back();
-		nodeStack.pop_back();
-		const Node& currNode = m_nodes[index];
-
-		if (!currNode.Bounds.intersects(collider))
-			continue; // skip non-overlapping branches
-
-		if (currNode.IsLeaf)
-		{
-			ASSERT(currNode.Value.has_value(), "Leaf node without value");
-			// If the collider intersects, add it to results (Collider may not be AABB)
-			const ColliderInfo& info = currNode.Value.value();
-			if (info.id != excludeID && info.intersects(collider)) // Skip if it's the excluded ID
-				results.push_back(CollisionData(GenericCollisionData(info.id, info)));
-		}
-		else
-		{
-			// Traverse children
-			if (currNode.RightIndex != NullIndex)
-				nodeStack.push_back(currNode.RightIndex);
-			if (currNode.LeftIndex != NullIndex)
-				nodeStack.push_back(currNode.LeftIndex);
-		}
+std::vector<CollisionData> AABBTree::query(const Collider& collider, ID excludeID) const {
+	switch (collider.Type) {
+	case Collider::ColliderType::AABBType:
+		return query(collider.AABBCollider, excludeID);
+	case Collider::ColliderType::OBBType:
+		return query(collider.OBBCollider, excludeID);
+	default:
+		return {}; // unknown type
 	}
-
-	return results;
 }
 
 std::vector<RayHitData> AABBTree::raycastAll(const Ray2D& ray) const

@@ -4,6 +4,12 @@
 
 namespace TileBite {
 
+std::vector<CollisionData> TilemapColliderGroup::query(const OBB& collider) const
+{
+    // TODO:
+    return {};
+}
+
 std::vector<CollisionData> TilemapColliderGroup::query(const AABB& collider) const
 {
 	ASSERT(!m_bounds.isEmpty(), "TilemapColliderGroup bounds cannot be empty");

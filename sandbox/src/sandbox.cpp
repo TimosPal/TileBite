@@ -28,7 +28,7 @@ public:
     {
         auto& world = getSceneManager().getActiveScene()->getWorld();
 
-        for (size_t i = 0; i < 10; i++)
+        //for (size_t i = 0; i < 1; i++)
         {
             ID box = world.createEntity();
 
@@ -36,14 +36,37 @@ public:
 				quickRandFloat(-1.0f, 1.0f),
 				quickRandFloat(-1.0f, 1.0f)
 			);
+
             world.addComponents(
                 box,
-                TransformComponent{ randomPos, glm::vec2(0.1f, 0.1f) },
+                TransformComponent{ glm::vec2(0.4, 0), glm::vec2(0.2f, 0.8f) },
                 SpriteComponent(glm::vec4(0.7f, 0.0f, 0.0f, 1.0f), 0),
-                AABBComponent({ 1.0f, 1.0f }, { 2.0f, 2.0f })
+                OBBComponent(glm::vec2(0, 0), glm::vec2(1, 1), 0)
+            );
+        }
+
+        //for (size_t i = 0; i < 1; i++)
+        {
+            ID box = world.createEntity();
+
+            glm::vec2 randomPos = glm::vec2(
+                quickRandFloat(-1.0f, 1.0f),
+                quickRandFloat(-1.0f, 1.0f)
+            );
+
+            world.addComponents(
+                box,
+                TransformComponent{ glm::vec2(0, 0), glm::vec2(0.2f, 0.2f)},
+                SpriteComponent(glm::vec4(0.7f, 0.2f, 0.0f, 1.0f), 0),
+                AABBComponent(glm::vec2(-0.5), glm::vec2(0.5))
             );
         }
 	}
+
+    float pingPong(float t, float minVal = 0.1f, float maxVal = 0.2f) {
+        float range = maxVal - minVal;
+        return minVal + glm::abs(glm::mod(t, 2.0f * range) - range);
+    }
 
     void update(float deltaTime) override
     {
@@ -51,11 +74,15 @@ public:
 
         auto& world = getSceneManager().getActiveScene()->getWorld();
 
-        world.query<TransformComponent, SpriteComponent>().each([&](ID id, TransformComponent* tr, SpriteComponent* spr) {
+        world.query<TransformComponent, SpriteComponent, OBBComponent>().each([&](ID id, TransformComponent* tr, SpriteComponent* spr, OBBComponent*) {
             tr->setRotation(tr->getRotation() + 1.2f * deltaTime);
+            //tr->setSize(glm::vec2(pingPong(timer * 0.01f)));
+
+            PhysicsEngine& physicsEngine = getSceneManager().getActiveScene()->getPhysicsEngine();
+            auto res = physicsEngine.query(OBB());
         });
 
-        Ray2D ray(glm::vec2(-2.0f, 0.0f), glm::vec2(1.0f, sin(timer * 0.3f) * 0.6f), 2.0f);
+        Ray2D ray(glm::vec2(-2.0f, 0.0f), glm::vec2(1.0f, sin(timer * 0.3f) * 0.6f), 4.0f);
 
         getRenderer().drawLine(
             Line{

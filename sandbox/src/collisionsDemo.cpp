@@ -54,7 +54,7 @@ public:
             glm::vec2 max = aabb->getCollider().Max * transform->getSize() + transform->getPosition();
 			AABB WorldSpaceAABBComponent{ min, max };
 
-            auto collisionData = physicsEngine.queryCollisions(WorldSpaceAABBComponent);
+            auto collisionData = physicsEngine.query(WorldSpaceAABBComponent);
             for (const auto& data : collisionData)
             {
                 if (data.Generic.id == entityID) continue;

@@ -18,6 +18,7 @@ public:
 	{}
 
 	std::vector<CollisionData> query(const AABB& collider) const;
+	std::vector<CollisionData> query(const OBB& collider) const;
 	std::vector<RayHitData> raycastAll(const Ray2D& ray) const;
 	std::optional<RayHitData> raycastClosest(const Ray2D& ray) const;
 private:

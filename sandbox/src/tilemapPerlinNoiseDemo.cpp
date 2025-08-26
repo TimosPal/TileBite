@@ -63,7 +63,7 @@ public:
         glm::vec2 max = aabb->getCollider().Max * tr->getSize() + tr->getPosition();
         AABB WorldSpaceAABBComponent{ min, max };
 		PhysicsEngine& physicsEngine = getSceneManager().getActiveScene()->getPhysicsEngine();
-        auto collisionData = physicsEngine.queryCollisions(WorldSpaceAABBComponent, box);
+        auto collisionData = physicsEngine.query(WorldSpaceAABBComponent, box);
 
 		auto& renderer = getRenderer();
         if (!collisionData.empty())

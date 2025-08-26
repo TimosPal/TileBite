@@ -3,29 +3,6 @@
 
 namespace TileBite {
 
-std::vector<CollisionData> PhysicsEngine::queryCollisions(const AABB& collider, ID excludeID) const
-{
-	// TODO: maybe use a different tree for static colliders
-	// tilemaps could be simpified to 
-
-	// Need to exclude the ID to avoid self-collision
-	auto collisionData = m_coreTree.query(collider, excludeID);
-	auto tilemapChunksCollisionData = m_tilemapColliderTree.query(collider, excludeID);
-
-	collisionData.reserve(collisionData.size() + tilemapChunksCollisionData.size());
-	for (const CollisionData& tilemapCollisionData : tilemapChunksCollisionData)
-	{
-		auto it = m_tilemapColliderGroups.find(tilemapCollisionData.Generic.id);
-		ASSERT(it != m_tilemapColliderGroups.end(), "Tilemap collider group not found in the map");
-
-		const TilemapColliderGroup& group = it->second;
-		auto groupColliderData = group.query(collider);
-		collisionData.insert(collisionData.end(), groupColliderData.begin(), groupColliderData.end());
-	}
-
-	return collisionData;
-}
-
 std::vector<RayHitData> PhysicsEngine::raycastAll(const Ray2D& ray) const
 {
 	auto rayHits = m_coreTree.raycastAll(ray);
