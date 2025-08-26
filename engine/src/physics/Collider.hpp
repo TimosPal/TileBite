@@ -27,9 +27,9 @@ struct Collider {
 	AABB getAABBBounds() const {
 		switch (Type) {
 		case ColliderType::AABBType:
-			return AABBCollider;
+			return AABBCollider.getBoundingBox();
 		case ColliderType::OBBType:
-			return OBBCollider.getAABB();
+			return OBBCollider.getBoundingBox();
 		default:
 			return AABB(); // Return an empty AABB if type is unknown
 		}

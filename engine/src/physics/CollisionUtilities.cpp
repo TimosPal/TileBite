@@ -1,4 +1,5 @@
 #include "physics/CollisionUtilities.hpp"
+#include "utilities/Logger.hpp"
 
 namespace TileBite {
 namespace CollisionUtilities {
@@ -60,6 +61,7 @@ bool contains(const AABB& a, const Collider& b) {
 
 bool intersects(const AABB& a, const OBB& b)
 {
+	LOG_WARNING("Not implemented intersection AABB OBB");
 	// TODO:
 	return false;
 }

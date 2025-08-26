@@ -39,7 +39,7 @@ public:
 
             world.addComponents(
                 box,
-                TransformComponent{ glm::vec2(0.4, 0), glm::vec2(0.2f, 0.8f) },
+                TransformComponent{ glm::vec2(0.4, 0), glm::vec2(0.1f, 1.0f) },
                 SpriteComponent(glm::vec4(0.7f, 0.0f, 0.0f, 1.0f), 0),
                 OBBComponent(glm::vec2(0, 0), glm::vec2(1, 1), 0)
             );
@@ -56,7 +56,7 @@ public:
 
             world.addComponents(
                 box,
-                TransformComponent{ glm::vec2(0, 0), glm::vec2(0.2f, 0.2f)},
+                TransformComponent{ glm::vec2(0.0, 0), glm::vec2(0.2f, 0.2f)},
                 SpriteComponent(glm::vec4(0.7f, 0.2f, 0.0f, 1.0f), 0),
                 AABBComponent(glm::vec2(-0.5), glm::vec2(0.5))
             );
@@ -74,12 +74,13 @@ public:
 
         auto& world = getSceneManager().getActiveScene()->getWorld();
 
-        world.query<TransformComponent, SpriteComponent, OBBComponent>().each([&](ID id, TransformComponent* tr, SpriteComponent* spr, OBBComponent*) {
-            tr->setRotation(tr->getRotation() + 1.2f * deltaTime);
+        world.query<TransformComponent, SpriteComponent, OBBComponent>().each([&](ID id, TransformComponent* tr, SpriteComponent* spr, OBBComponent* obb) {
+            tr->setRotation(tr->getRotation() + 0.2f * deltaTime);
             //tr->setSize(glm::vec2(pingPong(timer * 0.01f)));
 
             PhysicsEngine& physicsEngine = getSceneManager().getActiveScene()->getPhysicsEngine();
-            auto res = physicsEngine.query(OBB());
+            OBB worldSpaceCol = obb->getCollider().toWorldSpace(tr->getPosition(), tr->getSize(), tr->getRotation());
+            auto res = physicsEngine.query(worldSpaceCol, id);
         });
 
         Ray2D ray(glm::vec2(-2.0f, 0.0f), glm::vec2(1.0f, sin(timer * 0.3f) * 0.6f), 4.0f);

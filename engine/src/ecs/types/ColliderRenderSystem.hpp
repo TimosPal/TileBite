@@ -34,9 +34,13 @@ public:
 			case Collider::ColliderType::AABBType:
 				renderer2D.drawSquare(collider.AABBCollider.Min, collider.AABBCollider.Max, collidersColor);
 				break;
-			case Collider::ColliderType::OBBType:
+			case Collider::ColliderType::OBBType: {
 				renderer2D.drawSquare(collider.OBBCollider.getCorners(), collidersColor);
+
+				AABB boundingBox = collider.OBBCollider.getBoundingBox();
+				renderer2D.drawSquare(boundingBox.Min, boundingBox.Max, tilemapColliderGroupColor);
 				break;
+			}
 			default:
 				break;
 			}

@@ -38,7 +38,9 @@ public:
             nodeStack.pop_back();
             const Node& currNode = m_nodes[index];
 
-            if (!currNode.Bounds.intersects(collider))
+            // Broad phase against bounding box of collider area
+            // NOTE: if rotation causes big bounds this might be slower.
+            if (!currNode.Bounds.intersects(collider.getBoundingBox()))
                 continue;
 
             if (currNode.IsLeaf) {

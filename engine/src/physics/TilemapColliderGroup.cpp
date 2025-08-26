@@ -7,6 +7,7 @@ namespace TileBite {
 std::vector<CollisionData> TilemapColliderGroup::query(const OBB& collider) const
 {
     // TODO:
+    LOG_WARNING("Not implemented TilemapColliderGroup query");
     return {};
 }
 

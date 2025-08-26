@@ -59,9 +59,7 @@ public:
 
 		AABBComponent* aabb = world.getComponent<AABBComponent>(box);
 
-        glm::vec2 min = aabb->getCollider().Min * tr->getSize() + tr->getPosition();
-        glm::vec2 max = aabb->getCollider().Max * tr->getSize() + tr->getPosition();
-        AABB WorldSpaceAABBComponent{ min, max };
+        AABB WorldSpaceAABBComponent = aabb->getCollider().toWorldSpace(tr->getPosition(), tr->getSize(), tr->getRotation());
 		PhysicsEngine& physicsEngine = getSceneManager().getActiveScene()->getPhysicsEngine();
         auto collisionData = physicsEngine.query(WorldSpaceAABBComponent, box);
 

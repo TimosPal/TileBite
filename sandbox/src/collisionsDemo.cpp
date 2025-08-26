@@ -50,9 +50,11 @@ public:
         world.query<AABBComponent, TransformComponent, SpriteComponent, RigidBody>().each([&](ID entityID, AABBComponent* aabb, TransformComponent* transform, SpriteComponent* sprite, RigidBody* rb) {
             bool falling = true;
             
-            glm::vec2 min = aabb->getCollider().Min * transform->getSize() + transform->getPosition();
-            glm::vec2 max = aabb->getCollider().Max * transform->getSize() + transform->getPosition();
-			AABB WorldSpaceAABBComponent{ min, max };
+			AABB WorldSpaceAABBComponent = aabb->getCollider().toWorldSpace(
+                transform->getPosition(),
+                transform->getSize(),
+                transform->getRotation()
+            );
 
             auto collisionData = physicsEngine.query(WorldSpaceAABBComponent);
             for (const auto& data : collisionData)

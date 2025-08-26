@@ -3,6 +3,8 @@
 
 #include <glm/glm.hpp>
 
+#include "utilities/Logger.hpp"
+
 namespace TileBite {
 
 struct AABB; // Forward declaration to avoid circular dependency
@@ -18,6 +20,8 @@ struct OBB {
 		: Center(center), Size(size), Rotation(rotation)
 	{}
 
+    OBB toWorldSpace(glm::vec2 position, glm::vec2 size, float radians) const;
+
     inline bool isValid() const noexcept {
         return Size.x >= 0.0f && Size.y >= 0.0f;
     }
@@ -26,13 +30,14 @@ struct OBB {
         return Size.x * Size.y;
     }
 
-    AABB getAABB() const;
+    AABB getBoundingBox() const;
 
     bool contains(const AABB& other) const;
     bool contains(const Collider& other) const;
 
     inline bool contains(const OBB& other) const noexcept {
 		// TODO: Implement OBB contains OBB logic
+        LOG_WARNING("Not implemented OBB contains OBB");
         return false;
     }
 
@@ -40,6 +45,7 @@ struct OBB {
     bool intersects(const Collider& other) const;
 
     inline bool intersects(const OBB& other) const noexcept {
+        LOG_WARNING("Not implemented OBB intersection OBB");
         // TODO: Implement OBB intersects OBB logic
         return false;
     }

@@ -15,6 +15,9 @@ struct AABB {
 	AABB() : Min(glm::vec2(0.0f)), Max(glm::vec2(0.0f)) {}
 	AABB(const glm::vec2& min, const glm::vec2& max) : Min(min), Max(max) {}
 	
+	AABB toWorldSpace(glm::vec2 position, glm::vec2 size, float radians) const;
+	AABB getBoundingBox() const { return *this; } // NOTE: Needed for constistency accross collider types.
+
 	std::array<glm::vec2, 4> getCorners() const;
 
 	inline bool isValid() const noexcept

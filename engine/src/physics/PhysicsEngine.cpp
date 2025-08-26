@@ -60,43 +60,25 @@ void PhysicsEngine::removeCollider(ID id)
 
 void PhysicsEngine::updateCollider(ID id, const AABB* collider, TransformComponent* transform)
 {
-	// TODO: rotation utility math func
-	float c = cos(transform->getRotation());
-	float s = sin(transform->getRotation());
-
-	glm::vec2 centerPoint = (collider->Max + collider->Min) * 0.5f;
-	glm::vec2 rotatedCenter(
-		centerPoint.x * c - centerPoint.y * s,
-		centerPoint.x * s + centerPoint.y * c
+	AABB worldSpaceAABB = collider->toWorldSpace(
+		transform->getPosition(),
+		transform->getSize(),
+		transform->getRotation()
 	);
 
-	glm::vec2 localMin = rotatedCenter - (collider->Max - collider->Min) * 0.5f;
-	glm::vec2 localMax = rotatedCenter + (collider->Max - collider->Min) * 0.5f;
-
-	glm::vec2 min = localMin * transform->getSize() + transform->getPosition();
-	glm::vec2 max = localMax * transform->getSize() + transform->getPosition();
-	ColliderInfo info(id, AABB{min, max});
+	ColliderInfo info(id, worldSpaceAABB);
 	bool updated = m_coreTree.update(info);
 	if (!updated) m_coreTree.insert(info);
 }
 
 void PhysicsEngine::updateCollider(ID id, const OBB* collider, TransformComponent* transform)
 {
-	// TODO: rotation utility math func
-	float c = cos(transform->getRotation());
-	float s = sin(transform->getRotation());
-
-	glm::vec2 localCenter = collider->Center * transform->getSize();
-	glm::vec2 rotatedCenter(
-		localCenter.x * c - localCenter.y * s,
-		localCenter.x * s + localCenter.y * c
+	OBB worldSpaceOBB = collider->toWorldSpace(
+		transform->getPosition(),
+		transform->getSize(),
+		transform->getRotation()
 	);
 
-	OBB worldSpaceOBB(
-		rotatedCenter + transform->getPosition(),
-		collider->Size * transform->getSize(),
-		collider->Rotation + transform->getRotation()
-	);
 	ColliderInfo info(id, worldSpaceOBB);
 	bool updated = m_coreTree.update(info);
 	if (!updated) m_coreTree.insert(info);

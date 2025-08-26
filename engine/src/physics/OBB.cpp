@@ -6,6 +6,26 @@
 
 namespace TileBite {
 
+OBB OBB::toWorldSpace(glm::vec2 position, glm::vec2 size, float radians) const {
+    // TODO: rotation utility math func
+    float c = cos(radians);
+    float s = sin(radians);
+
+    glm::vec2 localCenter = Center * size;
+    glm::vec2 rotatedCenter(
+        localCenter.x * c - localCenter.y * s,
+        localCenter.x * s + localCenter.y * c
+    );
+
+    OBB worldSpaceOBB(
+        rotatedCenter + position,
+        Size * size,
+        Rotation + radians
+    );
+
+    return worldSpaceOBB;
+}
+
 std::array<glm::vec2, 4> OBB::getCorners() const
 {
     glm::vec2 half = Size * 0.5f;
@@ -34,7 +54,7 @@ std::array<glm::vec2, 4> OBB::getCorners() const
     return corners;
 }
 
-AABB OBB::getAABB() const {
+AABB OBB::getBoundingBox() const {
     glm::vec2 minPt(FLT_MAX), maxPt(-FLT_MAX);
 
     for (auto& c : getCorners()) {
