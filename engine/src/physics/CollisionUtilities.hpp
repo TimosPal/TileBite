@@ -20,6 +20,8 @@ bool contains(const OBB& a, const Collider& b);
 bool contains(const Collider& a, const AABB& b);
 bool contains(const AABB& a, const Collider& b);
 
+bool SATTest(const std::array<glm::vec2, 4>& points1, const std::array<glm::vec2, 4>& points2);
+
 bool intersects(const AABB& a, const OBB& b);
 bool intersects(const OBB& a, const AABB& b);
 

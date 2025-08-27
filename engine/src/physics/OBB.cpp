@@ -83,4 +83,8 @@ bool OBB::intersects(const Collider& other) const
     return CollisionUtilities::intersects(other, *this);
 }
 
+bool OBB::intersects(const OBB& other) const {
+    return CollisionUtilities::SATTest(getCorners(), other.getCorners());
+}
+
 } // TileBite

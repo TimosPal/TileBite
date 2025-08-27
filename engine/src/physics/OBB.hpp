@@ -43,12 +43,7 @@ struct OBB {
 
     bool intersects(const AABB& other) const;
     bool intersects(const Collider& other) const;
-
-    inline bool intersects(const OBB& other) const noexcept {
-        LOG_WARNING("Not implemented OBB intersection OBB");
-        // TODO: Implement OBB intersects OBB logic
-        return false;
-    }
+    bool intersects(const OBB& other) const;
 
     std::array<glm::vec2, 4> getCorners() const;
 
