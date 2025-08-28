@@ -4,6 +4,16 @@
 
 namespace TileBite {
 
+glm::vec2 TilemapColliderGroup::worldPositionToTileIndices(glm::vec2 position, float epsilon) const
+{
+    // NOTE: Using epsilon avoids adding tiles at edges ([start, end] exclusive)
+    glm::vec2 normalisedPosition = (position - m_bounds.Min) / tileSize;
+    uint32_t xIndex = static_cast<uint32_t>(std::max(0.0f, std::floor(normalisedPosition.x + epsilon)));
+    uint32_t yIndex = static_cast<uint32_t>(std::max(0.0f, std::floor(normalisedPosition.y + epsilon)));
+
+    return { xIndex, yIndex };
+}
+
 std::vector<CollisionData> TilemapColliderGroup::query(const OBB& collider) const
 {
     // TODO:
@@ -21,27 +31,14 @@ std::vector<CollisionData> TilemapColliderGroup::query(const AABB& collider) con
     AABB intersectionArea = AABB::intersectionBound(collider, m_bounds);
     if (intersectionArea.isEmpty()) return results;
 
-    glm::vec2 tl = intersectionArea.Min;
-    glm::vec2 br = intersectionArea.Max;
-
-    glm::vec2 tlNormalised = (tl - m_bounds.Min) / tileSize;
-    glm::vec2 brNormalised = (br - m_bounds.Min) / tileSize;
-
-    // Compute start indices
-    uint32_t startX = static_cast<uint32_t>(std::max(0.0f, std::floor(tlNormalised.x)));
-    uint32_t startY = static_cast<uint32_t>(std::max(0.0f, std::floor(tlNormalised.y)));
-
-    // Compute end indices
-	// NOTE: Using epsilon avoids adding tiles at edges ([start, end] exclusive)
-    float epsilon = 1e-4f;
-    uint32_t endX = static_cast<uint32_t>(std::max(0.0f, std::floor(brNormalised.x - epsilon)));
-    uint32_t endY = static_cast<uint32_t>(std::max(0.0f, std::floor(brNormalised.y - epsilon)));
+	glm::vec2 startIndices = worldPositionToTileIndices(intersectionArea.Min);
+	glm::vec2 endIndices = worldPositionToTileIndices(intersectionArea.Max, -1e-4f);
 
 	// TODO: this for loop can be optimized by using bitset operations
-    results.reserve((endX - startX + 1) * (endY - startY + 1));
-    for (uint32_t y = startY; y <= endY; y++)
+    results.reserve((endIndices.x - startIndices.x + 1) * (endIndices.y - startIndices.y + 1));
+    for (uint32_t y = startIndices.y; y <= endIndices.y; y++)
     {
-        for (uint32_t x = startX; x <= endX; x++)
+        for (uint32_t x = startIndices.x; x <= endIndices.x; x++)
         {
             uint32_t index = x + y * static_cast<uint32_t>(tilemapSize.x);
             if (!m_tiles.isSet(index)) continue;

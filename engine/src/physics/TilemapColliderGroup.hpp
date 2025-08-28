@@ -29,6 +29,8 @@ private:
 	ID m_id = INVALID_ID; // Unique ID for the tilemap collider group
 
 	std::vector<RayHitData> ADDSearch(const Ray2D& ray, bool stopAtFirst) const;
+
+	glm::vec2 worldPositionToTileIndices(glm::vec2 position, float epsilon = 0) const;
 };
 
 } // TileBite
