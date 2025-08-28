@@ -9,9 +9,11 @@ namespace TileBite {
 
 class Ray2D {
 public:
-
-    Ray2D(const glm::vec2& origin, const glm::vec2& dir, float maxT = 10)
-        : o(origin), d(glm::normalize(dir)), invD(1.0f / glm::normalize(dir)), maxT(maxT) {
+    Ray2D(const glm::vec2& origin, const glm::vec2& dir, float maxT = 10.0f)
+        : o(origin), maxT(maxT)
+    {
+        d = glm::normalize(dir);
+        invD = 1.0f / d;
     }
 
     glm::vec2 at(float t) const {

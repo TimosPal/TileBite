@@ -53,7 +53,7 @@ std::vector<CollisionData> TilemapColliderGroup::query(const AABB& collider) con
 }
 
 std::vector<RayHitData> TilemapColliderGroup::raycastAll(const Ray2D& ray) const {
-	return ADDSearch(ray, false);
+    return ADDSearch(ray, false);
 }
 
 std::optional<RayHitData> TilemapColliderGroup::raycastClosest(const Ray2D& ray) const {
@@ -105,21 +105,24 @@ std::vector<RayHitData> TilemapColliderGroup::ADDSearch(const Ray2D& ray, bool s
     }
 
     float tileDistance = 0.0f;
-	float maxLength = glm::length(rayEnd - rayStart);
-    while (tileDistance < maxLength) {
+    float maxLength = glm::length(rayEnd - rayStart);
+    while (true) {
         if (sideDist.x < sideDist.y) {
             tileDistance = sideDist.x;
+            if (tileDistance > maxLength) break; 
             sideDist.x += deltaDist.x;
             currentTile.x += step.x;
         }
         else {
             tileDistance = sideDist.y;
+            if (tileDistance > maxLength) break;
             sideDist.y += deltaDist.y;
             currentTile.y += step.y;
         }
 
         if (currentTile.x >= 0 && currentTile.x < tilemapSize.x &&
-            currentTile.y >= 0 && currentTile.y < tilemapSize.y) {
+            currentTile.y >= 0 && currentTile.y < tilemapSize.y)
+        {
             if (m_tiles.isSet(currentTile.x + currentTile.y * tilemapSize.x)) {
                 AABB tileBounds(
                     m_bounds.Min + glm::vec2(currentTile) * tileSize,
