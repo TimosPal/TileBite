@@ -4,7 +4,7 @@
 
 namespace TileBite {
 
-glm::vec2 TilemapColliderGroup::worldPositionToTileIndices(glm::vec2 position, float epsilon) const
+glm::ivec2 TilemapColliderGroup::worldPositionToTileIndices(glm::vec2 position, float epsilon) const
 {
     // NOTE: Using epsilon avoids adding tiles at edges ([start, end] exclusive)
     glm::vec2 normalisedPosition = (position - m_bounds.Min) / tileSize;
@@ -16,9 +16,49 @@ glm::vec2 TilemapColliderGroup::worldPositionToTileIndices(glm::vec2 position, f
 
 std::vector<CollisionData> TilemapColliderGroup::query(const OBB& collider) const
 {
-    // TODO:
-    NOT_IMPLEMENTED_LOG;
-    return {};
+    std::vector<CollisionData> results;
+
+    auto points = collider.getCorners();
+
+    // TODO: placeholder code
+
+    for (glm::ivec2& tile : ADDRasterization(points[0], points[1]))
+    {
+        if (m_tiles.isSet(tile.x + tile.y * static_cast<uint32_t>(tilemapSize.x))) {
+            glm::vec2 tileMin = m_bounds.Min + glm::vec2(tile) * tileSize;
+            glm::vec2 tileMax = tileMin + tileSize;
+            results.emplace_back(CollisionData(TilemapCollisionData(m_id, AABB(tileMin, tileMax), tile.x, tile.y)));
+		}
+    }
+
+    for (glm::ivec2& tile : ADDRasterization(points[1], points[2]))
+    {
+        if (m_tiles.isSet(tile.x + tile.y * static_cast<uint32_t>(tilemapSize.x))) {
+            glm::vec2 tileMin = m_bounds.Min + glm::vec2(tile) * tileSize;
+            glm::vec2 tileMax = tileMin + tileSize;
+            results.emplace_back(CollisionData(TilemapCollisionData(m_id, AABB(tileMin, tileMax), tile.x, tile.y)));
+        }
+    }
+
+    for (glm::ivec2& tile : ADDRasterization(points[2], points[3]))
+    {
+        if (m_tiles.isSet(tile.x + tile.y * static_cast<uint32_t>(tilemapSize.x))) {
+            glm::vec2 tileMin = m_bounds.Min + glm::vec2(tile) * tileSize;
+            glm::vec2 tileMax = tileMin + tileSize;
+            results.emplace_back(CollisionData(TilemapCollisionData(m_id, AABB(tileMin, tileMax), tile.x, tile.y)));
+        }
+    }
+
+    for (glm::ivec2& tile : ADDRasterization(points[3], points[0]))
+    {
+        if (m_tiles.isSet(tile.x + tile.y * static_cast<uint32_t>(tilemapSize.x))) {
+            glm::vec2 tileMin = m_bounds.Min + glm::vec2(tile) * tileSize;
+            glm::vec2 tileMax = tileMin + tileSize;
+            results.emplace_back(CollisionData(TilemapCollisionData(m_id, AABB(tileMin, tileMax), tile.x, tile.y)));
+        }
+    }
+
+    return results;
 }
 
 std::vector<CollisionData> TilemapColliderGroup::query(const AABB& collider) const
@@ -68,77 +108,52 @@ std::vector<RayHitData> TilemapColliderGroup::ADDSearch(const Ray2D& ray, bool s
     if (!ray.intersect(m_bounds, tmin, tmax))
         return results;
 
-    glm::vec2 rayDir = ray.getDirection();
-    glm::vec2 rayDirLocal = rayDir / tileSize;
 	float startingT = std::max(0.0f, tmin); // If tmin is negative we are inside the tilemap so we start at 0
     glm::vec2 rayStart = ray.at(startingT - 0.01f); // Slightly offset to avoid missing first tile
-    glm::vec2 rayStartLocal = (rayStart - m_bounds.Min) / tileSize;
     glm::vec2 rayEnd = ray.at(ray.getMaxT());
-    glm::vec2 rayEndLocal = (rayEnd - m_bounds.Min) / tileSize;
 
-    glm::ivec2 currentTile = glm::floor(rayStartLocal);
-    glm::ivec2 step;
-    glm::vec2 sideDist;
-    glm::vec2 deltaDist;
+    ADDWalker(rayStart, rayEnd, [&](const glm::ivec2& tile) {
+        if (m_tiles.isSet(tile.x + tile.y * tilemapSize.x)) {
+            AABB tileBounds(
+                m_bounds.Min + glm::vec2(tile) * tileSize,
+                m_bounds.Min + glm::vec2(tile + glm::ivec2(1)) * tileSize
+            );
+            float tileTmin, tileTmax;
+            ray.intersect(tileBounds, tileTmin, tileTmax);
+            results.push_back(RayHitData(
+                TilemapCollisionData(m_id, tileBounds, tile.x, tile.y),
+                tileTmin, tileTmax)
+            );
 
-    // Step size (distance to next grid line in each axis)
-    deltaDist.x = (rayDirLocal.x == 0.0f) ? std::numeric_limits<float>::infinity() : std::abs(1.0f / rayDirLocal.x);
-    deltaDist.y = (rayDirLocal.y == 0.0f) ? std::numeric_limits<float>::infinity() : std::abs(1.0f / rayDirLocal.y);
-
-    // Step direction and initial sideDist
-    if (rayDirLocal.x < 0) {
-        step.x = -1;
-        sideDist.x = (rayStartLocal.x - currentTile.x) * deltaDist.x;
-    }
-    else {
-        step.x = 1;
-        sideDist.x = (currentTile.x + 1.0f - rayStartLocal.x) * deltaDist.x;
-    }
-
-    if (rayDirLocal.y < 0) {
-        step.y = -1;
-        sideDist.y = (rayStartLocal.y - currentTile.y) * deltaDist.y;
-    }
-    else {
-        step.y = 1;
-        sideDist.y = (currentTile.y + 1.0f - rayStartLocal.y) * deltaDist.y;
-    }
-
-    float tileDistance = 0.0f;
-    float maxLength = glm::length(rayEnd - rayStart);
-    while (true) {
-        if (sideDist.x < sideDist.y) {
-            tileDistance = sideDist.x;
-            if (tileDistance > maxLength) break; 
-            sideDist.x += deltaDist.x;
-            currentTile.x += step.x;
-        }
-        else {
-            tileDistance = sideDist.y;
-            if (tileDistance > maxLength) break;
-            sideDist.y += deltaDist.y;
-            currentTile.y += step.y;
+            if (stopAtFirst) return false;
         }
 
-        if (currentTile.x >= 0 && currentTile.x < tilemapSize.x &&
-            currentTile.y >= 0 && currentTile.y < tilemapSize.y)
-        {
-            if (m_tiles.isSet(currentTile.x + currentTile.y * tilemapSize.x)) {
-                AABB tileBounds(
-                    m_bounds.Min + glm::vec2(currentTile) * tileSize,
-                    m_bounds.Min + glm::vec2(currentTile + glm::ivec2(1)) * tileSize
-                );
-                float tileTmin, tileTmax;
-                ray.intersect(tileBounds, tileTmin, tileTmax);
-                results.push_back(RayHitData(
-                    TilemapCollisionData(m_id, tileBounds, currentTile.x, currentTile.y),
-                    tileTmin, tileTmax)
-                );
+        return true;
+    });
 
-                if (stopAtFirst) break;
-            }
-        }
-    }
+    return results;
+}
+
+std::vector<glm::ivec2> TilemapColliderGroup::ADDRasterization(glm::vec2 start, glm::vec2 end) const {
+	// Assume a ray (line segment) from start to end and return all the tile indices it intersects
+
+    std::vector<glm::ivec2> results;
+
+	glm::vec2 rayDir = end - start;
+	Ray2D ray(start, rayDir, glm::length(rayDir));
+
+    float tmin, tmax;
+    if (!ray.intersect(m_bounds, tmin, tmax))
+        return results;
+
+    float startingT = std::max(0.0f, tmin); // If tmin is negative we are inside the tilemap so we start at 0
+    glm::vec2 rayStart = ray.at(startingT - 0.01f); // Slightly offset to avoid missing first tile
+    glm::vec2 rayEnd = ray.at(ray.getMaxT());
+
+    ADDWalker(start, end, [&](const glm::ivec2& tile) {
+        results.push_back(tile);
+		return true;
+    });
 
     return results;
 }

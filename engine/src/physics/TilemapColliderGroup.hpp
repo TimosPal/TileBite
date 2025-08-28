@@ -29,8 +29,68 @@ private:
 	ID m_id = INVALID_ID; // Unique ID for the tilemap collider group
 
 	std::vector<RayHitData> ADDSearch(const Ray2D& ray, bool stopAtFirst) const;
+    std::vector<glm::ivec2> ADDRasterization(glm::vec2 start, glm::vec2 end) const;
 
-	glm::vec2 worldPositionToTileIndices(glm::vec2 position, float epsilon = 0) const;
+	glm::ivec2 worldPositionToTileIndices(glm::vec2 position, float epsilon = 0) const;
+	
+    template <typename Callback>
+    void ADDWalker(glm::vec2 start, glm::vec2 end, Callback&& callback) const
+    {
+        glm::vec2 lineDir = glm::normalize(end - start);
+        glm::vec2 lineDirLocal = lineDir / tileSize;
+        glm::vec2 rayStartLocal = (start - m_bounds.Min) / tileSize;
+
+        glm::ivec2 currentTile = floor(rayStartLocal);
+        glm::ivec2 step;
+        glm::vec2 sideDist;
+        glm::vec2 deltaDist;
+
+        // Step size (distance to next grid line in each axis)
+        deltaDist.x = (lineDirLocal.x == 0.0f) ? std::numeric_limits<float>::infinity() : std::abs(1.0f / lineDirLocal.x);
+        deltaDist.y = (lineDirLocal.y == 0.0f) ? std::numeric_limits<float>::infinity() : std::abs(1.0f / lineDirLocal.y);
+
+        // Step direction and initial sideDist
+        if (lineDirLocal.x < 0) {
+            step.x = -1;
+            sideDist.x = (rayStartLocal.x - currentTile.x) * deltaDist.x;
+        }
+        else {
+            step.x = 1;
+            sideDist.x = (currentTile.x + 1.0f - rayStartLocal.x) * deltaDist.x;
+        }
+
+        if (lineDirLocal.y < 0) {
+            step.y = -1;
+            sideDist.y = (rayStartLocal.y - currentTile.y) * deltaDist.y;
+        }
+        else {
+            step.y = 1;
+            sideDist.y = (currentTile.y + 1.0f - rayStartLocal.y) * deltaDist.y;
+        }
+
+        float tileDistance = 0.0f;
+        float maxLength = glm::length(end - start);
+        while (true) {
+            if (sideDist.x < sideDist.y) {
+                tileDistance = sideDist.x;
+                if (tileDistance > maxLength) break;
+                sideDist.x += deltaDist.x;
+                currentTile.x += step.x;
+            }
+            else {
+                tileDistance = sideDist.y;
+                if (tileDistance > maxLength) break;
+                sideDist.y += deltaDist.y;
+                currentTile.y += step.y;
+            }
+
+            if (currentTile.x >= 0 && currentTile.x < tilemapSize.x &&
+                currentTile.y >= 0 && currentTile.y < tilemapSize.y)
+            {
+                if (!callback(currentTile)) break;
+            }
+        }
+    }
 };
 
 } // TileBite
