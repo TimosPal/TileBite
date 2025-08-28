@@ -83,6 +83,37 @@ bool axisOverlap(glm::vec2 axis, const std::array<glm::vec2, 4>& points1, const 
 	return !(max1 < min2 || max2 < min1); // No overlap if one projection is completely before or after the other
 }
 
+bool axisOverlapAABBAxisX(const AABB& aabb, const std::array<glm::vec2, 4>& points2)
+{
+	float min1 = aabb.Min.x, max1 = aabb.Max.x;
+	auto [min2, max2] = axisProjectionMinMax(glm::vec2(1, 0), points2);
+	return !(max1 < min2 || max2 < min1); // No overlap if one projection is completely before or after the other
+}
+
+bool axisOverlapAABBAxisY(const AABB& aabb, const std::array<glm::vec2, 4>& points2)
+{
+	float min1 = aabb.Min.y, max1 = aabb.Max.y;
+	auto [min2, max2] = axisProjectionMinMax(glm::vec2(0, 1), points2);
+	return !(max1 < min2 || max2 < min1); // No overlap if one projection is completely before or after the other
+}
+
+bool SATTest(const AABB& aabb, const std::array<glm::vec2, 4>& points2)
+{
+	// Generic SAT between 2 4 point shapes
+	glm::vec2 bAxis1 = glm::normalize(points2[1] - points2[0]);
+	glm::vec2 bAxis2 = glm::normalize(points2[3] - points2[0]);
+
+	const auto& pointsAABB = aabb.getCorners();
+
+	// Test all axes
+	if (!axisOverlapAABBAxisX(aabb, points2)) return false;
+	if (!axisOverlapAABBAxisY(aabb, points2)) return false;
+	if (!axisOverlap(bAxis1, pointsAABB, points2)) return false;
+	if (!axisOverlap(bAxis2, pointsAABB, points2)) return false;
+
+	return true;
+}
+
 bool SATTest(const std::array<glm::vec2, 4>& points1, const std::array<glm::vec2, 4>& points2)
 {
 	// Generic SAT between 2 4 point shapes
@@ -102,8 +133,7 @@ bool SATTest(const std::array<glm::vec2, 4>& points1, const std::array<glm::vec2
 
 bool intersects(const AABB& a, const OBB& b)
 {
-	// TODO: optimize for AABB vs OBB case
-	return SATTest(a.getCorners(), b.getCorners());
+	return SATTest(a, b.getCorners());
 }
 
 bool intersects(const OBB& a, const AABB& b) {
