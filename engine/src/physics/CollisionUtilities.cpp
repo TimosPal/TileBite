@@ -102,6 +102,7 @@ bool SATTest(const std::array<glm::vec2, 4>& points1, const std::array<glm::vec2
 
 bool intersects(const AABB& a, const OBB& b)
 {
+	// TODO: optimize for AABB vs OBB case
 	return SATTest(a.getCorners(), b.getCorners());
 }
 

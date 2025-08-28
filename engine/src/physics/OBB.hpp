@@ -36,9 +36,20 @@ struct OBB {
     bool contains(const Collider& other) const;
 
     inline bool contains(const OBB& other) const noexcept {
-		// TODO: Implement OBB contains OBB logic
-        LOG_WARNING("Not implemented OBB contains OBB");
-        return false;
+		// Transform other into AABB space of this OBB
+		OBB rotatedOBB = OBB(
+            other.Center,
+            other.Size,
+            other.Rotation - Rotation
+        );
+
+        AABB aabb = OBB(
+            Center,
+            Size,
+            Rotation - Rotation
+        ).getBoundingBox();
+
+		return rotatedOBB.contains(aabb);
     }
 
     bool intersects(const AABB& other) const;
