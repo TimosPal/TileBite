@@ -17,7 +17,7 @@ glm::vec2 TilemapColliderGroup::worldPositionToTileIndices(glm::vec2 position, f
 std::vector<CollisionData> TilemapColliderGroup::query(const OBB& collider) const
 {
     // TODO:
-    LOG_WARNING("Not implemented TilemapColliderGroup query");
+    NOT_IMPLEMENTED_LOG;
     return {};
 }
 

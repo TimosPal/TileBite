@@ -11,7 +11,9 @@
 
 namespace TileBite {
 
-// TODO: culling not considering rotations
+// TODO: culling not considering rotations in camera
+// Could use tree for faster iterating if needed (quadtree, bvh, etc)
+// Currently culling is done with the bounding AABB of the OBB of sprite
 
 std::unique_ptr<Renderer2D> Renderer2D::createRenderer2D(SystemResourceHub& systemResourceHub)
 {
@@ -22,9 +24,9 @@ bool Renderer2D::shouldCullSpriteQuad(const SpriteQuad& quad, const CameraContro
 {
 	// Calculate sprite AABB in world space
 	// NOTE: quads are centered arround 0,0 with original size 0.5 per side.
-	glm::vec2 spriteMin = quad.TransformComp->getPosition() - glm::vec2(0.5) * quad.TransformComp->getSize();
-	glm::vec2 spriteMax = quad.TransformComp->getPosition() + glm::vec2(0.5) * quad.TransformComp->getSize();
-	AABB spriteAABB{ spriteMin, spriteMax };
+
+	OBB worldOBB(quad.TransformComp->getPosition(), quad.TransformComp->getSize(), quad.TransformComp->getRotation());
+	AABB spriteAABB = worldOBB.getBoundingBox();
 	return !camera.isInsideFrustum(spriteAABB);
 }
 

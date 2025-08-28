@@ -70,6 +70,7 @@ public:
 	const glm::mat4& getViewProjectionMatrix() const { return m_camera.getViewProjectionMatrix(); }
 
 	bool isInsideFrustum(AABB collider) const {
+		// TODO: consider rotation?
 		return m_cameraFrustum.intersects(collider);
 	}
 
