@@ -34,23 +34,7 @@ struct OBB {
 
     bool contains(const AABB& other) const;
     bool contains(const Collider& other) const;
-
-    inline bool contains(const OBB& other) const noexcept {
-		// Transform other into AABB space of this OBB
-		OBB rotatedOBB = OBB(
-            other.Center,
-            other.Size,
-            other.Rotation - Rotation
-        );
-
-        AABB aabb = OBB(
-            Center,
-            Size,
-            Rotation - Rotation
-        ).getBoundingBox();
-
-		return rotatedOBB.contains(aabb);
-    }
+    bool contains(const OBB& other) const;
 
     bool intersects(const AABB& other) const;
     bool intersects(const Collider& other) const;

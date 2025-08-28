@@ -65,17 +65,34 @@ AABB OBB::getBoundingBox() const {
     return AABB(minPt, maxPt);
 }
 
+bool OBB::contains(const OBB& other) const {
+    // Transform other into AABB space of this OBB
+    OBB rotatedOBB = OBB(
+        other.Center,
+        other.Size,
+        other.Rotation - Rotation
+    );
+
+    AABB aabb = OBB(
+        Center,
+        Size,
+        Rotation - Rotation
+    ).getBoundingBox();
+
+    return rotatedOBB.contains(aabb);
+}
+
+bool OBB::contains(const Collider& other) const
+{
+    return CollisionUtilities::contains(other, *this);
+}
+
 bool OBB::contains(const AABB& other) const {
 	return CollisionUtilities::contains(other, *this);
 }
 
 bool OBB::intersects(const AABB& other) const {
 	return CollisionUtilities::intersects(other, *this);
-}
-
-bool OBB::contains(const Collider& other) const
-{
-    return CollisionUtilities::contains(other, *this);
 }
 
 bool OBB::intersects(const Collider& other) const
