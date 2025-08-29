@@ -20,10 +20,10 @@ std::vector<CollisionData> TilemapColliderGroup::query(const OBB& collider) cons
 
     // Search are is the obb's collider bound box in AABB space
     AABB worldAABB = collider.getBoundingBox();
-    worldAABB.Min = worldPositionToTileIndices(worldAABB.Min);
-    worldAABB.Max = worldPositionToTileIndices(worldAABB.Max);
+    AABB clampedAABB = AABB::intersectionBound(m_bounds, worldAABB);
+    clampedAABB.Min = worldPositionToTileIndices(clampedAABB.Min);
+    clampedAABB.Max = worldPositionToTileIndices(clampedAABB.Max);
 	// Clamped to be within tilemap bounds
-    AABB clampedAABB = AABB::intersectionBound(worldAABB, m_bounds);
 
     for (int y = clampedAABB.Min.y; y <= clampedAABB.Max.y; ++y)
     {
