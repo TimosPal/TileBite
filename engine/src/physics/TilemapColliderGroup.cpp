@@ -18,48 +18,74 @@ std::vector<CollisionData> TilemapColliderGroup::query(const OBB& collider) cons
 {
     std::vector<CollisionData> results;
 
-    auto points = collider.getCorners();
-
-    // TODO: placeholder code
-
-    for (glm::ivec2& tile : ADDRasterization(points[0], points[1]))
-    {
-        if (m_tiles.isSet(tile.x + tile.y * static_cast<uint32_t>(tilemapSize.x))) {
-            glm::vec2 tileMin = m_bounds.Min + glm::vec2(tile) * tileSize;
-            glm::vec2 tileMax = tileMin + tileSize;
-            results.emplace_back(CollisionData(TilemapCollisionData(m_id, AABB(tileMin, tileMax), tile.x, tile.y)));
-		}
+    // Convert to tile coordinates
+    auto tilePoints = collider.getCorners();
+    for (auto& p : tilePoints) {
+        p = (p - m_bounds.Min) / tileSize;
     }
 
-    for (glm::ivec2& tile : ADDRasterization(points[1], points[2]))
+    // Find min/max tile Y
+    int minY = static_cast<int>(std::floor(std::min({ tilePoints[0].y, tilePoints[1].y, tilePoints[2].y, tilePoints[3].y })));
+    int maxY = static_cast<int>(std::ceil(std::max({ tilePoints[0].y, tilePoints[1].y, tilePoints[2].y, tilePoints[3].y })));
+
+    // Scanline loop
+    for (int y = minY; y <= maxY; ++y)
     {
-        if (m_tiles.isSet(tile.x + tile.y * static_cast<uint32_t>(tilemapSize.x))) {
-            glm::vec2 tileMin = m_bounds.Min + glm::vec2(tile) * tileSize;
-            glm::vec2 tileMax = tileMin + tileSize;
-            results.emplace_back(CollisionData(TilemapCollisionData(m_id, AABB(tileMin, tileMax), tile.x, tile.y)));
+        float scanY = y + 0.5f; // center of tile row
+
+        float ix0, ix1;
+        int intersectionCount = 0;
+
+        // Find intersections with each edge
+        for (int i = 0; i < 4; ++i)
+        {
+            const glm::vec2& p1 = tilePoints[i];
+            const glm::vec2& p2 = tilePoints[(i + 1) % 4];
+
+			// If the scanline is within the edges in y axis
+            if ((scanY >= std::min(p1.y, p2.y)) && (scanY < std::max(p1.y, p2.y)))
+            {
+				// Intersection point based on linear interpolation
+                // (solve for t where y = p1.y + t * (p2.y - p1.y))
+                float t = (scanY - p1.y) / (p2.y - p1.y);
+                float x = p1.x + t * (p2.x - p1.x);
+
+                if (intersectionCount == 0) ix0 = x;
+                else ix1 = x;
+
+				// Skip further processing if we already have two intersections
+                if (++intersectionCount == 2) break;
+            }
         }
-    }
 
-    for (glm::ivec2& tile : ADDRasterization(points[2], points[3]))
-    {
-        if (m_tiles.isSet(tile.x + tile.y * static_cast<uint32_t>(tilemapSize.x))) {
-            glm::vec2 tileMin = m_bounds.Min + glm::vec2(tile) * tileSize;
-            glm::vec2 tileMax = tileMin + tileSize;
-            results.emplace_back(CollisionData(TilemapCollisionData(m_id, AABB(tileMin, tileMax), tile.x, tile.y)));
-        }
-    }
+        if (intersectionCount == 2)
+        {
+            // Sort ao ix0 is left and ix1 is right
+            if (ix0 > ix1) std::swap(ix0, ix1);
 
-    for (glm::ivec2& tile : ADDRasterization(points[3], points[0]))
-    {
-        if (m_tiles.isSet(tile.x + tile.y * static_cast<uint32_t>(tilemapSize.x))) {
-            glm::vec2 tileMin = m_bounds.Min + glm::vec2(tile) * tileSize;
-            glm::vec2 tileMax = tileMin + tileSize;
-            results.emplace_back(CollisionData(TilemapCollisionData(m_id, AABB(tileMin, tileMax), tile.x, tile.y)));
+            int startX = static_cast<int>(std::floor(ix0));
+            int endX = static_cast<int>(std::ceil(ix1));
+
+            for (int x = startX; x < endX; ++x)
+            {
+                if (x < 0 || y < 0 || x >= tilemapSize.x || y >= tilemapSize.y)
+                    continue;
+
+                if (m_tiles.isSet(x + y * static_cast<uint32_t>(tilemapSize.x))) {
+                    glm::vec2 tileMin = m_bounds.Min + glm::vec2(x, y) * tileSize;
+                    glm::vec2 tileMax = tileMin + tileSize;
+                    results.emplace_back(CollisionData(TilemapCollisionData(
+                        m_id, AABB(tileMin, tileMax), x, y
+                    )));
+                }
+            }
         }
     }
 
     return results;
 }
+
+
 
 std::vector<CollisionData> TilemapColliderGroup::query(const AABB& collider) const
 {
