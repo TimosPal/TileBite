@@ -18,6 +18,46 @@ std::vector<CollisionData> TilemapColliderGroup::query(const OBB& collider) cons
 {
     std::vector<CollisionData> results;
 
+    // Search are is the obb's collider bound box in AABB space
+    AABB worldAABB = collider.getBoundingBox();
+    worldAABB.Min = worldPositionToTileIndices(worldAABB.Min);
+    worldAABB.Max = worldPositionToTileIndices(worldAABB.Max);
+	// Clamped to be within tilemap bounds
+    AABB clampedAABB = AABB::intersectionBound(worldAABB, m_bounds);
+
+    for (int y = clampedAABB.Min.y; y <= clampedAABB.Max.y; ++y)
+    {
+        for (int x = clampedAABB.Min.x; x <= clampedAABB.Max.x; ++x)
+        {
+            uint32_t idx = x + y * uint32_t(tilemapSize.x);
+            if (!m_tiles.isSet(idx))
+                continue;
+
+            glm::vec2 tileMin = m_bounds.Min + glm::vec2(x, y) * tileSize;
+            glm::vec2 tileMax = tileMin + tileSize;
+            AABB tileAABB(tileMin, tileMax);
+
+            // SAT check against each tile AABB collider
+            if (collider.intersects(tileAABB))
+            {
+                results.emplace_back(
+                    CollisionData(
+                        TilemapCollisionData(m_id, tileAABB, x, y)
+                    )
+                );
+            }
+        }
+    }
+
+    return results;
+}
+
+std::vector<CollisionData> TilemapColliderGroup::queryScanline(const OBB& collider) const
+{
+	// NOT USED CURRENTLY - but could be useful for performance testing / comparison
+
+    std::vector<CollisionData> results;
+
     // Convert to tile coordinates
     auto tilePoints = collider.getCorners();
     for (auto& p : tilePoints) {
@@ -37,7 +77,7 @@ std::vector<CollisionData> TilemapColliderGroup::query(const OBB& collider) cons
     maxY = std::min(maxY, int(tilemapSize.y - 1));
 
     // Scanline loop
-    for (int y = minY; y <= maxY; ++y)
+    for (int y = minY; y <= maxY; y++)
     {
         float scanY = y + 0.5f; // center of tile row
 
@@ -78,14 +118,52 @@ std::vector<CollisionData> TilemapColliderGroup::query(const OBB& collider) cons
             startX = std::max(startX, 0);
             endX = std::min(endX, int(tilemapSize.x));
 
-            for (int x = startX; x < endX; ++x)
-            {
-                if (x < 0 || y < 0 || x >= tilemapSize.x || y >= tilemapSize.y)
-                    continue;
+            // Shrinkg start and end X inwards by checking with SAT to prevent inaccurate false positives / true negatives
+            // If we find 2 SAT tiles that are true then all the inbetween span must also be true.
 
+            int startXFixed = startX;
+            while (startXFixed < endX)
+            {
+                if (m_tiles.isSet(startXFixed + y * static_cast<uint32_t>(tilemapSize.x)))
+                {
+                    glm::vec2 tileMin = m_bounds.Min + glm::vec2(startXFixed, y) * tileSize;
+                    glm::vec2 tileMax = tileMin + tileSize;
+                    AABB tileCollider(tileMin, tileMax);
+                    bool intersects = collider.intersects(tileCollider);
+                    if (intersects) break;
+                }
+
+                startXFixed++;
+            }
+
+            int endXFixed = endX - 1;
+            while (endXFixed >= startXFixed)
+            {
+                if (m_tiles.isSet(endXFixed + y * static_cast<uint32_t>(tilemapSize.x)))
+                {
+                    glm::vec2 tileMin = m_bounds.Min + glm::vec2(endXFixed, y) * tileSize;
+                    glm::vec2 tileMax = tileMin + tileSize;
+                    AABB tileCollider(tileMin, tileMax);
+                    bool intersects = collider.intersects(tileCollider);
+                    if (intersects) break;
+                }
+
+                endXFixed--;
+            }
+
+            for (int x = startXFixed; x <= endXFixed; x++)
+            {
                 if (m_tiles.isSet(x + y * static_cast<uint32_t>(tilemapSize.x))) {
                     glm::vec2 tileMin = m_bounds.Min + glm::vec2(x, y) * tileSize;
                     glm::vec2 tileMax = tileMin + tileSize;
+
+                    AABB tileCollider(tileMin, tileMax);
+                    bool intersects = collider.intersects(tileCollider);
+                    if (!intersects)
+                    {
+                        continue;
+                    }
+
                     results.emplace_back(CollisionData(TilemapCollisionData(
                         m_id, AABB(tileMin, tileMax), x, y
                     )));
