@@ -28,6 +28,14 @@ std::vector<CollisionData> TilemapColliderGroup::query(const OBB& collider) cons
     int minY = static_cast<int>(std::floor(std::min({ tilePoints[0].y, tilePoints[1].y, tilePoints[2].y, tilePoints[3].y })));
     int maxY = static_cast<int>(std::ceil(std::max({ tilePoints[0].y, tilePoints[1].y, tilePoints[2].y, tilePoints[3].y })));
 
+    // Early reject if no vertical overlap
+    if (maxY < 0 || minY >= tilemapSize.y)
+        return results;
+
+    // Clamp vertical range to tilemap
+    minY = std::max(minY, 0);
+    maxY = std::min(maxY, int(tilemapSize.y - 1));
+
     // Scanline loop
     for (int y = minY; y <= maxY; ++y)
     {
@@ -66,6 +74,10 @@ std::vector<CollisionData> TilemapColliderGroup::query(const OBB& collider) cons
             int startX = static_cast<int>(std::floor(ix0));
             int endX = static_cast<int>(std::ceil(ix1));
 
+            // Clamp horizontal range to tilemap
+            startX = std::max(startX, 0);
+            endX = std::min(endX, int(tilemapSize.x));
+
             for (int x = startX; x < endX; ++x)
             {
                 if (x < 0 || y < 0 || x >= tilemapSize.x || y >= tilemapSize.y)
@@ -84,8 +96,6 @@ std::vector<CollisionData> TilemapColliderGroup::query(const OBB& collider) cons
 
     return results;
 }
-
-
 
 std::vector<CollisionData> TilemapColliderGroup::query(const AABB& collider) const
 {
