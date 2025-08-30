@@ -12,15 +12,35 @@ bool intersects(const OBB& a, const AABB& b) { return intersects(b, a); }
 
 bool intersects(const Circle& a, const AABB& b)
 {
-	LOG_UNIMPLEMENTED;
-	return false; // TODO
+	glm::vec2 aabbCenter = 0.5f * (b.Min + b.Max);
+	glm::vec2 difference = a.Center - aabbCenter;
+	glm::vec2 clamped = glm::clamp(difference, b.Min - aabbCenter, b.Max - aabbCenter);
+	glm::vec2 closest = aabbCenter + clamped;
+	difference = closest - a.Center;
+	return glm::dot(difference, difference) <= a.Radius * a.Radius;
 }
 bool intersects(const AABB& a, const Circle& b) { return intersects(b, a); }
 
 bool intersects(const Circle& a, const OBB& b)
 {
-	LOG_UNIMPLEMENTED;
-	return false; // TODO
+	glm::vec2 local = a.Center - b.Center;
+
+	// rotate by -Rotation (inverse of OBB rotation)
+	float c = cos(-b.Rotation);
+	float s = sin(-b.Rotation);
+	glm::vec2 localCircle(
+		local.x * c - local.y * s,
+		local.x * s + local.y * c
+	);
+
+	// in local space the OBB is just an AABB centered at origin
+	glm::vec2 halfExtents = 0.5f * b.Size;
+	AABB localBox{ -halfExtents, halfExtents };
+
+	return intersects(
+		Circle{ localCircle, a.Radius },
+		localBox
+	);
 }
 bool intersects(const OBB& a, const Circle& b) { return intersects(b, a); }
 
