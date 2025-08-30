@@ -3,6 +3,7 @@
 #include "physics/Collider.hpp"
 
 #include "physics/CollisionUtilities.hpp"
+#include "utilities/assertions.hpp"
 
 namespace TileBite {
 
@@ -60,14 +61,14 @@ bool AABB::contains(const Collider& other) const
 	case Collider::ColliderType::AABB:   return contains(other.AABBCollider);
     case Collider::ColliderType::OBB:    return contains(other.OBBCollider);
     case Collider::ColliderType::Circle: return contains(other.CircleCollider);
-    default: return false;
+    default: ASSERT_FALSE("Unknown collider type");
     }
+    return false;
 }
 
 bool AABB::contains(const Circle& other) const
 {
-    LOG_UNIMPLEMENTED;
-    return false;
+    return contains(other.getBoundingBox());
 }
 
 bool AABB::intersects(const OBB& other) const

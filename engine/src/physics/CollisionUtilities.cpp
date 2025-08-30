@@ -12,12 +12,14 @@ bool intersects(const OBB& a, const AABB& b) { return intersects(b, a); }
 
 bool intersects(const Circle& a, const AABB& b)
 {
+	LOG_UNIMPLEMENTED;
 	return false; // TODO
 }
 bool intersects(const AABB& a, const Circle& b) { return intersects(b, a); }
 
 bool intersects(const Circle& a, const OBB& b)
 {
+	LOG_UNIMPLEMENTED;
 	return false; // TODO
 }
 bool intersects(const OBB& a, const Circle& b) { return intersects(b, a); }

@@ -22,6 +22,7 @@ public:
 
     bool intersect(const AABB& b, float& tmin, float& tmax) const;
     bool intersect(const OBB& b, float& tmin, float& tmax) const;
+    bool intersect(const Circle& b, float& tmin, float& tmax) const;
     bool intersect(const Collider& other, float& tmin, float& tmax) const;
 
     float getMaxT() const {

@@ -50,8 +50,11 @@ bool Circle::intersects(const OBB& other) const
 
 bool Circle::intersects(const Circle& other) const
 {
-	LOG_UNIMPLEMENTED;
-	return false;
+    // Check if distance between centers is less than sum of radii
+    // This is done with product to avoid sqrt (performance)
+    glm::vec2 delta = Center - other.Center;
+    float rSum = Radius + other.Radius;
+    return glm::dot(delta, delta) <= rSum * rSum;
 }
 
 } // TileBite

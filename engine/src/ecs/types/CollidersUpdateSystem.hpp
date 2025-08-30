@@ -33,7 +33,6 @@ public:
         });
     }
 
-
 private:
 	template<typename ColliderComponent>
 	void updateColliderType(World& world, PhysicsEngine& physicsEngine) {

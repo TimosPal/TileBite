@@ -49,6 +49,7 @@ public:
 				break;
 			}
 			default:
+				ASSERT_FALSE("Unknown collider type");
 				break;
 			}
 		}

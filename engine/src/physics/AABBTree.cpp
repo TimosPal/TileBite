@@ -248,8 +248,9 @@ std::vector<CollisionData> AABBTree::query(const Collider& collider, ID excludeI
 	case Collider::ColliderType::OBB:
 		return query(collider.OBBCollider, excludeID);
 	default:
-		return {}; // unknown type
+		ASSERT_FALSE("Unknown collider type");
 	}
+	return {};
 }
 
 std::vector<RayHitData> AABBTree::raycastAll(const Ray2D& ray) const

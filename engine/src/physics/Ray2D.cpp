@@ -1,5 +1,7 @@
 #include "physics/Ray2D.hpp"
 
+#include "utilities/assertions.hpp"
+
 namespace TileBite {
 
 bool Ray2D::intersect(const AABB& b, float& tmin, float& tmax) const {
@@ -34,12 +36,38 @@ bool Ray2D::intersect(const OBB& b, float& tmin, float& tmax) const {
     return transformedRay.intersect(AABB(min, max), tmin, tmax);
 }
 
+bool Ray2D::intersect(const Circle& b, float& tmin, float& tmax) const {
+	// Solve for t in quadratic equation
+    glm::vec2 f = o - b.Center;
+    float a = glm::dot(d, d);
+    float b_coef = 2.0f * glm::dot(f, d);
+    float c = glm::dot(f, f) - b.Radius * b.Radius;
+    float disc = b_coef * b_coef - 4 * a * c;
+
+    // No sollutions found
+    if (disc < 0.0f) return false;
+
+    float sqrtDisc = std::sqrt(disc);
+    float t1 = (-b_coef - sqrtDisc) / (2 * a);
+    float t2 = (-b_coef + sqrtDisc) / (2 * a);
+
+    tmin = std::min(t1, t2);
+    tmax = std::max(t1, t2);
+
+    if (tmax < 0.0f) return false; // both behind ray
+    if (tmin < 0.0f) tmin = tmax; // ray starts inside circle
+
+    return true;
+}
+
 bool Ray2D::intersect(const Collider& other, float& tmin, float& tmax) const {
     switch (other.Type) {
     case Collider::ColliderType::AABB: return intersect(other.AABBCollider, tmin, tmax);
     case Collider::ColliderType::OBB:  return intersect(other.OBBCollider, tmin, tmax);
-    default: return false;
+    case Collider::ColliderType::Circle:  return intersect(other.CircleCollider, tmin, tmax);
+    default: ASSERT_FALSE("Unknown collider type");
     }
+    return false;
 }
 
 } // TileBite
