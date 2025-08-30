@@ -2,9 +2,9 @@
 #define LOGGER_HPP
 
 #ifdef _MSC_VER
-#define NOT_IMPLEMENTED_LOG do { LOG_WARNING("Not implemented " __FUNCSIG__); } while(0)
+#define LOG_UNIMPLEMENTED do { LOG_WARNING("Not implemented " __FUNCSIG__); } while(0)
 #else
-#define NOT_IMPLEMENTED_LOG do { LOG_WARNING("Not implemented " __PRETTY_FUNCTION__); } while(0)
+#define LOG_UNIMPLEMENTED do { LOG_WARNING("Not implemented " __PRETTY_FUNCTION__); } while(0)
 #endif
 
 #if !defined(DEBUG_MODE) && 0 // Logging enabled in release mode

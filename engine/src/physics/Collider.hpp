@@ -6,56 +6,51 @@
 
 #include "physics/AABB.hpp"
 #include "physics/OBB.hpp"
+#include "physics/Circle.hpp"
 #include "physics/CollisionUtilities.hpp"
 
 namespace TileBite {
 
 struct Collider {
 	enum class ColliderType {
-		AABBType,
-		OBBType
+		AABB,
+		OBB,
+        Circle
 	} Type;
 
 	union {
 		AABB AABBCollider;
 		OBB OBBCollider;
+        Circle CircleCollider;
 	};
 
-    Collider(const AABB& aabb) : Type(ColliderType::AABBType), AABBCollider(aabb) {}
-    Collider(const OBB& obb) : Type(ColliderType::OBBType), OBBCollider(obb) {}
+    Collider(const AABB& aabb) : Type(ColliderType::AABB), AABBCollider(aabb) {}
+    Collider(const OBB& obb) : Type(ColliderType::OBB), OBBCollider(obb) {}
+    Collider(const Circle& circle) : Type(ColliderType::Circle), CircleCollider(circle) {}
 
 	AABB getAABBBounds() const {
 		switch (Type) {
-		case ColliderType::AABBType:
-			return AABBCollider.getBoundingBox();
-		case ColliderType::OBBType:
-			return OBBCollider.getBoundingBox();
-		default:
-			return AABB(); // Return an empty AABB if type is unknown
+		case ColliderType::AABB:   return AABBCollider.getBoundingBox();
+		case ColliderType::OBB:    return OBBCollider.getBoundingBox();
+        case ColliderType::Circle: return CircleCollider.getBoundingBox();
+		default: return AABB(); // Return an empty AABB if type is unknown
 		}
 	}
 
     float getArea() const {
         switch (Type) {
-        case ColliderType::AABBType: return AABBCollider.getArea();
-        case ColliderType::OBBType:  return OBBCollider.getArea();
+        case ColliderType::AABB:   return AABBCollider.getArea();
+        case ColliderType::OBB:    return OBBCollider.getArea();
+        case ColliderType::Circle: return CircleCollider.getArea();
         default: return 0.0f;
         }
     }
 
     bool isValid() const {
         switch (Type) {
-        case ColliderType::AABBType: return AABBCollider.isValid();
-        case ColliderType::OBBType:  return OBBCollider.isValid();
-        default: return false;
-        }
-    }
-
-    template<typename T>
-    bool contains(const T& other) const {
-        switch (Type) {
-        case ColliderType::AABBType: return AABBCollider.contains(other);
-        case ColliderType::OBBType:  return OBBCollider.contains(other);
+        case ColliderType::AABB:    return AABBCollider.isValid();
+        case ColliderType::OBB:     return OBBCollider.isValid();
+        case ColliderType::Circle:  return CircleCollider.isValid();
         default: return false;
         }
     }
@@ -63,24 +58,18 @@ struct Collider {
     template<typename T>
     bool intersects(const T& other) const {
         switch (Type) {
-        case ColliderType::AABBType: return AABBCollider.intersects(other);
-        case ColliderType::OBBType:  return OBBCollider.intersects(other);
-        default: return false;
-        }
-    }
-
-    bool contains(const Collider& other) const {
-        switch (other.Type) {
-        case ColliderType::AABBType: return contains(other.AABBCollider);
-        case ColliderType::OBBType:  return contains(other.OBBCollider);
+        case ColliderType::AABB:    return AABBCollider.intersects(other);
+        case ColliderType::OBB:     return OBBCollider.intersects(other);
+        case ColliderType::Circle:  return CircleCollider.intersects(other);
         default: return false;
         }
     }
 
     bool intersects(const Collider& other) const {
         switch (other.Type) {
-        case ColliderType::AABBType: return intersects(other.AABBCollider);
-        case ColliderType::OBBType:  return intersects(other.OBBCollider);
+        case ColliderType::AABB:    return intersects(other.AABBCollider);
+        case ColliderType::OBB:     return intersects(other.OBBCollider);
+        case ColliderType::Circle:  return intersects(other.CircleCollider);
         default: return false;
         }
     }

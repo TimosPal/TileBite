@@ -19,6 +19,7 @@ struct TilemapMesh {
 	TransformComponent* TransformComp;
 };
 
+// TODO: could maybe remove this struct and just use two glm::vec2 in drawLine
 struct Line {
 	glm::vec2 Start;
 	glm::vec2 End;

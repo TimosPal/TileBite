@@ -36,6 +36,8 @@ public:
 		m_lineDrawCommands.emplace_back(std::move(line));
 	}
 
+	void drawCircle(glm::vec2 center, float radius, glm::vec4 color, int segments = 30);
+
 	void drawSquare(glm::vec2 min, glm::vec2 max, const glm::vec4& color);
 	void drawSquare(const std::array<glm::vec2, 4>& corners, const glm::vec4& color);
 

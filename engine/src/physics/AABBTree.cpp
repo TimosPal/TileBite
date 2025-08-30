@@ -243,9 +243,9 @@ bool AABBTree::update(const ColliderInfo& colliderInfo)
 
 std::vector<CollisionData> AABBTree::query(const Collider& collider, ID excludeID) const {
 	switch (collider.Type) {
-	case Collider::ColliderType::AABBType:
+	case Collider::ColliderType::AABB:
 		return query(collider.AABBCollider, excludeID);
-	case Collider::ColliderType::OBBType:
+	case Collider::ColliderType::OBB:
 		return query(collider.OBBCollider, excludeID);
 	default:
 		return {}; // unknown type

@@ -9,45 +9,43 @@ namespace TileBite {
 
 class ColliderUpdateSystem : public ISystem {
 public:
-	virtual void update(float deltaTime) override
-	{
-		// Get the physics engine from the active scene
-		auto& m_physicsEngine = getSceneManager().getActiveScene()->getPhysicsEngine();
-		auto& m_world = getSceneManager().getActiveScene()->getWorld();
-		
-		m_world.query<AABBComponent,TransformComponent>().each([&](ID entityID, AABBComponent* aabb, TransformComponent* transform) {
-			if (transform->isDirty() || aabb->isDirty())
-			{
-				m_physicsEngine.updateCollider(entityID, &aabb->getCollider(), transform);
-				transform->resetDirty();
-				aabb->resetDirty();
-			}
-		});
+    virtual void update(float deltaTime) override {
+        auto& physicsEngine = getSceneManager().getActiveScene()->getPhysicsEngine();
+        auto& world = getSceneManager().getActiveScene()->getWorld();
 
-		m_world.query<OBBComponent, TransformComponent>().each([&](ID entityID, OBBComponent* obb, TransformComponent* transform) {
-			if (transform->isDirty() || obb->isDirty())
-			{
-				m_physicsEngine.updateCollider(entityID, &obb->getCollider(), transform);
-				transform->resetDirty();
-				obb->resetDirty();
-			}
-		});
+        updateColliderType<AABBComponent>(world, physicsEngine);
+        updateColliderType<OBBComponent>(world, physicsEngine);
+        updateColliderType<CircleColliderComponent>(world, physicsEngine);
 
-		m_world.query<TilemapComponent, TransformComponent>().each([&](ID entityID, TilemapComponent* tilemap, TransformComponent* transform) {
-			if (transform->isDirty() || tilemap->isDirty())
-			{
-				m_physicsEngine.updateTilemapColliderGroup(
-					entityID,
-					transform,
-					glm::vec2(tilemap->getResource()->getWidth(), tilemap->getResource()->getHeight()),
-					tilemap->getResource()->getWorldTileSize(),
-					tilemap->getResource()->getSolidTiles()
-				);
+        // Tilemaps are special
+        world.query<TilemapComponent, TransformComponent>().each([&](ID entityID, TilemapComponent* tilemap, TransformComponent* transform) {
+            if (transform->isDirty() || tilemap->isDirty()) {
+                physicsEngine.updateTilemapColliderGroup(
+                    entityID,
+                    transform,
+                    glm::vec2(tilemap->getResource()->getWidth(), tilemap->getResource()->getHeight()),
+                    tilemap->getResource()->getWorldTileSize(),
+                    tilemap->getResource()->getSolidTiles()
+                );
+                transform->resetDirty();
+                tilemap->resetDirty();
+            }
+        });
+    }
+
+
+private:
+	template<typename ColliderComponent>
+	void updateColliderType(World& world, PhysicsEngine& physicsEngine) {
+		world.query<ColliderComponent, TransformComponent>().each([&](ID entityID, ColliderComponent* collider, TransformComponent* transform) {
+			if (transform->isDirty() || collider->isDirty()) {
+				physicsEngine.updateCollider(entityID, &collider->getCollider(), transform);
 				transform->resetDirty();
-				tilemap->resetDirty();
+				collider->resetDirty();
 			}
-		});
+	    });
 	}
+
 };
 
 } // TileBite

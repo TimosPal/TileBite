@@ -9,6 +9,7 @@ namespace TileBite {
 
 struct AABB; // Forward declaration to avoid circular dependency
 struct Collider;
+struct Circle;
 
 struct OBB {
 	glm::vec2 Center; // Center of the OBB
@@ -32,13 +33,10 @@ struct OBB {
 
     AABB getBoundingBox() const;
 
-    bool contains(const AABB& other) const;
-    bool contains(const Collider& other) const;
-    bool contains(const OBB& other) const;
-
     bool intersects(const AABB& other) const;
     bool intersects(const Collider& other) const;
     bool intersects(const OBB& other) const;
+    bool intersects(const Circle& other) const;
 
     std::array<glm::vec2, 4> getCorners() const;
 

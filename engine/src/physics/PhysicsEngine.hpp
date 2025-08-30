@@ -49,8 +49,20 @@ public:
 	void updateTilemapColliderGroup(ID id, TransformComponent* transform, glm::vec2 tilemapSize, glm::vec2 tileSize, Bitset solidTiles);
 	void addTilemapColliderGroup(ID id, TransformComponent* transform, glm::vec2 tilemapSize, glm::vec2 tileSize, Bitset solidTiles);
 	
-	void updateCollider(ID id, const AABB* collider, TransformComponent* transform);
-	void updateCollider(ID id, const OBB* collider, TransformComponent* transform);
+	template<typename ColliderT>
+	void updateCollider(ID id, const ColliderT* collider, TransformComponent* transform)
+	{
+		ColliderT worldSpaceAABB = collider->toWorldSpace(
+			transform->getPosition(),
+			transform->getSize(),
+			transform->getRotation()
+		);
+
+		ColliderInfo info(id, worldSpaceAABB);
+		bool updated = m_coreTree.update(info);
+		if (!updated) m_coreTree.insert(info);
+	}
+
 	void removeCollider(ID id);
 
 	const std::vector<Collider> getCoreTreeColliders() { return m_coreTree.getLeafColliders(); }

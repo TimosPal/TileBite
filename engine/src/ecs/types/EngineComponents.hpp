@@ -7,6 +7,7 @@
 #include "ecs/types/BaseComponent.hpp"
 #include "physics/AABB.hpp"
 #include "physics/OBB.hpp"
+#include "physics/Circle.hpp"
 
 
 namespace TileBite {
@@ -128,6 +129,28 @@ struct OBBComponent : public BaseComponent {
 
 private:
 	OBB m_collider;
+};
+
+struct CircleColliderComponent : public BaseComponent {
+	CircleColliderComponent() : m_collider() {}
+	CircleColliderComponent(glm::vec2 center, float radius)
+		: m_collider(center, radius) {
+	}
+
+	const Circle& getCollider() { return m_collider; }
+
+	void setCenter(const glm::vec2& center) {
+		m_collider.Center = center;
+		BaseComponent::setDirty(true);
+	}
+
+	void setSize(float radius) {
+		m_collider.Radius = radius;
+		BaseComponent::setDirty(true);
+	}
+
+private:
+	Circle m_collider;
 };
 
 } // TileBite

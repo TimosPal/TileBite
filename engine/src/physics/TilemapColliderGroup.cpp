@@ -14,6 +14,14 @@ glm::ivec2 TilemapColliderGroup::worldPositionToTileIndices(glm::vec2 position, 
     return { xIndex, yIndex };
 }
 
+std::vector<CollisionData> TilemapColliderGroup::query(const Circle& collider) const
+{
+    LOG_UNIMPLEMENTED;
+    std::vector<CollisionData> results;
+
+    return results;
+}
+
 std::vector<CollisionData> TilemapColliderGroup::query(const OBB& collider) const
 {
     std::vector<CollisionData> results;

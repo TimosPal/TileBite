@@ -36,8 +36,8 @@ bool Ray2D::intersect(const OBB& b, float& tmin, float& tmax) const {
 
 bool Ray2D::intersect(const Collider& other, float& tmin, float& tmax) const {
     switch (other.Type) {
-    case Collider::ColliderType::AABBType: return intersect(other.AABBCollider, tmin, tmax);
-    case Collider::ColliderType::OBBType:  return intersect(other.OBBCollider, tmin, tmax);
+    case Collider::ColliderType::AABB: return intersect(other.AABBCollider, tmin, tmax);
+    case Collider::ColliderType::OBB:  return intersect(other.OBBCollider, tmin, tmax);
     default: return false;
     }
 }

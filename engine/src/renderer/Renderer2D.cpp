@@ -51,6 +51,19 @@ bool Renderer2D::shouldCullLine(const Line& line, const CameraController& camera
 	return !camera.isInsideFrustum(lineAABB);
 }
 
+void Renderer2D::drawCircle(glm::vec2 center, float radius, glm::vec4 color, int segments) {
+	float step = 2.0f * glm::pi<float>() / segments;
+	for (int i = 0; i < segments; i++) {
+		float a0 = i * step;
+		float a1 = (i + 1) * step;
+
+		glm::vec2 p0 = center + radius * glm::vec2(cos(a0), sin(a0));
+		glm::vec2 p1 = center + radius * glm::vec2(cos(a1), sin(a1));
+
+		drawLine(Line{ p0, p1, color });
+	}
+}
+
 void Renderer2D::drawSquare(glm::vec2 min, glm::vec2 max, const glm::vec4& color)
 {
 	glm::vec2 topLeft = { min.x, max.y };

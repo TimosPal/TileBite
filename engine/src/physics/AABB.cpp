@@ -47,7 +47,27 @@ std::array<glm::vec2, 4> AABB::getCorners() const
 
 bool AABB::contains(const OBB& other) const
 {
-	return CollisionUtilities::contains(*this, other);
+    for (auto c : other.getCorners())
+    {
+        if (!contains(c)) return false;
+    }
+    return true;
+}
+
+bool AABB::contains(const Collider& other) const
+{
+    switch (other.Type) {
+	case Collider::ColliderType::AABB:   return contains(other.AABBCollider);
+    case Collider::ColliderType::OBB:    return contains(other.OBBCollider);
+    case Collider::ColliderType::Circle: return contains(other.CircleCollider);
+    default: return false;
+    }
+}
+
+bool AABB::contains(const Circle& other) const
+{
+    LOG_UNIMPLEMENTED;
+    return false;
 }
 
 bool AABB::intersects(const OBB& other) const
@@ -55,14 +75,14 @@ bool AABB::intersects(const OBB& other) const
 	return CollisionUtilities::intersects(*this, other);
 }
 
-bool AABB::contains(const Collider& other) const
-{
-	return CollisionUtilities::contains(*this, other);
-}
-
 bool AABB::intersects(const Collider& other) const
 {
 	return CollisionUtilities::intersects(*this, other);
+}
+
+bool AABB::intersects(const Circle& other) const
+{
+    return CollisionUtilities::intersects(*this, other);
 }
 
 } // TileBite

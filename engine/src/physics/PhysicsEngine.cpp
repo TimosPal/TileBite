@@ -58,32 +58,6 @@ void PhysicsEngine::removeCollider(ID id)
 	m_coreTree.remove(id);
 }
 
-void PhysicsEngine::updateCollider(ID id, const AABB* collider, TransformComponent* transform)
-{
-	AABB worldSpaceAABB = collider->toWorldSpace(
-		transform->getPosition(),
-		transform->getSize(),
-		transform->getRotation()
-	);
-
-	ColliderInfo info(id, worldSpaceAABB);
-	bool updated = m_coreTree.update(info);
-	if (!updated) m_coreTree.insert(info);
-}
-
-void PhysicsEngine::updateCollider(ID id, const OBB* collider, TransformComponent* transform)
-{
-	OBB worldSpaceOBB = collider->toWorldSpace(
-		transform->getPosition(),
-		transform->getSize(),
-		transform->getRotation()
-	);
-
-	ColliderInfo info(id, worldSpaceOBB);
-	bool updated = m_coreTree.update(info);
-	if (!updated) m_coreTree.insert(info);
-}
-
 void PhysicsEngine::updateTilemapColliderGroup(ID id, TransformComponent* transform, glm::vec2 tilemapSize, glm::vec2 tileSize, Bitset solidTiles)
 {
 	glm::vec2 min = transform->getPosition();

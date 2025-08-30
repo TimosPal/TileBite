@@ -7,6 +7,7 @@ namespace TileBite {
 
 struct OBB; // Forward declaration to avoid circular dependency
 struct Collider;
+struct Circle;
 
 struct AABB {
 	glm::vec2 Min; // Minimum point (bottom-left corner)
@@ -53,6 +54,7 @@ struct AABB {
 
 	bool contains(const OBB& other) const;
 	bool contains(const Collider& other) const;
+	bool contains(const Circle& other) const;
 
 	inline bool intersects(const AABB& other) const noexcept
 	{
@@ -62,6 +64,7 @@ struct AABB {
 
 	bool intersects(const OBB& other) const;
 	bool intersects(const Collider& other) const;
+	bool intersects(const Circle& other) const;
 
 	inline void setSize(const glm::vec2& min, const glm::vec2& max) noexcept
 	{

@@ -13,8 +13,8 @@ namespace TileBite {
 struct ColliderInfo : public Collider {
 	ID id;
 
-	ColliderInfo(ID id, const AABB& aabb) : id(id), Collider(aabb) {}
-	ColliderInfo(ID id, const OBB& obb) : id(id), Collider(obb) {}
+	template<typename ColliderT>
+    ColliderInfo(ID id, const ColliderT& collider) : id(id), Collider(collider) {}
 };
 
 // https://box2d.org/files/ErinCatto_DynamicBVH_GDC2019.pdf

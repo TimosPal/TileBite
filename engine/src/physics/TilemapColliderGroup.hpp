@@ -17,6 +17,7 @@ public:
 		tilemapSize(tilemapSize), tileSize(tileSize), m_id(tilemapID)
 	{}
 
+    std::vector<CollisionData> query(const Circle& collider) const;
 	std::vector<CollisionData> query(const AABB& collider) const;
 	std::vector<CollisionData> query(const OBB& collider) const;
     std::vector<CollisionData> queryScanline(const OBB& collider) const;

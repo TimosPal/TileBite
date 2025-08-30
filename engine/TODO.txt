@@ -9,3 +9,4 @@
 - Line rendering for debug purposes
 - Input handling
 - Maybe remove layers overall (?)
+- Put physics into new namespace

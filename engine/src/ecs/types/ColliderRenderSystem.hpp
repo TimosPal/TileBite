@@ -6,7 +6,7 @@
 #include "renderer/Renderer2D.hpp"
 #include "utilities/misc.hpp"
 
-#include "physics/aabb.hpp"
+#include "physics/AABB.hpp"
 
 namespace TileBite {
 
@@ -17,7 +17,7 @@ public:
 		glm::vec4 boundsColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f); // Red color for bounds
 		glm::vec4 collidersColor = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f); // Green color for colliders
 		glm::vec4 tilemapBoundsColor = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f); // Blue color for tilemap bounds
-		glm::vec4 tilemapColliderGroupColor = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f); // Yellow color for tilemap group
+		glm::vec4 helperBoundingBoxColor = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f); // Yellow color for bounding box of more complex shapes
 		
 		auto& renderer2D = getRenderer();
 		const auto& coreTreeBounds = getSceneManager().getActiveScene()->getPhysicsEngine().getCoreTreeInternalBounds();
@@ -31,14 +31,21 @@ public:
 		{
 			switch (collider.Type)
 			{
-			case Collider::ColliderType::AABBType:
+			case Collider::ColliderType::AABB:
 				renderer2D.drawSquare(collider.AABBCollider.Min, collider.AABBCollider.Max, collidersColor);
 				break;
-			case Collider::ColliderType::OBBType: {
+			case Collider::ColliderType::OBB: {
 				renderer2D.drawSquare(collider.OBBCollider.getCorners(), collidersColor);
 
 				AABB boundingBox = collider.OBBCollider.getBoundingBox();
-				renderer2D.drawSquare(boundingBox.Min, boundingBox.Max, tilemapColliderGroupColor);
+				renderer2D.drawSquare(boundingBox.Min, boundingBox.Max, helperBoundingBoxColor);
+				break;
+			}
+			case Collider::ColliderType::Circle: {
+				renderer2D.drawCircle(collider.CircleCollider.Center, collider.CircleCollider.Radius, collidersColor);
+
+				AABB boundingBox = collider.CircleCollider.getBoundingBox();
+				renderer2D.drawSquare(boundingBox.Min, boundingBox.Max, helperBoundingBoxColor);
 				break;
 			}
 			default:
@@ -55,7 +62,7 @@ public:
 		const auto& tilemapTreeColliders = getSceneManager().getActiveScene()->getPhysicsEngine().getTilemapTreeColliders();
 		for (const auto& collider : tilemapTreeColliders)
 		{
-			renderer2D.drawSquare(collider.AABBCollider.Min, collider.AABBCollider.Max, tilemapColliderGroupColor);
+			renderer2D.drawSquare(collider.AABBCollider.Min, collider.AABBCollider.Max, helperBoundingBoxColor);
 		}
 	}
 };
