@@ -3,10 +3,10 @@
 
 namespace TileBite {
 
-std::vector<RayHitData> PhysicsEngine::raycastAll(const Ray2D& ray) const
+std::vector<RayHitData> PhysicsEngine::raycastAll(const Ray2D& ray, ID excludeID) const
 {
-	auto rayHits = m_coreTree.raycastAll(ray);
-	auto tilemapHits = m_tilemapColliderTree.raycastAll(ray);
+	auto rayHits = m_coreTree.raycastAll(ray, excludeID);
+	auto tilemapHits = m_tilemapColliderTree.raycastAll(ray, excludeID);
 
 	rayHits.reserve(rayHits.size() + tilemapHits.size());
 	for (const RayHitData& tilemapHit : tilemapHits)
@@ -21,9 +21,9 @@ std::vector<RayHitData> PhysicsEngine::raycastAll(const Ray2D& ray) const
 	return rayHits;
 }
 
-std::optional<RayHitData> PhysicsEngine::raycastClosest(const Ray2D& ray) const
+std::optional<RayHitData> PhysicsEngine::raycastClosest(const Ray2D& ray, ID excludeID) const
 {
-	auto rayHit = m_coreTree.raycastClosest(ray);
+	auto rayHit = m_coreTree.raycastClosest(ray, excludeID);
 
 	// For tilemaps we iterate all intersectins chunks with the ray and find the cloest one that has
 	// a intersected internal tile. This can be improved if we somehow use raycastClosest more efficiently.

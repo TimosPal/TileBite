@@ -65,8 +65,8 @@ public:
 	void insert(const ColliderInfo& colliderInfo);
 	bool remove(ID id);
 	bool update(const ColliderInfo& colliderInfo);
-	std::vector<RayHitData> raycastAll(const Ray2D& ray) const;
-	std::optional<RayHitData> raycastClosest(const Ray2D& ray) const;
+	std::vector<RayHitData> raycastAll(const Ray2D& ray, ID excludeID = INVALID_ID) const;
+	std::optional<RayHitData> raycastClosest(const Ray2D& ray, ID excludeID = INVALID_ID) const;
 
 	std::vector<AABB> getInternalBounds() const;
 	std::vector<Collider> getLeafColliders() const;

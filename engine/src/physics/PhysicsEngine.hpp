@@ -42,8 +42,8 @@ public:
 		return collisionData;
 	}
 
-	std::vector<RayHitData> raycastAll(const Ray2D& ray) const;
-	std::optional<RayHitData> raycastClosest(const Ray2D& ray) const;
+	std::vector<RayHitData> raycastAll(const Ray2D& ray, ID excludeID = INVALID_ID) const;
+	std::optional<RayHitData> raycastClosest(const Ray2D& ray, ID excludeID = INVALID_ID) const;
 
 	// NOTE: updates also used for additions
 	void updateTilemapColliderGroup(ID id, TransformComponent* transform, glm::vec2 tilemapSize, glm::vec2 tileSize, Bitset solidTiles);

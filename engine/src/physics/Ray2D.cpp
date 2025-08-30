@@ -54,9 +54,6 @@ bool Ray2D::intersect(const Circle& b, float& tmin, float& tmax) const {
     tmin = std::min(t1, t2);
     tmax = std::max(t1, t2);
 
-    if (tmax < 0.0f) return false; // both behind ray
-    if (tmin < 0.0f) tmin = tmax; // ray starts inside circle
-
     return true;
 }
 

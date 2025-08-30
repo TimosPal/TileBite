@@ -17,9 +17,48 @@ public:
 		tilemapSize(tilemapSize), tileSize(tileSize), m_id(tilemapID)
 	{}
 
-    std::vector<CollisionData> query(const Circle& collider) const;
+    // Generic scaning method within bounding box area with custom collision test for each tile
+    // Implement overloaded function manualy if needing custom implementation
+    template<typename ColliderT>
+    std::vector<CollisionData> query(const ColliderT& collider) const
+    {
+        std::vector<CollisionData> results;
+
+        // Search are is the collider's bound box in AABB space
+        AABB worldAABB = collider.getBoundingBox();
+        AABB clampedAABB = AABB::intersectionBound(m_bounds, worldAABB);
+        clampedAABB.Min = worldPositionToTileIndices(clampedAABB.Min);
+        clampedAABB.Max = worldPositionToTileIndices(clampedAABB.Max);
+        // Clamped to be within tilemap bounds
+
+        for (int y = clampedAABB.Min.y; y <= clampedAABB.Max.y; ++y)
+        {
+            for (int x = clampedAABB.Min.x; x <= clampedAABB.Max.x; ++x)
+            {
+                uint32_t idx = x + y * uint32_t(tilemapSize.x);
+                if (!m_tiles.isSet(idx))
+                    continue;
+
+                glm::vec2 tileMin = m_bounds.Min + glm::vec2(x, y) * tileSize;
+                glm::vec2 tileMax = tileMin + tileSize;
+                AABB tileAABB(tileMin, tileMax);
+
+                // SAT check against each tile AABB collider
+                if (collider.intersects(tileAABB))
+                {
+                    results.emplace_back(
+                        CollisionData(
+                            TilemapCollisionData(m_id, tileAABB, x, y)
+                        )
+                    );
+                }
+            }
+        }
+
+        return results;
+    }
+
 	std::vector<CollisionData> query(const AABB& collider) const;
-	std::vector<CollisionData> query(const OBB& collider) const;
     std::vector<CollisionData> queryScanline(const OBB& collider) const;
 	std::vector<RayHitData> raycastAll(const Ray2D& ray) const;
 	std::optional<RayHitData> raycastClosest(const Ray2D& ray) const;

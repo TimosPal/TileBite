@@ -253,7 +253,7 @@ std::vector<CollisionData> AABBTree::query(const Collider& collider, ID excludeI
 	return {};
 }
 
-std::vector<RayHitData> AABBTree::raycastAll(const Ray2D& ray) const
+std::vector<RayHitData> AABBTree::raycastAll(const Ray2D& ray, ID excludeID) const
 {
 	static std::vector<uint32_t> nodeStack;
 	nodeStack.clear();
@@ -279,7 +279,9 @@ std::vector<RayHitData> AABBTree::raycastAll(const Ray2D& ray) const
 			// If the collider intersects, add it to results (Collider may not be AABB)
 			const ColliderInfo& info = currNode.Value.value();
 			bool intersects = ray.intersect(info, tmin, tmax);
-			if (intersects && ray.getMaxT() >= tmin)
+			if (info.id != excludeID &&
+				intersects &&
+				ray.getMaxT() >= tmin)
 				results.push_back(RayHitData(GenericCollisionData(info.id, info), tmin, tmax));
 		}
 		else
@@ -295,7 +297,7 @@ std::vector<RayHitData> AABBTree::raycastAll(const Ray2D& ray) const
 	return results;
 }
 
-std::optional<RayHitData> AABBTree::raycastClosest(const Ray2D& ray) const
+std::optional<RayHitData> AABBTree::raycastClosest(const Ray2D& ray, ID excludeID) const
 {
 	if (m_rootIndex == NullIndex) return std::nullopt;
 
@@ -318,7 +320,10 @@ std::optional<RayHitData> AABBTree::raycastClosest(const Ray2D& ray) const
 
 			float tmin, tmax;
 			// New tmin is new cloest hist, and not bigger than maxT of the ray
-			if (ray.intersect(info, tmin, tmax) && tmin <= ray.getMaxT() && tmin <= bestT)
+			if (info.id != excludeID &&
+				ray.intersect(info, tmin, tmax) &&
+				tmin <= ray.getMaxT() &&
+				tmin <= bestT)
 			{
 				bestT = tmin;
 				closestHit = RayHitData(GenericCollisionData(info.id, info), tmin, tmax);
