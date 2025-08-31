@@ -72,6 +72,14 @@ size_t Bitset::popCount() const
 	return count;
 }
 
+Bitset Bitset::operator~() const
+{
+	Bitset result(m_bitsSize);
+	for (size_t i = 0; i < m_words.size(); i++)
+		result.m_words[i] = ~m_words[i];
+	return result;
+}
+
 Bitset Bitset::operator&(const Bitset& other) const
 {
 	size_t minSize = std::min(m_bitsSize, other.m_bitsSize);

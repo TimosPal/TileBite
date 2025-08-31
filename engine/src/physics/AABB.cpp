@@ -10,7 +10,7 @@ namespace TileBite {
 AABB AABB::toWorldSpace(glm::vec2 position, glm::vec2 size, float radians) const
 {
     // TODO: rotation utility math func
-    if (radians == 0.0f) {
+    if (radians == 0.0f || position == glm::vec2(0)) {
         glm::vec2 min = Min * size + position;
         glm::vec2 max = Max * size + position;
         return AABB(min, max);

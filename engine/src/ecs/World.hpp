@@ -82,21 +82,33 @@ public:
 		m_deferredActions.enhancedEntities.insert(entityID);
 	}
 
-	template <typename ...ComponentTypes>
-	QueryResponse<ComponentTypes...> query()
-	{
-		std::vector<ID> typeIDs = { GET_TYPE_ID(Component, std::decay_t<ComponentTypes>) ... };
-		ASSERT(
-			typeIDs.size() == std::set<ID>(typeIDs.begin(), typeIDs.end()).size(),
-			"ComponentTypes must be unique"
-		);
+	// Wrapper to hold component types
+	template <typename... Components>
+	struct TypePack { 
+		std::vector<ID> getTypes() const {
+			return { GET_TYPE_ID(Component, std::decay_t<Components>)... };
+		}
+	};
 
+	template <typename ...ComponentTypes, typename Excluded = TypePack<>>
+	QueryResponse<ComponentTypes...> query(Excluded excludedTypes = {})
+	{
 		Bitset intersection = m_existingArchetypes;
-		for (ID id : typeIDs)
+
+		// Apply inclusion
+		for (ID id : { GET_TYPE_ID(Component, std::decay_t<ComponentTypes>) ... })
 		{
 			auto it = m_archetypeIndexes.find(id);
 			Bitset archBitset = (it != m_archetypeIndexes.end()) ? it->second : Bitset(DEFAULT_ARCHETYPES_SIZE);
 			intersection &= archBitset;
+		}
+
+		// Exclusion
+		for (ID id : excludedTypes.getTypes())
+		{
+			auto it = m_archetypeIndexes.find(id);
+			Bitset archBitset = (it != m_archetypeIndexes.end()) ? it->second : Bitset(DEFAULT_ARCHETYPES_SIZE);
+			intersection &= ~archBitset;
 		}
 
 		// Set bits in the intersection bitset represent
