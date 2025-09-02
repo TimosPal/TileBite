@@ -202,6 +202,42 @@ inline float quickRandFloat(float min = -1.0f, float max = 1.0f) {
 	return min + (max - min) * (rand() / float(RAND_MAX));
 }
 
+// TODO: move elsewhere
+// Make unlink functin set original position, size and rotation
+// This function should be used when linking an entity to a parent so the transform is appropriately adjusted
+// NOTE: currently providing components and not IDs since the component might not have been added to the entity yet (pending command)
+inline void linkEntity(TransformComponent* parent, TransformComponent* child) {
+	if (!parent || !child) return;
+
+	// Position offset
+	glm::vec2 worldOffset = child->getPosition() - parent->getPosition();
+
+	float s = sin(-parent->getRotation()); // radians
+	float c = cos(-parent->getRotation());
+	glm::vec2 rotatedOffset(
+		worldOffset.x * c - worldOffset.y * s,
+		worldOffset.x * s + worldOffset.y * c
+	);
+
+	glm::vec2 parentSize = parent->getSize();
+	if (parentSize.x != 0.0f) rotatedOffset.x /= parentSize.x;
+	if (parentSize.y != 0.0f) rotatedOffset.y /= parentSize.y;
+
+	child->setPosition(rotatedOffset);
+
+	// Size scaling
+	glm::vec2 childWorldSize = child->getSize();
+	glm::vec2 localSize = childWorldSize;
+	if (parentSize.x != 0.0f) localSize.x /= parentSize.x;
+	if (parentSize.y != 0.0f) localSize.y /= parentSize.y;
+
+	child->setSize(localSize);
+
+	// Counter rotation
+	float localRot = child->getRotation() - parent->getRotation();
+	child->setRotation(localRot);
+}
+
 } // TileBite
 
 #endif // !MISC_HPP
