@@ -15,6 +15,7 @@ public:
 		activeWorld.query<ParentLinkComponent>().each([&](ID entityID, ParentLinkComponent* currentLink)
 		{
 			currentLink->setCalculated(false);
+			currentLink->resetDirty();
 		});
 
 		activeWorld.query<ParentLinkComponent>().each([&](ID entityID, ParentLinkComponent* currentLink)
@@ -32,19 +33,20 @@ public:
 		if (currentLink->isCalculated()) return;
 		currentLink->setCalculated(true);
 
-		ParentLinkComponent* currentParent = nullptr;
+		ParentLinkComponent* currentParentLink = nullptr;
 		bool parentExists = activeWorld.entityExists(currentLink->ParentID);
 		if (parentExists)
-			currentParent = activeWorld.getComponent<ParentLinkComponent>(currentLink->ParentID);
-		ID parentID = currentParent ? currentLink->ParentID : INVALID_ID;
-		updateCachedTransform(activeWorld, parentID, currentParent);
+			currentParentLink = activeWorld.getComponent<ParentLinkComponent>(currentLink->ParentID);
+		ID parentID = currentParentLink ? currentLink->ParentID : INVALID_ID;
+		updateCachedTransform(activeWorld, parentID, currentParentLink);
 		// Climb down hierarchy
 
 		// Get parent's cached transform
 		glm::vec2 parentPos = glm::vec2(0.0f);
 		glm::vec2 parentSize = glm::vec2(1.0f);
 		float parentRot = 0.0f;
-		if (currentParent == nullptr)
+		bool parentIsDirty = false;
+		if (currentParentLink == nullptr)
 		{
 			if (parentExists)
 			{
@@ -52,13 +54,17 @@ public:
 				parentPos = parentTransform->getPosition();
 				parentSize = parentTransform->getSize();
 				parentRot = parentTransform->getRotation();
+
+				parentIsDirty = parentTransform->isDirty();
 			}
 		}
 		else
 		{
-			parentPos = currentParent->CachedParentTransform.getPosition();
-			parentSize = currentParent->CachedParentTransform.getSize();
-			parentRot = currentParent->CachedParentTransform.getRotation();
+			parentPos = currentParentLink->CachedParentTransform.getPosition();
+			parentSize = currentParentLink->CachedParentTransform.getSize();
+			parentRot = currentParentLink->CachedParentTransform.getRotation();
+
+			parentIsDirty = currentParentLink->isDirty();
 		}
 
 		// Get local transform
@@ -80,7 +86,7 @@ public:
 		currentLink->CachedParentTransform.setPosition(parentPos + rotatedPos);
 		currentLink->CachedParentTransform.setSize(localSize * parentSize);
 		currentLink->CachedParentTransform.setRotation(parentRot + localRot);
-
+		currentLink->setDirty(currentLink->isDirty() || currentTransform->isDirty() || parentIsDirty);
 	}
 };
 

@@ -202,7 +202,7 @@ inline float quickRandFloat(float min = -1.0f, float max = 1.0f) {
 	return min + (max - min) * (rand() / float(RAND_MAX));
 }
 
-// TODO: move elsewhere
+// TODO: move elsewhere, possible do automatically within ECS?
 // Make unlink functin set original position, size and rotation
 // This function should be used when linking an entity to a parent so the transform is appropriately adjusted
 // NOTE: currently providing components and not IDs since the component might not have been added to the entity yet (pending command)

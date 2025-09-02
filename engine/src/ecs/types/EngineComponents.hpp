@@ -163,6 +163,7 @@ struct ParentLinkComponent : public BaseComponent {
 
 	bool isCalculated() const { return m_isCalculated; }
 	void setCalculated(bool calculated = true) { m_isCalculated = calculated; }
+	void setDirty(bool value) { BaseComponent::setDirty(value); }
 
 private:
 	bool m_isCalculated = false;
