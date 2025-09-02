@@ -153,6 +153,21 @@ private:
 	Circle m_collider;
 };
 
+struct ParentLinkComponent : public BaseComponent {
+	ID ParentID;
+	TransformComponent CachedParentTransform;
+
+	ParentLinkComponent(ID parentID = 0, const TransformComponent& cachedTransform = {})
+		: ParentID(parentID), CachedParentTransform(cachedTransform) {
+	}
+
+	bool isCalculated() const { return m_isCalculated; }
+	void setCalculated(bool calculated = true) { m_isCalculated = calculated; }
+
+private:
+	bool m_isCalculated = false;
+};
+
 } // TileBite
 
 #endif // !ENGINE_COMPONENTS_HPP

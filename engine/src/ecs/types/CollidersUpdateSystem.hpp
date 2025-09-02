@@ -36,13 +36,30 @@ public:
 private:
 	template<typename ColliderComponent>
 	void updateColliderType(World& world, PhysicsEngine& physicsEngine) {
-		world.query<ColliderComponent, TransformComponent>().each([&](ID entityID, ColliderComponent* collider, TransformComponent* transform) {
+		World::TypePack<ParentLinkComponent> excludedTypes;
+        
+        // Update colliders that have no parent link
+		world.query<ColliderComponent, TransformComponent>(excludedTypes).each([&](ID entityID, ColliderComponent* collider, TransformComponent* transform) {
 			if (transform->isDirty() || collider->isDirty()) {
 				physicsEngine.updateCollider(entityID, &collider->getCollider(), transform);
 				transform->resetDirty();
 				collider->resetDirty();
 			}
 	    });
+
+        // Update colliders that have no parent link
+        world.query<ColliderComponent, TransformComponent, ParentLinkComponent>().each([&](
+            ID entityID,
+            ColliderComponent* collider,
+            TransformComponent* transform,
+            ParentLinkComponent* curentLink) 
+        {
+            if (transform->isDirty() || collider->isDirty()) {
+                physicsEngine.updateCollider(entityID, &collider->getCollider(), &curentLink->CachedParentTransform);
+                transform->resetDirty();
+                collider->resetDirty();
+            }
+        });
 	}
 
 };
