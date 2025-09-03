@@ -6,7 +6,7 @@
 #include "physics/Ray2D.hpp"
 #include "core/types.hpp"
 #include "utilities/assertions.hpp"
-
+#include "utilities/NodePool.hpp"
 
 namespace TileBite {
 
@@ -36,7 +36,7 @@ public:
         while (!nodeStack.empty()) {
             index = nodeStack.back();
             nodeStack.pop_back();
-            const Node& currNode = m_nodes[index];
+            const Node& currNode = m_nodePool.get(index);
 
             // Broad phase against bounding box of collider area
             // NOTE: if rotation causes big bounds this might be slower.
@@ -83,14 +83,13 @@ private:
 		std::optional<ColliderInfo> Value;
 	};
 
-	std::vector<Node> m_nodes;
-	std::vector<uint32_t> m_freeIndices;
+	NodePool<Node> m_nodePool;
+
 	std::unordered_map<ID, uint32_t> m_leafNodesIndices;
 	uint32_t m_rootIndex = NullIndex;
 
 	float computeRefitCostDelta(uint32_t startingIndex, float newParentArea, float bestCost) const;
 
-	uint32_t createNode(bool isLeaf);
 	void refitParentNodes(uint32_t startingIndex);
 	uint32_t createParentNode(uint32_t bestSiblingIndex, uint32_t newNodeIndex);
 	uint32_t findBestSibbling(uint32_t newLeafIndex);

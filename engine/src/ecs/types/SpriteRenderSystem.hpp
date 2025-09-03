@@ -26,7 +26,7 @@ public:
 			ID entityID, SpriteComponent* spriteComp, 
 			TransformComponent* transformComp, ParentLinkComponent* currentLink) 
 		{
-			renderer2D.drawQuad(SpriteQuad{ &currentLink->CachedParentTransform, spriteComp });
+			renderer2D.drawQuad(SpriteQuad{ &currentLink->CachedWorldTransform, spriteComp });
 		});
 	}
 };

@@ -55,7 +55,7 @@ private:
             ParentLinkComponent* curentLink) 
         {
             if (transform->isDirty() || collider->isDirty() || curentLink->isDirty()) {
-                physicsEngine.updateCollider(entityID, &collider->getCollider(), &curentLink->CachedParentTransform);
+                physicsEngine.updateCollider(entityID, &collider->getCollider(), &curentLink->CachedWorldTransform);
                 transform->resetDirty();
                 collider->resetDirty();
             }

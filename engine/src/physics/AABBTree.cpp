@@ -35,7 +35,7 @@ uint32_t AABBTree::findBestSibbling(uint32_t newLeafIndex)
 	uint32_t queueHead = 0;
 	nodeQueue.push_back(m_rootIndex);
 
-	Node& newNode = m_nodes[newLeafIndex];
+	Node& newNode = m_nodePool.get(newLeafIndex);
 	float newNodeArea = newNode.Bounds.getArea();
 	while (queueHead < nodeQueue.size())
 	{
@@ -43,7 +43,7 @@ uint32_t AABBTree::findBestSibbling(uint32_t newLeafIndex)
 		if(currIndex == NullIndex)
 			continue;
 
-		const Node& currNode = m_nodes[currIndex];
+		const Node& currNode = m_nodePool.get(currIndex);
 		
 		float newParentArea = AABB::getUnion(currNode.Bounds, newNode.Bounds).getArea();
 		float deltaCost = computeRefitCostDelta(currNode.ParentIndex, newParentArea, bestCost);
@@ -69,9 +69,8 @@ uint32_t AABBTree::findBestSibbling(uint32_t newLeafIndex)
 
 uint32_t AABBTree::createLeafNode(const ColliderInfo& colliderInfo)
 {
-	uint32_t newNodeIndex = createNode(true);
-	Node& newNode = m_nodes[newNodeIndex];
-	// TODO: find AABB from generic collider, now we only have AABB so this isnt relevant
+	uint32_t newNodeIndex = m_nodePool.createNode(Node{ .IsLeaf = true });
+	Node& newNode = m_nodePool.get(newNodeIndex);
 	newNode.Bounds = AABB::inflate(colliderInfo.getAABBBounds());
 	newNode.Value = colliderInfo;
 
@@ -83,9 +82,9 @@ void AABBTree::refitParentNodes(uint32_t startingIndex)
 	uint32_t updateIndex = startingIndex;
 	while (updateIndex != NullIndex)
 	{
-		Node& updateNode = m_nodes[updateIndex];
+		Node& updateNode = m_nodePool.get(updateIndex);
 		ASSERT(updateNode.IsLeaf == false, "Refitting parent node that is a leaf");
-		updateNode.Bounds = AABB::getUnion(m_nodes[updateNode.LeftIndex].Bounds, m_nodes[updateNode.RightIndex].Bounds);
+		updateNode.Bounds = AABB::getUnion(m_nodePool.get(updateNode.LeftIndex).Bounds, m_nodePool.get(updateNode.RightIndex).Bounds);
 		updateIndex = updateNode.ParentIndex;
 	}
 }
@@ -99,10 +98,10 @@ float AABBTree::computeRefitCostDelta(uint32_t startingIndex, float newParentAre
 	{
 		if (deltaCost + newParentArea > bestCost) break;
 
-		const Node& currNode = m_nodes[currIndex];
+		const Node& currNode = m_nodePool.get(currIndex);
 		ASSERT(currNode.IsLeaf == false, "Refiting cost delta should start with a parent node");
 		float oldSA = currNode.Bounds.getArea(); // TODO: Could be stored.
-		float newSA = AABB::getUnion(m_nodes[currNode.LeftIndex].Bounds, m_nodes[currNode.RightIndex].Bounds).getArea();
+		float newSA = AABB::getUnion(m_nodePool.get(currNode.LeftIndex).Bounds, m_nodePool.get(currNode.RightIndex).Bounds).getArea();
 		float delta = newSA - oldSA;
 		if (delta <= 0.001) break; // If delta is almost zero then parent delta will not change significantly, so we can stop here
 		ASSERT(delta >= 0, "Delta cost should not be negative");
@@ -115,17 +114,17 @@ float AABBTree::computeRefitCostDelta(uint32_t startingIndex, float newParentAre
 
 uint32_t AABBTree::createParentNode(uint32_t bestSiblingIndex, uint32_t newNodeIndex)
 {
-	uint32_t newParentNodeIndex = createNode(false);
+	uint32_t newParentNodeIndex = m_nodePool.createNode(Node{ .IsLeaf = false });
 
-	Node& newParentNode = m_nodes[newParentNodeIndex];
-	Node& bestSiblingNode = m_nodes[bestSiblingIndex];
-	Node& newNode = m_nodes[newNodeIndex];
+	Node& newParentNode = m_nodePool.get(newParentNodeIndex);
+	Node& bestSiblingNode = m_nodePool.get(bestSiblingIndex);
+	Node& newNode = m_nodePool.get(newNodeIndex);
 
 	uint32_t siblingParentIndex = bestSiblingNode.ParentIndex;
 
 	if(siblingParentIndex != NullIndex)
 	{
-		Node& siblingParentNode = m_nodes[siblingParentIndex];
+		Node& siblingParentNode = m_nodePool.get(siblingParentIndex);
 		if (siblingParentNode.LeftIndex == bestSiblingIndex)
 			siblingParentNode.LeftIndex = newParentNodeIndex;
 		else
@@ -146,30 +145,6 @@ uint32_t AABBTree::createParentNode(uint32_t bestSiblingIndex, uint32_t newNodeI
 	return newParentNodeIndex;
 }
 
-uint32_t AABBTree::createNode(bool isLeaf)
-{
-	// TODO: maybe defragment indices to avoid gaps in the nodes list
-
-	Node newNode = {};
-	newNode.IsLeaf = isLeaf;
-
-	uint32_t newNodeIndex;
-	if (!m_freeIndices.empty())
-	{
-		// Reuse an index from the free indices
-		newNodeIndex = m_freeIndices.back();
-		m_freeIndices.pop_back();
-		m_nodes[newNodeIndex] = newNode;
-	}
-	else
-	{
-		newNodeIndex = static_cast<uint32_t>(m_nodes.size());
-		m_nodes.push_back(newNode);
-	}
-
-	return newNodeIndex;
-}
-
 bool AABBTree::remove(ID id)
 {
 	// TODO: removing nodes leaves a gap in the nodes list, which is not ideal for cache locality
@@ -178,11 +153,11 @@ bool AABBTree::remove(ID id)
 		return false;
 
 	uint32_t nodeIndex = m_leafNodesIndices[id]; // Find the index of the leaf node
-	Node& node = m_nodes[nodeIndex];
+	Node& node = m_nodePool.get(nodeIndex);
 	ASSERT(node.IsLeaf, "Trying to remove non leaf node");
 
 	m_leafNodesIndices.erase(id);
-	m_freeIndices.push_back(nodeIndex);
+	m_nodePool.freeNode(nodeIndex);
 
 	// If the node is the root, we need to update the root index
 	if (nodeIndex == m_rootIndex)
@@ -193,13 +168,13 @@ bool AABBTree::remove(ID id)
 
 	// If the node is not the root, we need to remove it from its parent
 	uint32_t parentIndex = node.ParentIndex;
-	Node& parentNode = m_nodes[parentIndex];
+	Node& parentNode = m_nodePool.get(parentIndex);
 	uint32_t grandParentIndex = parentNode.ParentIndex;
 
-	m_freeIndices.push_back(parentIndex);
+	m_nodePool.freeNode(parentIndex);
 
 	uint32_t siblingIndex = (parentNode.LeftIndex == nodeIndex) ? parentNode.RightIndex : parentNode.LeftIndex;
-	Node& siblingNode = m_nodes[siblingIndex];
+	Node& siblingNode = m_nodePool.get(siblingIndex);
 	// Update the sibling's parent index to point to the grandparent
 	siblingNode.ParentIndex = grandParentIndex;
 
@@ -209,7 +184,7 @@ bool AABBTree::remove(ID id)
 	}
 	else
 	{
-		Node& grandParentNode = m_nodes[grandParentIndex];
+		Node& grandParentNode = m_nodePool.get(grandParentIndex);
 		if (grandParentNode.LeftIndex == parentIndex)
 			grandParentNode.LeftIndex = siblingIndex;
 		else
@@ -226,7 +201,7 @@ bool AABBTree::update(const ColliderInfo& colliderInfo)
 	auto it = m_leafNodesIndices.find(colliderInfo.id);
 	if (it == m_leafNodesIndices.end()) return false;
 
-	Node& node = m_nodes[it->second];
+	Node& node = m_nodePool.get(it->second);
 	const float shrinkThreshold = 0.5f;
 	if (node.Bounds.contains(colliderInfo) && colliderInfo.getArea() / node.Bounds.getArea() > shrinkThreshold)
 	{
@@ -267,7 +242,7 @@ std::vector<RayHitData> AABBTree::raycastAll(const Ray2D& ray, ID excludeID) con
 	{
 		index = nodeStack.back();
 		nodeStack.pop_back();
-		const Node& currNode = m_nodes[index];
+		const Node& currNode = m_nodePool.get(index);
 
 		float tmin, tmax;
 		if (!ray.intersect(currNode.Bounds, tmin, tmax) || ray.getMaxT() < tmin)
@@ -310,7 +285,7 @@ std::optional<RayHitData> AABBTree::raycastClosest(const Ray2D& ray, ID excludeI
 
 	while (!stack.empty())
 	{
-		const Node& node = m_nodes[stack.back()];
+		const Node& node = m_nodePool.get(stack.back());
 		stack.pop_back();
 
 		if (node.IsLeaf)
@@ -335,12 +310,12 @@ std::optional<RayHitData> AABBTree::raycastClosest(const Ray2D& ray, ID excludeI
 			float tminR = std::numeric_limits<float>::max(), tmaxR;
 
 			bool hitL = node.LeftIndex != NullIndex &&
-				ray.intersect(m_nodes[node.LeftIndex].Bounds, tminL, tmaxL) &&
+				ray.intersect(m_nodePool.get(node.LeftIndex).Bounds, tminL, tmaxL) &&
 				tminL <= ray.getMaxT() &&
 				tminL <= bestT;
 
 			bool hitR = node.RightIndex != NullIndex &&
-				ray.intersect(m_nodes[node.RightIndex].Bounds, tminR, tmaxR) &&
+				ray.intersect(m_nodePool.get(node.RightIndex).Bounds, tminR, tmaxR) &&
 				tminR <= ray.getMaxT() &&
 				tminR <= bestT;
 
@@ -378,7 +353,7 @@ std::vector<AABB> AABBTree::getInternalBounds() const
 	{
 		index = nodeStack.back();
 		nodeStack.pop_back();
-		const Node& currNode = m_nodes[index];
+		const Node& currNode = m_nodePool.get(index);
 
 		results.push_back(currNode.Bounds);
 
@@ -401,7 +376,7 @@ std::vector<Collider> AABBTree::getLeafColliders() const
 	for (auto& pair : m_leafNodesIndices)
 	{
 		uint32_t index = pair.second;
-		const Node& node = m_nodes[index];
+		const Node& node = m_nodePool.get(index);
 		colliders.push_back(node.Value.value());
 	}
 

@@ -206,7 +206,7 @@ inline float quickRandFloat(float min = -1.0f, float max = 1.0f) {
 // Make unlink functin set original position, size and rotation
 // This function should be used when linking an entity to a parent so the transform is appropriately adjusted
 // NOTE: currently providing components and not IDs since the component might not have been added to the entity yet (pending command)
-inline void linkEntity(TransformComponent* parent, TransformComponent* child) {
+inline void linkEntity(const TransformComponent* parent, TransformComponent* child) {
 	if (!parent || !child) return;
 
 	// Position offset

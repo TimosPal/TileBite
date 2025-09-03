@@ -26,8 +26,9 @@ public:
 
 	void updateCachedTransform(World& activeWorld, ID currentID, ParentLinkComponent* currentLink)
 	{
-		// TODO: handle missing transform components
+		// TODO: handle missing transform components cases
 		// TOOD: are more optimizations possible?
+		// TODO: could move into a node graph for hierarchies
 
 		if (currentLink == nullptr) return;
 		if (currentLink->isCalculated()) return;
@@ -60,9 +61,9 @@ public:
 		}
 		else
 		{
-			parentPos = currentParentLink->CachedParentTransform.getPosition();
-			parentSize = currentParentLink->CachedParentTransform.getSize();
-			parentRot = currentParentLink->CachedParentTransform.getRotation();
+			parentPos = currentParentLink->CachedWorldTransform.getPosition();
+			parentSize = currentParentLink->CachedWorldTransform.getSize();
+			parentRot = currentParentLink->CachedWorldTransform.getRotation();
 
 			parentIsDirty = currentParentLink->isDirty();
 		}
@@ -83,9 +84,9 @@ public:
 		rotatedPos.y = scaledPos.x * s + scaledPos.y * c;
 
 		// Update cached transform
-		currentLink->CachedParentTransform.setPosition(parentPos + rotatedPos);
-		currentLink->CachedParentTransform.setSize(localSize * parentSize);
-		currentLink->CachedParentTransform.setRotation(parentRot + localRot);
+		currentLink->CachedWorldTransform.setPosition(parentPos + rotatedPos);
+		currentLink->CachedWorldTransform.setSize(localSize * parentSize);
+		currentLink->CachedWorldTransform.setRotation(parentRot + localRot);
 		currentLink->setDirty(currentLink->isDirty() || currentTransform->isDirty() || parentIsDirty);
 	}
 };

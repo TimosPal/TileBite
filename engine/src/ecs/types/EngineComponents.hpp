@@ -155,10 +155,10 @@ private:
 
 struct ParentLinkComponent : public BaseComponent {
 	ID ParentID;
-	TransformComponent CachedParentTransform;
+	TransformComponent CachedWorldTransform;
 
 	ParentLinkComponent(ID parentID = 0, const TransformComponent& cachedTransform = {})
-		: ParentID(parentID), CachedParentTransform(cachedTransform) {
+		: ParentID(parentID), CachedWorldTransform(cachedTransform) {
 	}
 
 	bool isCalculated() const { return m_isCalculated; }
