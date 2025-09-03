@@ -25,11 +25,13 @@ public:
 			newNodeIndex = m_freeIndices.back();
 			m_freeIndices.pop_back();
 			m_nodes[newNodeIndex] = std::move(newNode);
+			m_validNodes[newNodeIndex] = true;
 		}
 		else
 		{
 			newNodeIndex = static_cast<uint32_t>(m_nodes.size());
 			m_nodes.emplace_back(newNode);
+			m_validNodes.push_back(true);
 		}
 
 		return newNodeIndex;
@@ -39,10 +41,17 @@ public:
 	{
 		// Reset node if necessary
 		m_freeIndices.push_back(index);
+		m_validNodes[index] = false;
+	}
+
+	bool isValid(uint32_t index) const
+	{
+		return index < m_nodes.size() && m_validNodes[index];
 	}
 
 private:
 	std::vector<NodeT> m_nodes;
+	std::vector<bool> m_validNodes; // TODO: can use a bitset for less memory
 	std::vector<uint32_t> m_freeIndices;
 };
 

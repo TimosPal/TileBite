@@ -24,6 +24,7 @@
 #include <unordered_map>
 #include <bitset>
 #include <set>
+#include <unordered_set>
 
 #include <concepts>
 
