@@ -12,10 +12,11 @@ public:
     virtual void update(float deltaTime) override {
         auto& physicsEngine = getSceneManager().getActiveScene()->getPhysicsEngine();
         auto& world = getSceneManager().getActiveScene()->getWorld();
+		auto& activeSceneGraph = getSceneManager().getActiveScene()->getSceneGraph();
 
-        updateColliderType<AABBComponent>(world, physicsEngine);
-        updateColliderType<OBBComponent>(world, physicsEngine);
-        updateColliderType<CircleColliderComponent>(world, physicsEngine);
+        updateColliderType<AABBComponent>(world, physicsEngine, activeSceneGraph);
+        updateColliderType<OBBComponent>(world, physicsEngine, activeSceneGraph);
+        updateColliderType<CircleColliderComponent>(world, physicsEngine, activeSceneGraph);
 
         // Tilemaps are special
         world.query<TilemapComponent, TransformComponent>().each([&](ID entityID, TilemapComponent* tilemap, TransformComponent* transform) {
@@ -35,8 +36,8 @@ public:
 
 private:
 	template<typename ColliderComponent>
-	void updateColliderType(World& world, PhysicsEngine& physicsEngine) {
-		World::TypePack<ParentLinkComponent> excludedTypes;
+	void updateColliderType(World& world, PhysicsEngine& physicsEngine, SceneGraph& activeSceneGraph) {
+		World::TypePack<ParentComponent> excludedTypes;
         
         // Update colliders that have no parent link
 		world.query<ColliderComponent, TransformComponent>(excludedTypes).each([&](ID entityID, ColliderComponent* collider, TransformComponent* transform) {
@@ -48,16 +49,18 @@ private:
 	    });
 
         // Update colliders that have no parent link
-        world.query<ColliderComponent, TransformComponent, ParentLinkComponent>().each([&](
+        world.query<ColliderComponent, TransformComponent, ParentComponent>().each([&](
             ID entityID,
             ColliderComponent* collider,
             TransformComponent* transform,
-            ParentLinkComponent* curentLink) 
+            ParentComponent* curentLink) 
         {
-            if (transform->isDirty() || collider->isDirty() || curentLink->isDirty()) {
-                physicsEngine.updateCollider(entityID, &collider->getCollider(), &curentLink->CachedWorldTransform);
+            auto& worldTransform = activeSceneGraph.getWorldTransform(entityID);
+            if (collider->isDirty() || worldTransform.isDirty()) {
+                physicsEngine.updateCollider(entityID, &collider->getCollider(), &worldTransform);
                 transform->resetDirty();
                 collider->resetDirty();
+				worldTransform.resetDirty();
             }
         });
 	}

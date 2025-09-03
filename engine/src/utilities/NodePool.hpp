@@ -13,8 +13,19 @@ class NodePool {
 public:
 	constexpr static uint32_t NullIndex = UINT32_MAX;
 
-	NodeT& get(uint32_t index) { return m_nodes[index]; }
-	const NodeT& get(uint32_t index) const { return m_nodes[index]; }
+	NodeT& get(uint32_t index)
+	{
+		ASSERT(index < m_nodes.size(), "NodePool::get out of bounds");
+		ASSERT(m_validNodes[index], "NodePool::get on invalid (freed) index");
+		return m_nodes[index];
+	}
+
+	const NodeT& get(uint32_t index) const
+	{
+		ASSERT(index < m_nodes.size(), "NodePool::get out of bounds");
+		ASSERT(m_validNodes[index], "NodePool::get on invalid (freed) index");
+		return m_nodes[index];
+	}
 
 	uint32_t createNode(NodeT&& newNode)
 	{
@@ -30,7 +41,7 @@ public:
 		else
 		{
 			newNodeIndex = static_cast<uint32_t>(m_nodes.size());
-			m_nodes.emplace_back(newNode);
+			m_nodes.emplace_back(std::move(newNode));
 			m_validNodes.push_back(true);
 		}
 

@@ -11,9 +11,11 @@ void Scene::init()
 
 	m_world.setRemoveEntityCallback([&](ID entityID) {
 		m_physicsEngine.removeCollider(entityID);
+		m_sceneGraph.detachFromParent(entityID);
 	});
 
-	// TODO: add for remove component if colider was removed.
+	// TODO: Same thing should happen if the sceneGraph or physicsEngine should be updated
+	// from a component removal (for example a collider component removed).
 }
 
 void Scene::onUpdate(float deltaTime)

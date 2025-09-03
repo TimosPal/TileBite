@@ -13,8 +13,9 @@ public:
 	{
 		auto& renderer2D = getRenderer();
 		auto& activeWorld = getSceneManager().getActiveScene()->getWorld();
+		auto& activeSceneGraph = getSceneManager().getActiveScene()->getSceneGraph();
 
-		World::TypePack<ParentLinkComponent> excludedTypes;
+		World::TypePack<ParentComponent> excludedTypes;
 
 		// Render children without parent link
 		activeWorld.query<SpriteComponent, TransformComponent>(excludedTypes).each([&](ID entityID, SpriteComponent* spriteComp, TransformComponent* transformComp) {
@@ -22,11 +23,12 @@ public:
 		});
 
 		// Render children with parent link
-		activeWorld.query<SpriteComponent, TransformComponent, ParentLinkComponent>().each([&](
+		activeWorld.query<SpriteComponent, TransformComponent, ParentComponent>().each([&](
 			ID entityID, SpriteComponent* spriteComp, 
-			TransformComponent* transformComp, ParentLinkComponent* currentLink) 
+			TransformComponent* transformComp, ParentComponent* currentLink) 
 		{
-			renderer2D.drawQuad(SpriteQuad{ &currentLink->CachedWorldTransform, spriteComp });
+			auto& worldTransform = activeSceneGraph.getWorldTransform(entityID);
+			renderer2D.drawQuad(SpriteQuad{ &worldTransform, spriteComp });
 		});
 	}
 };

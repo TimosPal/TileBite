@@ -4,6 +4,8 @@
 #include "core/pch.hpp"
 #include "core/Types.hpp"
 
+#include "ecs/types/EngineComponents.hpp"
+#include "ecs/World.hpp"
 #include "utilities/NodePool.hpp"
 
 namespace TileBite {
@@ -16,6 +18,10 @@ public:
 	void attachToParent(ID parentID, ID childID);
 	void detachFromParent(ID childID);
 
+	void updateWorldTransforms(World& activeWorld);
+
+	TransformComponent& getWorldTransform(ID entityID);
+
 private:
 	struct Node {
 		uint32_t parentIndex = NodePool<Node>::NullIndex;
@@ -24,6 +30,7 @@ private:
 		uint32_t previousSiblingIndex = NodePool<Node>::NullIndex;
 
 		ID entityID = INVALID_ID;
+		TransformComponent WorldTransform;
 	};
 
 	NodePool<Node> m_nodePool;
@@ -33,6 +40,8 @@ private:
 	std::tuple<uint32_t, bool> createOrGetNode(ID id);
 	void link(Node& parentNode, uint32_t parentIndex, Node& childNode, uint32_t childIndex);
 	void unlink(Node& childNode);
+
+	void traverseHierarchy(uint32_t previousIndex, uint32_t currentIndex, World& activeWorld);
 
 };
 

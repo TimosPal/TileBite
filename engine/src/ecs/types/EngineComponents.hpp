@@ -153,20 +153,19 @@ private:
 	Circle m_collider;
 };
 
-struct ParentLinkComponent : public BaseComponent {
-	ID ParentID;
-	TransformComponent CachedWorldTransform;
+struct ParentComponent : public BaseComponent {
+	ParentComponent(ID parentID = 0) : m_parentID(parentID) {}
 
-	ParentLinkComponent(ID parentID = 0, const TransformComponent& cachedTransform = {})
-		: ParentID(parentID), CachedWorldTransform(cachedTransform) {
+	void setParentID(ID parentID)
+	{
+		m_parentID = parentID;
+		BaseComponent::setDirty(true);
 	}
 
-	bool isCalculated() const { return m_isCalculated; }
-	void setCalculated(bool calculated = true) { m_isCalculated = calculated; }
-	void setDirty(bool value) { BaseComponent::setDirty(value); }
+	ID getParentID() const { return m_parentID; }
 
 private:
-	bool m_isCalculated = false;
+	ID m_parentID;
 };
 
 } // TileBite

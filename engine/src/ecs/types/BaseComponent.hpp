@@ -17,7 +17,7 @@ public:
 protected:
 	void setDirty(bool dirty = true) { m_isDirty = dirty; }
 private:
-	bool m_isDirty = true;
+	bool m_isDirty = true; // NOTE: init to true for first time setup
 };
 
 } // TileBite

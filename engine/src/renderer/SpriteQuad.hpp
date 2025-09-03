@@ -9,6 +9,7 @@
 
 namespace TileBite {
 
+// TODO: make it support const pointers
 struct SpriteQuad {
 	TransformComponent* TransformComp;
 	SpriteComponent* SpriteComp;

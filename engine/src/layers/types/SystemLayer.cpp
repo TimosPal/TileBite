@@ -8,7 +8,7 @@
 
 #include "input/InputManager.hpp"
 #include "ecs/types/CollidersUpdateSystem.hpp"
-#include "ecs/types/ParentTransformUpdateSystem.hpp"
+#include "ecs/types/HierarchiesUpdateSystem.hpp"
 
 namespace TileBite {
 
@@ -77,7 +77,7 @@ void SystemLayer::onAttach()
 	eventDispatcher.subscribe(mouseMovedEventCallback);
 	eventDispatcher.subscribe(mouseScrollEventCallback);
 
-	getSystemManager().addSystem(std::make_unique<ParentTransformUpdateSystem>());
+	getSystemManager().addSystem(std::make_unique<HierarchiesUpdateSystem>());
 	getSystemManager().addSystem(std::make_unique<ColliderUpdateSystem>());
 }
 
