@@ -3,12 +3,12 @@
 #include "events/EventDispatcher.hpp"
 #include "window/Window.hpp"
 
+#include "core/EngineApp.hpp"
+
 namespace TileBite {
 
 void Scene::init()
 {
-	m_systemManager.setEngineContext(getEngineContext());
-
 	m_world.setRemoveEntityCallback([&](ID entityID) {
 		m_physicsEngine.removeCollider(entityID);
 		m_sceneGraph.detachFromParent(entityID);
@@ -28,9 +28,10 @@ void Scene::setCameraController(std::shared_ptr<CameraController> cameraControll
 	m_cameraController = cameraController;
 
 	// Set the initial camera projection based on the window size.
-	int width = getWindow().getWidth();
-	int height = getWindow().getHeight();
-	pushEvent(std::make_unique<WindowResizeEvent>(WindowResizeEvent(width, height)));
+	auto& window = EngineApp::getInstance()->getWindow();
+	int width = window.getWidth();
+	int height = window.getHeight();
+	EngineApp::getInstance()->pushEvent(std::make_unique<WindowResizeEvent>(WindowResizeEvent(width, height)));
 }
 
 } // TileBite

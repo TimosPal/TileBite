@@ -24,43 +24,45 @@ class MovingBoxSystem : public ISystem {
 private:
     float timer = 0;
 public:
+
     void onAttach() override
     {
-        auto& world = getSceneManager().getActiveScene()->getWorld();
+        auto activeScene = EngineApp::getInstance()->getSceneManager().getActiveScene();
+        auto& world = activeScene->getWorld();
+        auto& graph = activeScene->getSceneGraph();
 
-        //for (size_t i = 0; i < 1; i++)
+        ID boxLeft = world.createEntity();
+		TransformComponent boxLeftTr = { glm::vec2(0.0, 0), glm::vec2(0.2f) };
+        
+        world.addComponents(
+            boxLeft,
+            boxLeftTr,
+            SpriteComponent(glm::vec4(0.7f, 0.2f, 0.0f, 1.0f), 0),
+            OBBComponent(glm::vec2(0, 0), glm::vec2(1, 1), 0)
+        );
+
+		float xMargin = 0.21f;
+		ID previousID = boxLeft;
+        for (size_t i = 0; i < 10; i++)
         {
-            ID box = world.createEntity();
+            ID boxRight = world.createEntity();
+            TransformComponent boxRightTr = { glm::vec2(xMargin + xMargin * i, 0), glm::vec2(0.2f) };
+            //TransformComponent boxRightTr = { glm::vec2(xMargin, 0), glm::vec2(1.0f) };
 
-            glm::vec2 randomPos = glm::vec2(
-				quickRandFloat(-1.0f, 1.0f),
-				quickRandFloat(-1.0f, 1.0f)
-			);
+            //linkEntity(&boxLeftTr, &boxRightTr);
 
             world.addComponents(
-                box,
-                TransformComponent{ glm::vec2(0.4, 0), glm::vec2(0.1f, 1.0f) },
+                boxRight,
+                boxRightTr,
                 SpriteComponent(glm::vec4(0.7f, 0.0f, 0.0f, 1.0f), 0),
                 OBBComponent(glm::vec2(0, 0), glm::vec2(1, 1), 0)
+			    ,ParentComponent(previousID)
             );
+
+			previousID = boxRight;
+            boxLeftTr = boxRightTr;
         }
-
-        //for (size_t i = 0; i < 1; i++)
-        {
-            ID box = world.createEntity();
-
-            glm::vec2 randomPos = glm::vec2(
-                quickRandFloat(-1.0f, 1.0f),
-                quickRandFloat(-1.0f, 1.0f)
-            );
-
-            world.addComponents(
-                box,
-                TransformComponent{ glm::vec2(0.0, 0), glm::vec2(0.2f, 0.2f)},
-                SpriteComponent(glm::vec4(0.7f, 0.2f, 0.0f, 1.0f), 0),
-                AABBComponent(glm::vec2(-0.5), glm::vec2(0.5))
-            );
-        }
+		
 	}
 
     float pingPong(float t, float minVal = 0.1f, float maxVal = 0.2f) {
@@ -72,20 +74,32 @@ public:
     {
 		timer += deltaTime;
 
-        auto& world = getSceneManager().getActiveScene()->getWorld();
+        auto activeScene = EngineApp::getInstance()->getSceneManager().getActiveScene();
+        auto& world = activeScene->getWorld();
 
-        world.query<TransformComponent, SpriteComponent, OBBComponent>().each([&](ID id, TransformComponent* tr, SpriteComponent* spr, OBBComponent* obb) {
+		World::TypePack<ParentComponent> excludedTypes;
+        world.query<TransformComponent, SpriteComponent, OBBComponent>(excludedTypes).each([&](ID id, TransformComponent* tr, SpriteComponent* spr, OBBComponent* obb) {
             tr->setRotation(tr->getRotation() + 0.2f * deltaTime);
             //tr->setSize(glm::vec2(pingPong(timer * 0.01f)));
+			//tr->setPosition(glm::vec2(tr->getPosition().x, sin(timer + id * 0.4f) * 0.5f));
 
-            PhysicsEngine& physicsEngine = getSceneManager().getActiveScene()->getPhysicsEngine();
+            PhysicsEngine& physicsEngine = activeScene->getPhysicsEngine();
             OBB worldSpaceCol = obb->getCollider().toWorldSpace(tr->getPosition(), tr->getSize(), tr->getRotation());
             auto res = physicsEngine.query(worldSpaceCol, id);
+            if(res.size() > 0)
+            {
+                spr->Color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
+            }
+            else
+            {
+                spr->Color = glm::vec4(0.7f, 0.0f, 0.0f, 1.0f);
+			}
         });
 
         Ray2D ray(glm::vec2(-2.0f, 0.0f), glm::vec2(1.0f, sin(timer * 0.3f) * 0.6f), 4.0f);
+        auto& renderer = EngineApp::getInstance()->getRenderer();
 
-        getRenderer().drawLine(
+        renderer.drawLine(
             Line{
                 ray.at(0.0f),
                 ray.at(ray.getMaxT()),
@@ -93,31 +107,31 @@ public:
             }
         );
 
-		PhysicsEngine& physicsEngine = getSceneManager().getActiveScene()->getPhysicsEngine();
+        PhysicsEngine& physicsEngine = activeScene->getPhysicsEngine();
         std::optional<RayHitData> hit = physicsEngine.raycastClosest(ray);
-        if(hit.has_value())
+        if (hit.has_value())
         {
             const RayHitData& hitData = hit.value();
-            getRenderer().drawLine(
+            renderer.drawLine(
                 Line{
                     ray.at(hitData.tmin),
                     ray.at(hitData.tmax),
                     glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)
                 }
-			);
-            getRenderer().drawLine(
+            );
+            renderer.drawLine(
                 Line{
                     ray.at(0),
                     ray.at(hitData.tmin),
                     glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)
                 }
             );
-            getRenderer().drawSquare(
+            renderer.drawSquare(
                 ray.at(hitData.tmin) - 0.01f,
                 ray.at(hitData.tmin) + 0.01f,
                 glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)
             );
-            getRenderer().drawSquare(
+            renderer.drawSquare(
                 ray.at(hitData.tmax) - 0.01f,
                 ray.at(hitData.tmax) + 0.01f,
                 glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)
@@ -130,28 +144,29 @@ class CameraSystem : public ISystem {
 public:
     void update(float deltaTime) override
     {
-        auto cam = getSceneManager().getActiveScene()->getCameraController();
+        auto cam = EngineApp::getInstance()->getSceneManager().getActiveScene()->getCameraController();
+        auto& inputManager = EngineApp::getInstance()->getInputManager();
 		auto camPos = cam->getPosition();
 	    glm::vec2 baseVec = glm::vec2(0.0f, 0.0f);
-        if(getInputManager().isKeyDown(KeyCodes::KEY_A))
+        if(inputManager.isKeyDown(KeyCodes::KEY_A))
         {
-			baseVec += glm::vec2(-1.0f, 0.0f);
-		}
-        if(getInputManager().isKeyDown(KeyCodes::KEY_D))
-		{
+            baseVec += glm::vec2(-1.0f, 0.0f);
+        }
+        if (inputManager.isKeyDown(KeyCodes::KEY_D))
+        {
             baseVec += glm::vec2(1.0f, 0.0f);
         }
-        if (getInputManager().isKeyDown(KeyCodes::KEY_W))
+        if (inputManager.isKeyDown(KeyCodes::KEY_W))
         {
             baseVec += glm::vec2(0.0f, 1.0f);
         }
-        if (getInputManager().isKeyDown(KeyCodes::KEY_S))
+        if (inputManager.isKeyDown(KeyCodes::KEY_S))
         {
             baseVec += glm::vec2(0.0f, -1.0f);
         }
         cam->setPosition(camPos + baseVec * deltaTime * 1.0f);
 
-        float scrollY = getInputManager().getMouseScrollY();
+        float scrollY = inputManager.getMouseScrollY();
         if(scrollY != 0.0f)
         {
             float delta = scrollY * 15.0f * deltaTime;
@@ -174,9 +189,8 @@ class GameLayer : public Layer {
 public: 
     void onAttach() override
     {
-
-        auto scene = getSceneManager().createScene<MainScene>("MainScene");
-        getSceneManager().setActiveScene(scene);
+        auto scene = EngineApp::getInstance()->getSceneManager().createScene<MainScene>("MainScene");
+        EngineApp::getInstance()->getSceneManager().setActiveScene(scene);
 
 		getSystemManager().addSystem(std::make_unique<CameraSystem>());
 		getSystemManager().addSystem(std::make_unique<MovingBoxSystem>());

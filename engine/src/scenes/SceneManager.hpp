@@ -3,18 +3,16 @@
 
 #include "core/pch.hpp"
 #include "scenes/Scene.hpp"
-#include "core/EngineContext.hpp"
 
 namespace TileBite {
 
-class SceneManager : public InjectEngineContext {
+class SceneManager {
 public:
 	// Create a new scene with the given name.
 	template<typename SceneDerived>
 	std::shared_ptr<Scene> createScene(const std::string& name)
 	{
 		auto scene = std::make_shared<SceneDerived>();
-		scene->setEngineContext(getEngineContext());
 		scene->init();
 		m_scenes[name] = scene;
 		return scene;

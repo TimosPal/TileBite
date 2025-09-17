@@ -27,26 +27,37 @@ private:
 public:
     void onAttach() override
     {
-        auto& world = getSceneManager().getActiveScene()->getWorld();
+        auto& world = EngineApp::getInstance()->getSceneManager().getActiveScene()->getWorld();
         box = world.createEntity();
         world.addComponents(
             box,
-            TransformComponent{ glm::vec2(0.0f, 0.1f), glm::vec2(0.3f, 0.3f) },
+            TransformComponent{ glm::vec2(0.0f, 0.1f), glm::vec2(0.1f, 0.1f), glm::radians(45.0f) },
             SpriteComponent(glm::vec4(0.7f, 0.0f, 0.0f, 1.0f), 0),
-            AABBComponent({ -0.5f, -0.5f }, { 0.5f, 0.5f })
+            CircleColliderComponent(glm::vec2(0), 4.5f)
         );
-	}
+    }
 
     void update(float deltaTime) override
     {
         timer += deltaTime;
 
-        auto& world = getSceneManager().getActiveScene()->getWorld();
+        auto& world = EngineApp::getInstance()->getSceneManager().getActiveScene()->getWorld();
         auto tr = world.getComponent<TransformComponent>(box);
-		
-		glm::vec2 dir = ping ? glm::vec2(-1.0f, -0.1f) : glm::vec2(1.0f, 0.1f);
-		dir += glm::vec2(0.0f, sin(tr->getPosition().x * 7.0f) * 1.0f);
-        tr->setPosition(tr->getPosition() + dir * deltaTime * 0.3f);
+
+        auto activeScene = EngineApp::getInstance()->getSceneManager().getActiveScene();
+        auto& window = EngineApp::getInstance()->getWindow();
+        auto& inputManager = EngineApp::getInstance()->getInputManager();
+        glm::vec2 mouseWorldPos = activeScene->getCameraController()->screenToWorld(
+            inputManager.getMousePosition(),
+            window.getWidth(),
+            window.getHeight()
+        );
+
+        glm::vec2 dir = ping ? glm::vec2(-1.0f, -0.1f) : glm::vec2(1.0f, 0.1f);
+        dir += glm::vec2(0.0f, sin(tr->getPosition().x * 7.0f) * 1.0f);
+        glm::vec2 mouseDir = glm::normalize(mouseWorldPos - tr->getPosition());
+        tr->setPosition(tr->getPosition() + dir * deltaTime * 0.3f + mouseDir * 0.001f);
+        tr->setRotation(tr->getRotation() + deltaTime);
 
         if (ping && tr->getPosition().x < 0)
         {
@@ -57,20 +68,20 @@ public:
             ping = true;
         }
 
-		AABBComponent* aabb = world.getComponent<AABBComponent>(box);
+        CircleColliderComponent* circle = world.getComponent<CircleColliderComponent>(box);
 
-        AABB WorldSpaceAABBComponent = aabb->getCollider().toWorldSpace(tr->getPosition(), tr->getSize(), tr->getRotation());
-		PhysicsEngine& physicsEngine = getSceneManager().getActiveScene()->getPhysicsEngine();
-        auto collisionData = physicsEngine.query(WorldSpaceAABBComponent, box);
+        Circle WorldSpaceCircleComponent = circle->getCollider().toWorldSpace(tr->getPosition(), tr->getSize(), tr->getRotation());
+        PhysicsEngine& physicsEngine = EngineApp::getInstance()->getSceneManager().getActiveScene()->getPhysicsEngine();
+        auto collisionData = physicsEngine.query(WorldSpaceCircleComponent, box);
 
-		auto& renderer = getRenderer();
+        auto& renderer = EngineApp::getInstance()->getRenderer();
         if (!collisionData.empty())
         {
             for (auto& data : collisionData)
             {
                 /*glm::vec2 min = data.Generic.Collider.Min;
-				glm::vec2 max = data.Generic.Collider.Max;
-				glm::vec4 color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+                glm::vec2 max = data.Generic.Collider.Max;
+                glm::vec4 color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
                 renderer.drawLine({ min, max, color });
                 renderer.drawLine({ glm::vec2(min.x, max.y), glm::vec2(max.x, min.y), color });
                 renderer.drawSquare(min, max, color);*/
@@ -80,11 +91,11 @@ public:
                     Tile oldTile = world.getComponent<TilemapComponent>(data.Generic.id)->getResource()->getTile(
                         data.Tilemap.XTilemapIndex,
                         data.Tilemap.YTilemapIndex
-					);
-                    
+                    );
+
                     Tile newTile;
                     newTile.IsSolid = false;
-					newTile.Color = oldTile.Color - glm::vec4(0.0f, 0.0f, 0.0f, 0.8f);
+                    newTile.Color = oldTile.Color - glm::vec4(0.0f, 0.0f, 0.0f, 0.8f);
                     world.getComponent<TilemapComponent>(data.Generic.id)->setTile(
                         newTile,
                         data.Tilemap.XTilemapIndex,
@@ -94,16 +105,10 @@ public:
             }
         }
 
-        glm::vec2 mouseWorldPos = getSceneManager().getActiveScene()->getCameraController()->screenToWorld(
-            getInputManager().getMousePosition(),
-            getWindow().getWidth(),
-            getWindow().getHeight()
-		);
-
         glm::vec2 startPos = tr->getPosition();
-		glm::vec2 rayDir = mouseWorldPos - startPos;
+        glm::vec2 rayDir = mouseWorldPos - startPos;
         Ray2D ray(startPos, rayDir, glm::length(rayDir));
-        auto hits = physicsEngine.raycastAll(ray);
+        auto hits = physicsEngine.raycastAll(ray, box);
 
         renderer.drawLine(
             Line{
@@ -111,38 +116,38 @@ public:
                 ray.at(ray.getMaxT()),
                 glm::vec4(1.0f)
             }
-		);
+        );
 
         for (auto hit : hits) {
             const RayHitData& hitData = hit;
             if (hitData.tmin < 0) continue;
-            
-            getRenderer().drawSquare(
+
+            renderer.drawSquare(
                 hitData.Generic.GenericCollider.AABBCollider.Min,
                 hitData.Generic.GenericCollider.AABBCollider.Max,
                 glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)
-			);
+            );
 
-            getRenderer().drawLine(
+            renderer.drawLine(
                 Line{
                     ray.at(hitData.tmin),
                     ray.at(hitData.tmax),
                     glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)
                 }
             );
-            getRenderer().drawLine(
+            renderer.drawLine(
                 Line{
                     ray.at(0),
                     ray.at(hitData.tmin),
                     glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)
                 }
             );
-            getRenderer().drawSquare(
+            renderer.drawSquare(
                 ray.at(hitData.tmin) - 0.01f,
                 ray.at(hitData.tmin) + 0.01f,
                 glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)
             );
-            getRenderer().drawSquare(
+            renderer.drawSquare(
                 ray.at(hitData.tmax) - 0.01f,
                 ray.at(hitData.tmax) + 0.01f,
                 glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)
@@ -155,34 +160,35 @@ class CameraSystem : public ISystem {
 public:
     void update(float deltaTime) override
     {
-        auto cam = getSceneManager().getActiveScene()->getCameraController();
-		auto camPos = cam->getPosition();
-	    glm::vec2 baseVec = glm::vec2(0.0f, 0.0f);
-        if(getInputManager().isKeyDown(KeyCodes::KEY_A))
+        auto cam = EngineApp::getInstance()->getSceneManager().getActiveScene()->getCameraController();
+        auto& inputManager = EngineApp::getInstance()->getInputManager();
+        auto camPos = cam->getPosition();
+        glm::vec2 baseVec = glm::vec2(0.0f, 0.0f);
+        if (inputManager.isKeyDown(KeyCodes::KEY_A))
         {
-			baseVec += glm::vec2(-1.0f, 0.0f);
-		}
-        if(getInputManager().isKeyDown(KeyCodes::KEY_D))
-		{
+            baseVec += glm::vec2(-1.0f, 0.0f);
+        }
+        if (inputManager.isKeyDown(KeyCodes::KEY_D))
+        {
             baseVec += glm::vec2(1.0f, 0.0f);
         }
-        if (getInputManager().isKeyDown(KeyCodes::KEY_W))
+        if (inputManager.isKeyDown(KeyCodes::KEY_W))
         {
             baseVec += glm::vec2(0.0f, 1.0f);
         }
-        if (getInputManager().isKeyDown(KeyCodes::KEY_S))
+        if (inputManager.isKeyDown(KeyCodes::KEY_S))
         {
             baseVec += glm::vec2(0.0f, -1.0f);
         }
         cam->setPosition(camPos + baseVec * deltaTime * 1.0f);
 
-        float scrollY = getInputManager().getMouseScrollY();
-        if(scrollY != 0.0f)
+        float scrollY = inputManager.getMouseScrollY();
+        if (scrollY != 0.0f)
         {
             float delta = scrollY * 15.0f * deltaTime;
             float newZoom = std::clamp(cam->getZoom() + delta, 0.5f, 3.0f);
             cam->setZoom(newZoom);
-		}
+        }
     }
 };
 
@@ -192,7 +198,7 @@ class MainScene : public Scene {
 
     FastNoiseLite baseNoise;
     FastNoiseLite detailNoise;
-	float tileSize = 0.1f;
+    float tileSize = 0.1f;
 
     void createTilemap(float x, float y, int size, int noiseOffset)
     {
@@ -239,7 +245,7 @@ class MainScene : public Scene {
 
         static int i = 0;
         std::string resourceName = "tileMapResource_" + std::to_string(i++);
-        ResourceHandle<TilemapResource> tilemapHandle = getAssetsManager().createTilemapResource(
+        ResourceHandle<TilemapResource> tilemapHandle = EngineApp::getInstance()->getAssetsManager().createTilemapResource(
             resourceName,
             tiles,
             { tilemapWidth, tilemapHeight },
@@ -262,7 +268,7 @@ class MainScene : public Scene {
 
     void onLoad() override
     {
-        m_tilemapTextureHandle = getAssetsManager().getTextureResource("tilemap");
+        m_tilemapTextureHandle = EngineApp::getInstance()->getAssetsManager().getTextureResource("tilemap");
         m_tilemapTextureHandle->watch();
         m_tilemapTextureHandle->load();
 
@@ -277,7 +283,7 @@ class MainScene : public Scene {
 
         float tilemapStartingX = 0.0f;
         int tilemapSize = 255;
-        for (size_t i = 0; i < 300; i++)
+        for (size_t i = 0; i < 30; i++)
         {
             createTilemap(tilemapStartingX, 0.0f, tilemapSize, tilemapSize * i);
             tilemapStartingX += tilemapSize * tileSize;
@@ -286,18 +292,18 @@ class MainScene : public Scene {
 };
 
 class GameLayer : public Layer {
-public: 
+public:
     void onAttach() override
     {
-        getAssetsManager().createTextureResource("tilemap", std::string(ResourcePaths::ImagesDir) + "./tilemap.png");
+        EngineApp::getInstance()->getAssetsManager().createTextureResource("tilemap", std::string(ResourcePaths::ImagesDir) + "./tilemap.png");
 
-        auto scene = getSceneManager().createScene<MainScene>("MainScene");
-        getSceneManager().setActiveScene(scene);
+        auto scene = EngineApp::getInstance()->getSceneManager().createScene<MainScene>("MainScene");
+        EngineApp::getInstance()->getSceneManager().setActiveScene(scene);
 
         EventCallback<KeyPressedEvent> e([&](KeyPressedEvent& event) {
             LOG_INFO("Key: {}", event.getKeyCode());
 		});
-        getCoreEventDispatcher().subscribe(e);
+        EngineApp::getInstance()->getCoreEventDispatcher().subscribe(e);
 
 		getSystemManager().addSystem(std::make_unique<CameraSystem>());
 		getSystemManager().addSystem(std::make_unique<MovingBoxSystem>());

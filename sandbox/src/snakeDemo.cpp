@@ -56,7 +56,7 @@ public:
 
     void update(float deltaTime) override
     {
-        auto& world = getSceneManager().getActiveScene()->getWorld();
+        auto& world = EngineApp::getInstance()->getSceneManager().getActiveScene()->getWorld();
 
         world.query<TransformComponent, VelocityComponent, Leader>().each(
             [&](ID id, TransformComponent* t, VelocityComponent* v, Leader* l) {
@@ -142,7 +142,7 @@ class FollowerSystem : public ISystem {
 public:
     void update(float deltaTime) override
     {
-        auto& world = getSceneManager().getActiveScene()->getWorld();
+        auto& world = EngineApp::getInstance()->getSceneManager().getActiveScene()->getWorld();
 
         std::unordered_map<ID, TransformComponent*> transformCache;
         world.query<TransformComponent>().each([&](ID id, TransformComponent* t) {
@@ -175,7 +175,7 @@ class FoodSystem : public ISystem {
 public:
     void update(float deltaTime) override
     {
-        auto& world = getSceneManager().getActiveScene()->getWorld();
+        auto& world = EngineApp::getInstance()->getSceneManager().getActiveScene()->getWorld();
 
         world.query<TransformComponent, VelocityComponent, Food>().each(
             [&](ID id, TransformComponent* t, VelocityComponent* v, Food* f) {
@@ -268,8 +268,8 @@ public:
 
     void onAttach() override
     {
-        auto scene = getSceneManager().createScene<MainScene>("MainScene");
-        getSceneManager().setActiveScene(scene);
+        auto scene = EngineApp::getInstance()->getSceneManager().createScene<MainScene>("MainScene");
+        EngineApp::getInstance()->getSceneManager().setActiveScene(scene);
     }
 };
 

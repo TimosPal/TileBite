@@ -5,6 +5,8 @@
 #include "renderer/Renderer2D.hpp"
 #include "events/types/WindowResizeEvent.hpp"
 
+#include "core/EngineApp.hpp"
+
 namespace TileBite
 {
 
@@ -15,9 +17,10 @@ GraphicsLayer::GraphicsLayer()
 void GraphicsLayer::onAttach()
 {
 	// Resize window
+	auto& renderer = EngineApp::getInstance()->getRenderer();
 	EventCallback<WindowResizeEvent> windowResizeEventCallback([&](WindowResizeEvent& event) {
 		event.consume();
-		getRenderer().setViewportSize(event.getWidth(), event.getHeight());
+		renderer.setViewportSize(event.getWidth(), event.getHeight());
 	});
 	getEventDispatcher().subscribe<WindowResizeEvent>(windowResizeEventCallback);
 

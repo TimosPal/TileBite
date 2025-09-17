@@ -7,13 +7,12 @@
 #include "ecs/SystemManager.hpp"
 #include "resources/AssetsManager.hpp"
 #include "scenes/SceneManager.hpp"
-#include "core/EngineContext.hpp"
 
 namespace TileBite {
 
 // Each layer holds its own event dispatcher.
 // Event listeners subscribe to layers.
-class Layer : public InjectEngineContext {
+class Layer {
 public:
 	Layer(std::string name = "NoName") :
 		m_eventDispatcher(),
@@ -21,10 +20,7 @@ public:
 		m_name(std::move(name))
 	{}
 
-	void init()
-	{
-		m_systemManager.setEngineContext(getEngineContext());
-	}
+	void init() {}
 
 	virtual void onAttach() {}
 	virtual void onDetach() {}

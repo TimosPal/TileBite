@@ -13,19 +13,6 @@ EngineApp::EngineApp()
 	: m_isRunning(true),
 	m_sceneManager()
 {
-	// Initialize the engine context.
-	m_engineContext.SceneManagerPtr = &m_sceneManager;
-	m_engineContext.AssetsManagerPtr = &m_assetsManager;
-	m_engineContext.EventDispatcherPtr = &m_coreEventDispatcher;
-	m_engineContext.InputManagerPtr = &m_inputManager;
-	m_engineContext.RendererPtr = nullptr; // Will be set after renderer creation.
-	m_engineContext.WindowPtr = nullptr; // Will be set after window creation.
-	m_engineContext.pushEventCallable = [&](std::unique_ptr<Event> event) {
-		pushEvent(std::move(event));
-	};
-
-	m_sceneManager.setEngineContext(&m_engineContext);
-
 	// One instance allowed.
 	ASSERT(s_instance == nullptr, "Engine app already created");
 	s_instance = this;
@@ -53,9 +40,6 @@ void EngineApp::init()
 	bool resInitRendered2D = m_renderer2D->init();
 	ASSERT(resInitRendered2D, "Renderer2D not init");
 	
-	m_engineContext.WindowPtr = m_window.get();
-	m_engineContext.RendererPtr = m_renderer2D.get();
-
 	// Assets interface
 	m_assetsManager.init(&m_resourceHub, &m_renderer2D->getGPUAssets());
 
@@ -196,8 +180,6 @@ void EngineApp::pushEvent(std::unique_ptr<Event> event)
 
 void EngineApp::pushLayer(std::shared_ptr<Layer> layer)
 {
-	// Inject dependencies to hide from client side.
-	layer->setEngineContext(&m_engineContext);
 	layer->init();
 
 	m_layers.pushLayer(layer);
@@ -205,8 +187,6 @@ void EngineApp::pushLayer(std::shared_ptr<Layer> layer)
 
 void EngineApp::pushOverlay(std::shared_ptr<Layer> layer)
 {
-	// Inject dependencies to hide from client side.
-	layer->setEngineContext(&m_engineContext);
 	layer->init();
 
 	m_layers.pushOverlay(layer);

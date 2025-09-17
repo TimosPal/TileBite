@@ -14,7 +14,6 @@
 #include "layers/types/SystemLayer.hpp"
 #include "layers/types/GraphicsLayer.hpp"
 #include "layers/types/DebugLayer.hpp"
-#include "core/EngineContext.hpp"
 #include "events/EventDispatcher.hpp"
 #include "input/InputManager.hpp"
 
@@ -48,9 +47,16 @@ public:
 
 	void pushEvent(std::unique_ptr<Event> event);
 
+	// getters
+	SceneManager& getSceneManager() { return m_sceneManager; }
+	AssetsManager& getAssetsManager() { return m_assetsManager; }
+	EventDispatcher& getCoreEventDispatcher() { return m_coreEventDispatcher; }
+	InputManager& getInputManager() { return m_inputManager; }
+	Window& getWindow() { return *m_window; }
+	Renderer2D& getRenderer() { return *m_renderer2D; }
+
 private:
 	static EngineApp* s_instance;
-	EngineContext m_engineContext;
 
 	// Resources
 	SystemResourceHub m_resourceHub;

@@ -38,12 +38,12 @@ public:
         EventCallback<MouseKeyPressedEvent> testCallback([&](MouseKeyPressedEvent& event) {
             LOG_INFO("Mouse: {}", 0);
         });
-        getCoreEventDispatcher().subscribe<MouseKeyPressedEvent>(testCallback);
+        EngineApp::getInstance()->getCoreEventDispatcher().subscribe<MouseKeyPressedEvent>(testCallback);
     }
 
     void update(float deltaTime) override
     {
-        auto currScene = getSceneManager().getActiveScene();
+		auto currScene = EngineApp::getInstance()->getSceneManager().getActiveScene();
         auto& physicsEngine = currScene->getPhysicsEngine();
 		auto& world = currScene->getWorld();
 
@@ -97,7 +97,7 @@ public:
         {
             c++;
 
-            auto& world = getSceneManager().getActiveScene()->getWorld();
+			auto& world = EngineApp::getInstance()->getSceneManager().getActiveScene()->getWorld();
             auto entID = world.createEntity();
 
 			float rX = quickRandFloat(-1.0f, 1.0f);
@@ -135,7 +135,7 @@ public:
     {
         timer += deltaTime;
 
-        auto& world = getSceneManager().getActiveScene()->getWorld();
+		auto& world = EngineApp::getInstance()->getSceneManager().getActiveScene()->getWorld();
         if (adding)
         {
             if (timer > 0.4f)
@@ -214,8 +214,8 @@ public:
 
     void onAttach() override
     {
-        auto scene = getSceneManager().createScene<MainScene>("MainScene");
-        getSceneManager().setActiveScene(scene);
+		auto scene = EngineApp::getInstance()->getSceneManager().createScene<MainScene>("MainScene");
+        EngineApp::getInstance()->getSceneManager().setActiveScene(scene);
     }
 };
 

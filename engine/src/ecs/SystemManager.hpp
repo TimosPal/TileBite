@@ -4,19 +4,15 @@
 #include "core/pch.hpp"
 #include "ecs/ISystem.hpp"
 #include "physics/PhysicsEngine.hpp"
-#include "core/EngineContext.hpp"
 
 namespace TileBite {
 
-class SystemManager : public InjectEngineContext {
+class SystemManager {
 public:
     SystemManager() = default;
 
     void addSystem(std::unique_ptr<ISystem> system)
     {
-        // Inject world and asset manager for hidden client side use
-        // (Removes the need for client side construction to include injections)
-		system->setEngineContext(getEngineContext());
 		system->onAttach();
         
         m_systems.push_back(std::move(system));

@@ -2,7 +2,6 @@
 #define SCENE_HPP
 
 #include "core/pch.hpp"
-#include "core/EngineContext.hpp"
 #include "ecs/World.hpp"
 #include "renderer/camera/CameraController.hpp"
 #include "ecs/SystemManager.hpp"
@@ -13,7 +12,7 @@
 
 namespace TileBite {
 
-class Scene : public InjectEngineContext {
+class Scene {
 public:
 	void init();
 

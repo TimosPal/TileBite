@@ -5,14 +5,17 @@
 #include "ecs/types/EngineComponents.hpp"
 #include "utilities/misc.hpp"
 
+#include "core/EngineApp.hpp"
+
 namespace TileBite {
 
 class ColliderUpdateSystem : public ISystem {
 public:
     virtual void update(float deltaTime) override {
-        auto& physicsEngine = getSceneManager().getActiveScene()->getPhysicsEngine();
-        auto& world = getSceneManager().getActiveScene()->getWorld();
-		auto& activeSceneGraph = getSceneManager().getActiveScene()->getSceneGraph();
+        auto activeScene = EngineApp::getInstance()->getSceneManager().getActiveScene();
+        auto& physicsEngine = activeScene->getPhysicsEngine();
+        auto& world = activeScene->getWorld();
+        auto& activeSceneGraph = activeScene->getSceneGraph();
 
         updateColliderType<AABBComponent>(world, physicsEngine, activeSceneGraph);
         updateColliderType<OBBComponent>(world, physicsEngine, activeSceneGraph);

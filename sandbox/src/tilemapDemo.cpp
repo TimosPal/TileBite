@@ -25,13 +25,13 @@ public:
 
         if (cameraTimer < 15)
         {
-            auto cam = getSceneManager().getActiveScene()->getCameraController();
+            auto cam = EngineApp::getInstance()->getSceneManager().getActiveScene()->getCameraController();
             float zoomSpeed = 1.1f;
             cam->setZoom(cam->getZoom() / std::pow(zoomSpeed, deltaTime));
 
             auto pos = cam->getPosition();
-			pos.x += 0.3 * deltaTime;
-			pos.y += 0.3 * deltaTime;
+            pos.x += 0.3 * deltaTime;
+            pos.y += 0.3 * deltaTime;
             cam->setPosition(pos);
         }
 
@@ -39,8 +39,9 @@ public:
         {
             timer = 0;
 
-            auto tilemapHandle = getAssetsManager().getTilemapResource("tileMapResource_0_0");
-			auto rngA = quickRandFloat(0.0f, 1.0f) < 0.4 ? 1 : 0.1;
+            auto& assetManager = EngineApp::getInstance()->getAssetsManager();
+            auto tilemapHandle = assetManager.getTilemapResource("tileMapResource_0_0");
+            auto rngA = quickRandFloat(0.0f, 1.0f) < 0.4 ? 1 : 0.1;
             auto rngCol = glm::vec4(quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), rngA);
 
             auto rngX = quickRandFloat(0, 254.9 - 5);
@@ -73,13 +74,14 @@ class MainScene : public Scene {
         auto cameraController = std::make_shared<CameraController>();
         setCameraController(cameraController);
 
-        m_tilemapTextureHandle = getAssetsManager().getTextureResource("tilemap");
+        auto& assetManager = EngineApp::getInstance()->getAssetsManager();
+        m_tilemapTextureHandle = assetManager.getTextureResource("tilemap");
         m_tilemapTextureHandle->watch();
         m_tilemapTextureHandle->load();
 
         getSystemManager().addSystem(std::make_unique<CameraSystem>());
 
-		glm::vec2 uvs[] = { {0,0}, {0,1}, {1,0}, {1,1} };
+        glm::vec2 uvs[] = { {0,0}, {0,1}, {1,0}, {1,1} };
 
         float posX = 0;
         float posY = 0;
@@ -98,22 +100,23 @@ class MainScene : public Scene {
                         Tile& tile = tiles[y * tilemapWidth + x];
 
                         auto aC = 1; // quickRandFloat(0.0f, 1.0f) < 0.4 ? 1 : 0;
-                        auto rngCol = glm::vec4(quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), aC);                        
-						auto uvRng = uvs[int(quickRandFloat(0.0f, 3.9f))];
-                      
-						tile.uIndex = uvRng.x;
-						tile.vIndex = uvRng.y;
+                        auto rngCol = glm::vec4(quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), quickRandFloat(0.4f, 1.0f), aC);
+                        auto uvRng = uvs[int(quickRandFloat(0.0f, 3.9f))];
+
+                        tile.uIndex = uvRng.x;
+                        tile.vIndex = uvRng.y;
                         tile.Color = rngCol;
                     }
                 }
                 std::string resourceName = "tileMapResource_" + std::to_string(i) + "_" + std::to_string(j);
-                m_tilemapHandle = getAssetsManager().createTilemapResource(
+                auto& assetManager = EngineApp::getInstance()->getAssetsManager();
+                m_tilemapHandle = assetManager.createTilemapResource(
                     resourceName,
                     tiles,
                     { tilemapWidth, tilemapHeight },
                     { 0.1, 0.1 },
                     { 16, 16 },
-                    {32, 32},
+                    { 32, 32 },
                     m_tilemapTextureHandle->getID()
                 );
 
@@ -139,9 +142,10 @@ public:
 
     void onAttach() override
     {
-        getAssetsManager().createTextureResource("tilemap", std::string(ResourcePaths::ImagesDir) + "./tilemap.png");
-        auto scene = getSceneManager().createScene<MainScene>("MainScene");
-        getSceneManager().setActiveScene(scene);
+        auto& assetManager = EngineApp::getInstance()->getAssetsManager();
+        assetManager.createTextureResource("tilemap", std::string(ResourcePaths::ImagesDir) + "./tilemap.png");
+        auto scene = EngineApp::getInstance()->getSceneManager().createScene<MainScene>("MainScene");
+        EngineApp::getInstance()->getSceneManager().setActiveScene(scene);
     }
 };
 

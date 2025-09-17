@@ -5,15 +5,18 @@
 #include "ecs/types/EngineComponents.hpp"
 #include "renderer/Renderer2D.hpp"
 
+#include "core/EngineApp.hpp"
+
 namespace TileBite {
 
 class SpriteRenderSystem : public ISystem {
 public:
 	virtual void update(float deltaTime) override
 	{
-		auto& renderer2D = getRenderer();
-		auto& activeWorld = getSceneManager().getActiveScene()->getWorld();
-		auto& activeSceneGraph = getSceneManager().getActiveScene()->getSceneGraph();
+		auto& renderer2D = EngineApp::getInstance()->getRenderer();
+		auto activeScene = EngineApp::getInstance()->getSceneManager().getActiveScene();
+		auto& activeWorld = activeScene->getWorld();
+		auto& activeSceneGraph = activeScene->getSceneGraph();
 
 		World::TypePack<ParentComponent> excludedTypes;
 

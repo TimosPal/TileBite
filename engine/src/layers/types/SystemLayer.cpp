@@ -10,6 +10,8 @@
 #include "ecs/types/CollidersUpdateSystem.hpp"
 #include "ecs/types/HierarchiesUpdateSystem.hpp"
 
+#include "core/EngineApp.hpp"
+
 namespace TileBite {
 
 SystemLayer::SystemLayer(std::function<void()> stopAppCallback)
@@ -19,6 +21,9 @@ SystemLayer::SystemLayer(std::function<void()> stopAppCallback)
 
 void SystemLayer::onAttach()
 {
+	auto& sceneManager = EngineApp::getInstance()->getSceneManager();
+	auto& inputManager = EngineApp::getInstance()->getInputManager();
+
 	// Close window
 	EventCallback<WindowCloseEvent> windowCloseEventCallback([&](WindowCloseEvent& event) {
 		event.consume();
@@ -28,13 +33,11 @@ void SystemLayer::onAttach()
 	// Resize window
 	EventCallback<WindowResizeEvent> windowResizeEventCallback([&](WindowResizeEvent& event) {
 		float aspect = (float)event.getWidth() / event.getHeight();
-		getSceneManager().getActiveScene()->getCameraController()->setProjection(
+		sceneManager.getActiveScene()->getCameraController()->setProjection(
 			-aspect, aspect, -1.0f, 1.0f
 		);
 	});
 	getEventDispatcher().subscribe<WindowResizeEvent>(windowResizeEventCallback);
-
-	InputManager& inputManager = getInputManager();
 
 	// Key events
 	EventCallback<KeyPressedEvent> keyPressedEventCallback([&](KeyPressedEvent& event) {
