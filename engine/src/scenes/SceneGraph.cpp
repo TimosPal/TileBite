@@ -4,73 +4,60 @@
 
 namespace TileBite {
 
-void SceneGraph::traverseHierarchy(uint32_t previousIndex, uint32_t currentIndex, World& activeWorld)
+void SceneGraph::traverseHierarchy(uint32_t previousIndex, uint32_t currentIndex)
 {
-	// TODO: optimization by early stopping etc
-
 	Node& currentNode = m_nodePool.get(currentIndex);
+	TransformComponent* currentTransform = m_activeWorld.getComponent<TransformComponent>(currentNode.entityID);
+	ASSERT(currentTransform, "Linking to non transform components not allowed");
 
-	// local transform
-	TransformComponent* localTrans = activeWorld.getComponent<TransformComponent>(currentNode.entityID);
-	glm::vec2 localPos = glm::vec2(0.0f);
-	glm::vec2 localSize = glm::vec2(1.0f);
-	float localRot = 0.0f;
-	if (localTrans)
-	{
-		localPos = localTrans->getPosition();
-		localSize = localTrans->getSize();
-		localRot = localTrans->getRotation();
-	}
-
-	// Parent world transform
-	glm::vec2 parentPos = glm::vec2(0.0f);
-	glm::vec2 parentSize = glm::vec2(1.0f);
-	float parentRot = 0.0f;
 	if (previousIndex != NodePool<Node>::NullIndex)
 	{
 		Node& parentNode = m_nodePool.get(previousIndex);
-		parentPos = parentNode.WorldTransform.getPosition();
-		parentSize = parentNode.WorldTransform.getSize();
-		parentRot = parentNode.WorldTransform.getRotation();
+		if (parentNode.WorldTransform.isDirty() || currentTransform->isDirty())
+		{
+			currentNode.WorldTransform = compose(parentNode.WorldTransform, *currentTransform);
+		}
 	}
-
-	// Calculate world transform
-	glm::vec2 scaledLocalPos = localPos * parentSize;
-    float s = std::sin(parentRot);
-    float c = std::cos(parentRot);
-    glm::vec2 rotatedLocalPos = {
-		scaledLocalPos.x * c - scaledLocalPos.y * s,
-		scaledLocalPos.x * s + scaledLocalPos.y * c
-    };
-    glm::vec2 worldPos = parentPos + rotatedLocalPos;
-    float worldRot = parentRot + localRot;
-    glm::vec2 worldSize = localSize * parentSize;
-    currentNode.WorldTransform.setPosition(worldPos);
-    currentNode.WorldTransform.setRotation(worldRot);
-    currentNode.WorldTransform.setSize(worldSize);
+	else
+	{
+		// Root node
+		if (currentTransform->isDirty())
+		{
+			currentNode.WorldTransform = *currentTransform;
+		}
+	}
 
 	uint32_t childIndex = currentNode.firstChildIndex;
 	while (childIndex != NodePool<Node>::NullIndex)
 	{
-		traverseHierarchy(currentIndex, childIndex, activeWorld);
-
+		traverseHierarchy(currentIndex, childIndex);
 		childIndex = m_nodePool.get(childIndex).nextSiblingIndex;
 	}
 }
 
-void SceneGraph::updateWorldTransforms(World& activeWorld)
+void SceneGraph::updateWorldTransforms()
 {
+	// TODO: could optimize by running only on dirty nodes and their children
 	for (uint32_t root : m_rootNodes)
 	{
-		traverseHierarchy(NodePool<Node>::NullIndex, root, activeWorld);
+		traverseHierarchy(NodePool<Node>::NullIndex, root);
 	}
 }
 
 TransformComponent& SceneGraph::getWorldTransform(ID entityID)
 {
-	ASSERT(m_entityNodeMap.contains(entityID), "Entity not found in scene graph");
-	uint32_t index = m_entityNodeMap[entityID];
-	return m_nodePool.get(index).WorldTransform;
+	// Returns either world trasnfrom from graph or from ecs world if not already in graph
+	if (m_entityNodeMap.contains(entityID))
+	{
+		uint32_t index = m_entityNodeMap[entityID];
+		return m_nodePool.get(index).WorldTransform;
+	}
+	else
+	{
+		TransformComponent* tr = m_activeWorld.getComponent<TransformComponent>(entityID);
+		ASSERT(tr, "Entity has no transform component");
+		return *tr;
+	}
 }
 
 void SceneGraph::attachToParent(ID parentID, ID childID)
@@ -104,9 +91,9 @@ void SceneGraph::attachToParent(ID parentID, ID childID)
 	link(parentNode, parentIndex, childNode, childIndex);
 }
 
-void SceneGraph::detachFromParent(ID childID)
+bool SceneGraph::detachFromParent(ID childID)
 {
-	ASSERT(m_entityNodeMap.contains(childID), "Trying to detach entity that is not in the scene graph");
+	if(!m_entityNodeMap.contains(childID)) return false;
 
 	uint32_t childIndex = m_entityNodeMap[childID];
 	Node& childNode = m_nodePool.get(childIndex);
@@ -129,6 +116,8 @@ void SceneGraph::detachFromParent(ID childID)
 		m_nodePool.freeNode(childIndex);
 		m_entityNodeMap.erase(childID);
 	}
+
+	return true;
 }
 
 std::tuple<uint32_t, bool> SceneGraph::createOrGetNode(ID id)
@@ -138,7 +127,11 @@ std::tuple<uint32_t, bool> SceneGraph::createOrGetNode(ID id)
 	uint32_t index;
 	if (!exists)
 	{
-		index = m_nodePool.createNode(Node{ .entityID = id });
+		// Store original transform from world space within the node, so the local transform re-transformation based on the
+		// parent transform can be correctly calculated
+		TransformComponent* tr = m_activeWorld.getComponent<TransformComponent>(id);
+
+		index = m_nodePool.createNode(Node{ .entityID = id, .WorldTransform = *tr });
 		m_entityNodeMap[id] = index;
 	}
 	else

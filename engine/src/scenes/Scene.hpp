@@ -14,6 +14,8 @@ namespace TileBite {
 
 class Scene {
 public:
+	Scene() : m_sceneGraph(m_world) {}
+
 	void init();
 
 	World& getWorld() { return m_world; }

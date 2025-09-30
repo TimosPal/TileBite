@@ -51,7 +51,7 @@ private:
 			}
 	    });
 
-        // Update colliders that have no parent link
+        // Update colliders that have parent link
         world.query<ColliderComponent, TransformComponent, ParentComponent>().each([&](
             ID entityID,
             ColliderComponent* collider,

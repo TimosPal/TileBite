@@ -202,41 +202,44 @@ inline float quickRandFloat(float min = -1.0f, float max = 1.0f) {
 	return min + (max - min) * (rand() / float(RAND_MAX));
 }
 
-// TODO: move elsewhere, possible do automatically within ECS?
-// Make unlink functin set original position, size and rotation
-// This function should be used when linking an entity to a parent so the transform is appropriately adjusted
-// NOTE: currently providing components and not IDs since the component might not have been added to the entity yet (pending command)
-inline void linkEntity(const TransformComponent* parent, TransformComponent* child) {
-	if (!parent || !child) return;
+inline TransformComponent compose(const TransformComponent& P, const TransformComponent& Q)
+{
+	TransformComponent R;
 
-	// Position offset
-	glm::vec2 worldOffset = child->getPosition() - parent->getPosition();
+	glm::vec2 scaled = Q.getPosition() * P.getSize();
+	float s = std::sin(P.getRotation());
+	float c = std::cos(P.getRotation());
+	glm::vec2 rotated = { scaled.x * c - scaled.y * s,
+						  scaled.x * s + scaled.y * c };
 
-	float s = sin(-parent->getRotation()); // radians
-	float c = cos(-parent->getRotation());
-	glm::vec2 rotatedOffset(
-		worldOffset.x * c - worldOffset.y * s,
-		worldOffset.x * s + worldOffset.y * c
-	);
+	R.setPosition(P.getPosition() + rotated);
+	R.setRotation(P.getRotation() + Q.getRotation());
+	R.setSize(P.getSize() * Q.getSize());
 
-	glm::vec2 parentSize = parent->getSize();
-	if (parentSize.x != 0.0f) rotatedOffset.x /= parentSize.x;
-	if (parentSize.y != 0.0f) rotatedOffset.y /= parentSize.y;
-
-	child->setPosition(rotatedOffset);
-
-	// Size scaling
-	glm::vec2 childWorldSize = child->getSize();
-	glm::vec2 localSize = childWorldSize;
-	if (parentSize.x != 0.0f) localSize.x /= parentSize.x;
-	if (parentSize.y != 0.0f) localSize.y /= parentSize.y;
-
-	child->setSize(localSize);
-
-	// Counter rotation
-	float localRot = child->getRotation() - parent->getRotation();
-	child->setRotation(localRot);
+	return R;
 }
+
+inline TransformComponent inverse(const TransformComponent& T)
+{
+	TransformComponent R;
+
+	float invRot = -T.getRotation();
+	glm::vec2 invSize = 1.0f / T.getSize();
+
+	glm::vec2 negPos = -T.getPosition();
+	float s = std::sin(invRot);
+	float c = std::cos(invRot);
+	glm::vec2 rotated = { negPos.x * c - negPos.y * s,
+						  negPos.x * s + negPos.y * c };
+	glm::vec2 invPos = rotated * invSize;
+
+	R.setPosition(invPos);
+	R.setRotation(invRot);
+	R.setSize(invSize);
+
+	return R;
+}
+
 
 } // TileBite
 

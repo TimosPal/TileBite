@@ -12,13 +12,13 @@ namespace TileBite {
 
 class SceneGraph {
 public:
-	SceneGraph() = default;
+	SceneGraph(World& world) : m_activeWorld(world) {}
 	~SceneGraph() = default;
 
 	void attachToParent(ID parentID, ID childID);
-	void detachFromParent(ID childID);
+	bool detachFromParent(ID childID);
 
-	void updateWorldTransforms(World& activeWorld);
+	void updateWorldTransforms();
 
 	TransformComponent& getWorldTransform(ID entityID);
 
@@ -41,8 +41,9 @@ private:
 	void link(Node& parentNode, uint32_t parentIndex, Node& childNode, uint32_t childIndex);
 	void unlink(Node& childNode);
 
-	void traverseHierarchy(uint32_t previousIndex, uint32_t currentIndex, World& activeWorld);
+	void traverseHierarchy(uint32_t previousIndex, uint32_t currentIndex);
 
+	World& m_activeWorld;
 };
 
 } // TileBite

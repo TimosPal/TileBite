@@ -4,35 +4,38 @@
 #include "ecs/ISystem.hpp"
 #include "ecs/types/EngineComponents.hpp"
 
+#include "core/EngineApp.hpp"
+
 namespace TileBite {
 
 class HierarchiesUpdateSystem : public ISystem {
 public:
 	virtual void update(float deltaTime) override
 	{
-		auto& activeWorld = getSceneManager().getActiveScene()->getWorld();
-		auto& activeSceneGraph = getSceneManager().getActiveScene()->getSceneGraph();
+        auto activeScene = EngineApp::getInstance()->getSceneManager().getActiveScene();
+		auto& activeWorld = activeScene->getWorld();
+        auto& activeSceneGraph = activeScene->getSceneGraph();
 
 		// Adjust graph if connections changed
 		activeWorld.query<ParentComponent>().each([&](ID entityID, ParentComponent* currentLink)
 		{
-			if (currentLink->isDirty())
-			{
-				if (currentLink->getParentID() != INVALID_ID)
-				{
-					activeSceneGraph.attachToParent(currentLink->getParentID(), entityID);
-				}
-				else
-				{
-					activeSceneGraph.detachFromParent(entityID);
-				}
+			if (!currentLink->isDirty()) return;
 
-				currentLink->resetDirty();
-			}
+			ID parentID = currentLink->getParentID();
+
+			activeSceneGraph.attachToParent(parentID, entityID);
+			TransformComponent* tr = activeWorld.getComponent<TransformComponent>(entityID);
+			ASSERT(tr, "Linking to non transform components not allowed");
+
+			// Convert to local space of new parent
+			TransformComponent& parentWorldTr = activeSceneGraph.getWorldTransform(parentID);
+			*tr = compose(inverse(parentWorldTr), *tr);
+
+			currentLink->resetDirty();
 		});
 
 		// Update world transforms via scene graph
-		activeSceneGraph.updateWorldTransforms(activeWorld);
+		activeSceneGraph.updateWorldTransforms();
 	}
 
 };
